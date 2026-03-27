@@ -101,7 +101,7 @@ body {
   margin-top: 1px;
 }
 
-.sidebar-nav { flex: 1; padding: 16px 12px; }
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
 
 .nav-label {
   font-size: 10px; color: var(--blue-400);
@@ -291,12 +291,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .badge-amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
 .badge-gray   { background: var(--gray-100);  color: var(--gray-500); border: 1px solid var(--gray-200); }
 .badge-blue   { background: var(--blue-50);   color: var(--blue-600); border: 1px solid var(--blue-200); }
-
-/* progress */
-.progress-wrap { display: flex; align-items: center; gap: 6px; }
-.progress-bar { width: 70px; height: 5px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--blue-400); border-radius: 3px; }
-.progress-pct { font-size: 10px; color: var(--gray-400); }
+.badge-purple { background: #faf5ff; color: #9333ea; border: 1px solid #e9d5ff; }
 
 /* ── DASHBOARD ── */
 .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
@@ -342,7 +337,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .modal h2 { font-family: var(--serif); font-size: 21px; color: var(--blue-800); font-style: italic; }
 .modal h2 small { display: block; font-family: var(--sans); font-style: normal; font-size: 12px; color: var(--gray-400); font-weight: 400; margin-top: 2px; }
 
-/* REGLAS CORREGIDAS PARA EVITAR EL ERROR DEL EDITOR */
 .form-section { font-size: 11px; font-weight: 600; color: var(--blue-500); text-transform: uppercase; letter-spacing: .08em; margin: 20px 0px 12px 0px; padding-bottom: 6px; border-bottom: 1px solid var(--blue-100); }
 .form-section:first-of-type { margin-top: 0px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -360,7 +354,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   border-color: var(--blue-400);
   box-shadow: 0 0 0 3px rgba(30,91,170,.08);
 }
-.form-group input::placeholder { color: var(--gray-300); }
 .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--gray-100); }
 
 .empty { padding: 36px; text-align: center; color: var(--gray-400); font-size: 13px; }
@@ -422,6 +415,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <span class="icon">✓</span><span>Pagos</span>
     </div>
     <div class="nav-label">Campus Nexo</div>
+    <div class="nav-item" onclick="showPane('seguros',this)">
+      <span class="icon">🛡️</span><span>Seguros</span>
+    </div>
     <div class="nav-item" style="opacity: 0.6; cursor: default;">
       <span class="icon">🔧</span><span>Taller <span style="font-size:8px; background:var(--amber); color:white; padding:2px 4px; border-radius:4px; margin-left:5px">Pronto</span></span>
     </div>
@@ -551,6 +547,35 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
+    <div class="pane" id="pane-seguros">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Gestión de Seguros</div>
+          <div class="page-sub">Control de pólizas, comisiones y vencimientos (Campus Nexo)</div>
+        </div>
+      </div>
+      <div class="metrics-grid" id="seguros-metrics-grid">
+        </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Titular</th>
+                <th>Vehículo / Patente</th>
+                <th>Aseguradora / Póliza</th>
+                <th>Costo Mensual</th>
+                <th>Comisión Nexo</th>
+                <th>Vencimiento</th>
+                <th style="text-align:right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-seguros-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div></div></div><div class="modal-overlay" id="modal-overlay" onclick="cerrarModalFuera(event)">
   <div class="modal">
     <div class="modal-header">
@@ -661,15 +686,27 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         </div>
       </div>
       
-      <div class="form-section">Seguros (Comisiones)</div>
+      <div class="form-section">Seguros (Control Póliza y Comisiones)</div>
       <div class="form-grid">
         <div class="form-group">
           <label>Aseguradora</label>
           <input type="text" id="f-seguro-cia" placeholder="Ej: San Cristóbal, Federación...">
         </div>
         <div class="form-group">
-          <label>Comisión mensual pactada ($)</label>
+          <label>N° de Póliza</label>
+          <input type="text" id="f-seguro-poliza" placeholder="Ej: 12345678">
+        </div>
+        <div class="form-group">
+          <label>Costo de la cuota mensual ($)</label>
+          <input type="number" id="f-seguro-costo" placeholder="Lo que paga el cliente">
+        </div>
+        <div class="form-group">
+          <label style="color:var(--green)">Tu comisión mensual pactada ($)</label>
           <input type="number" id="f-seguro-comision" placeholder="Ej: 15000">
+        </div>
+        <div class="form-group full">
+          <label style="color:var(--red)">Día de vencimiento (Recordatorio)</label>
+          <input type="date" id="f-seguro-vencimiento">
         </div>
       </div>
     </div>
@@ -719,14 +756,11 @@ function fechaDesde(m) {
 }
 
 let creditos = JSON.parse(localStorage.getItem('nexo_creditos') || 'null') || [
-  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'' },
-  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'' },
-  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, refuerzoMonto:1000000, refuerzoCantidad:4, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'' },
+  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'San Cristóbal', seguroPoliza:'884912', seguroCosto:45000, seguroComision:6750, seguroVencimiento:new Date(HOY.getTime() + 5*86400000).toISOString().split('T')[0], estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'' },
+  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroPoliza:'', seguroCosto:0, seguroComision:0, seguroVencimiento:'', estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'' },
+  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, refuerzoMonto:1000000, refuerzoCantidad:4, refuerzoFrecuencia:6, seguroCia:'Federación', seguroPoliza:'339100', seguroCosto:38000, seguroComision:5700, seguroVencimiento:new Date(HOY.getTime() - 2*86400000).toISOString().split('T')[0], estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'' },
   { id:4, nombre:'Ivan Andres Pedro Ariaudo', dni:'17154001', tel:'3467416235', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4500000, cuota:330000, plazo:24, refuerzoMonto:500000, refuerzoCantidad:2, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(2), proximoService:'' },
-  { id:5, nombre:'Martin Ariaudo', dni:'', tel:'3467632661', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4000000, cuota:380000, plazo:24, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(6), proximoService:'' },
-  { id:6, nombre:'Marcos Sotelo', dni:'47076042', tel:'3412654603', tipo:'prendario', garantia:'HONDA XR 150L', anio:2024, patente:'A21900Y', valorVehiculo:0, capital:2900000, cuota:966667, plazo:3, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'TERMINADA', notas:'Cancelado anticipadamente', fecha:fechaDesde(3), proximoService:'' },
-  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'' },
-  { id:8, nombre:'Leandro Roldan', dni:'', tel:'3537336261', tipo:'prendario', garantia:'PEUGEOT 308', anio:2017, patente:'AB718GG', valorVehiculo:0, capital:7210000, cuota:795000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'DNI pendiente', fecha:fechaDesde(1), proximoService:'' },
+  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'' }
 ];
 
 let pagosEstado = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
@@ -790,6 +824,19 @@ function enviarWA(id) {
   window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
+function enviarWASeguro(id) {
+  const c = creditos.find(x => x.id === id);
+  if (!c.tel) { alert('El cliente no tiene un teléfono registrado.'); return; }
+  
+  let num = c.tel.replace(/\D/g, '');
+  if (!num.startsWith('54')) num = '549' + num;
+  
+  let fechaFormat = c.seguroVencimiento ? new Date(c.seguroVencimiento).toLocaleDateString('es-AR') : 'los próximos días';
+  let msg = `Hola ${c.nombre.split(' ')[0]}, te escribimos de Nexo Autocréditos. Te recordamos que el ${fechaFormat} vence la póliza de seguro de tu ${c.garantia} (Patente ${c.patente}). Por favor, recordá abonarla para mantener tu vehículo protegido. ¡Saludos!`;
+  
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
 function imprimirContrato(id) {
   const c = creditos.find(x => x.id === id);
   if (c.tipo !== 'prendario') { alert('El contrato de servicio es solo para créditos prendarios.'); return; }
@@ -843,7 +890,6 @@ function imprimirRecibo(id, n) {
   const num = isRef ? n.substring(1) : n;
   const monto = isRef ? c.refuerzoMonto : c.cuota;
   
-  // Generamos un número de recibo ficticio pero con sentido (0001 - ID del credito y nro cuota)
   const padId = String(c.id).padStart(4, '0');
   const padCuota = String(num).padStart(4, '0');
   const nroRecibo = `0001-${padId}${padCuota}`;
@@ -871,7 +917,6 @@ function imprimirRecibo(id, n) {
       </div>
 
       <div style="font-size: 15px; line-height: 2.4;">
-        
         <div style="display: flex; align-items: baseline;">
           <span style="white-space: nowrap; margin-right: 8px;">Recibí de:</span>
           <span style="flex-grow: 1; border-bottom: 2px dotted #000; text-transform: uppercase; font-weight: bold; padding-left: 10px;">${c.nombre}</span>
@@ -885,11 +930,11 @@ function imprimirRecibo(id, n) {
         <div style="margin-top: 10px; text-align: justify; line-height: 1.8;">
           En concepto de: ${conceptoStr}
         </div>
-        
       </div>
 
-      <div style="margin-top: 80px; width: 250px;">
-        <div style="border-top: 1px solid #000; padding-top: 8px; text-align: center; font-size: 14px; color: #444;">
+      <div style="margin-top: 40px; width: 250px; text-align: center;">
+        <img src="firma.png" style="max-height: 80px; margin-bottom: -10px;" alt="Firma" onerror="this.style.display='none'">
+        <div style="border-top: 1px solid #000; padding-top: 8px; font-size: 14px; color: #444;">
           Firma y Aclaración
         </div>
       </div>
@@ -904,7 +949,7 @@ function imprimirRecibo(id, n) {
   setTimeout(() => printWindow.print(), 250);
 }
 
-// ── MÉTRICAS ─────────────────────────────────────────────────────
+// ── MÉTRICAS Y TABLAS (SEGUROS INCLUIDO) ─────────────────────────
 function renderMetricas() {
   const activos = creditos.filter(c => c.estado !== 'TERMINADA');
   const totalCap = creditos.reduce((s,c)=>s+c.capital,0);
@@ -918,8 +963,6 @@ function renderMetricas() {
   }, 0);
 
   const mora = creditos.filter(c=>c.estado==='MORA').length;
-  const cuotaP = activos.length ? Math.round(activos.reduce((s,c)=>s+c.cuota,0)/activos.length) : 0;
-  
   const recaudacionMensual = activos.reduce((s,c)=>s+c.cuota, 0); 
   const comisionesSeguros = activos.reduce((s,c)=>s+(c.seguroComision||0), 0);
   
@@ -942,6 +985,80 @@ function renderMetricas() {
     </div>`).join('');
 }
 
+function renderSeguros() {
+  const prendasActivas = creditos.filter(c => c.tipo === 'prendario' && c.estado !== 'TERMINADA');
+  
+  // Métricas exclusivas de seguros
+  const totalComisiones = prendasActivas.reduce((s,c)=>s+(c.seguroComision||0), 0);
+  const totalPrimas = prendasActivas.reduce((s,c)=>s+(c.seguroCosto||0), 0);
+  const asegurados = prendasActivas.filter(c=>c.seguroCia).length;
+  
+  document.getElementById('seguros-metrics-grid').innerHTML = `
+    <div class="metric-card green">
+      <div class="metric-label">Comisiones Limpias Mensuales</div>
+      <div class="metric-value">$${totalComisiones.toLocaleString('es-AR')}</div>
+      <div class="metric-sub">Ingreso 100% ganancia</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Pólizas Activas</div>
+      <div class="metric-value">${asegurados} <span style="font-size:14px;color:var(--gray-400)">/ ${prendasActivas.length} prendas</span></div>
+      <div class="metric-sub">Nivel de cobertura de la cartera</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Volumen Mensual Movido</div>
+      <div class="metric-value">$${totalPrimas.toLocaleString('es-AR')}</div>
+      <div class="metric-sub">Suma de cuotas pagadas a las Cías</div>
+    </div>
+  `;
+
+  // Tabla de seguros
+  const tbody = document.getElementById('tabla-seguros-body');
+  
+  if (!prendasActivas.length) { 
+    tbody.innerHTML = `<tr><td colspan="7" class="empty"><div class="empty-icon">🛡️</div>No hay vehículos prendados activos</td></tr>`; 
+    return; 
+  }
+  
+  tbody.innerHTML = prendasActivas.map(c => {
+    const tieneSeguro = c.seguroCia && c.seguroCia.trim() !== '';
+    let infoAseguradora = tieneSeguro ? `<span style="font-weight:600; color:var(--blue-600)">${c.seguroCia}</span><br><span style="font-size:10px; color:var(--gray-500)">Póliza: ${c.seguroPoliza||'Sin N°'}</span>` : `<span class="badge badge-gray">Sin seguro registrado</span>`;
+    
+    let vencText = '—';
+    let vencStyle = '';
+    if (tieneSeguro && c.seguroVencimiento) {
+      const v = new Date(c.seguroVencimiento);
+      const hoy = new Date();
+      // Reset hours for accurate day diff
+      v.setHours(0,0,0,0); hoy.setHours(0,0,0,0);
+      const diffDias = Math.floor((v - hoy) / (1000 * 60 * 60 * 24));
+      
+      const vStr = v.toLocaleDateString('es-AR');
+      if (diffDias < 0) {
+        vencText = `<span style="color:var(--red); font-weight:600">Vencido (${vStr})</span>`;
+      } else if (diffDias <= 7) {
+        vencText = `<span style="color:var(--amber); font-weight:600">Vence en ${diffDias} días</span>`;
+      } else {
+        vencText = `<span style="color:var(--green); font-weight:500">${vStr}</span>`;
+      }
+    }
+
+    return `<tr>
+      <td class="td-name">${c.nombre}</td>
+      <td><span style="font-weight:500">${c.garantia} ${c.anio||''}</span><br><span style="font-size:10px; color:var(--blue-500)">${c.patente}</span></td>
+      <td>${infoAseguradora}</td>
+      <td style="color:var(--gray-700)">$${(c.seguroCosto||0).toLocaleString('es-AR')}</td>
+      <td style="font-weight:600; color:var(--green)">$${(c.seguroComision||0).toLocaleString('es-AR')}</td>
+      <td>${vencText}</td>
+      <td style="text-align:right">
+        ${tieneSeguro ? `<button class="btn btn-sm btn-icon" style="color:#25D366; border-color:#25D366" onclick="enviarWASeguro(${c.id})" title="Enviar Aviso Seguros WhatsApp">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </button>` : ''}
+        <button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})" title="Editar Datos">✎</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
 // ── ALERTAS ───────────────────────────────────────────────────────
 function renderAlertas() {
   const al = [];
@@ -953,11 +1070,25 @@ function renderAlertas() {
     const prox = new Date(inicio); prox.setMonth(prox.getMonth()+mp+1);
     const dias = Math.round((prox-HOY)/864e5);
     if (dias>=0 && dias<=7 && c.estado!=='TERMINADA')
-      al.push({msg:`${c.nombre.split(' ')[0]} — vence en ${dias===0?'hoy':dias+'d'}`, id:c.id});
+      al.push({msg:`${c.nombre.split(' ')[0]} — cuota vence en ${dias===0?'hoy':dias+'d'}`, id:c.id});
+      
+    // Alerta Seguros
+    if (c.tipo === 'prendario' && c.estado !== 'TERMINADA' && c.seguroVencimiento) {
+      const v = new Date(c.seguroVencimiento);
+      v.setHours(0,0,0,0); 
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+      const diffSeguro = Math.floor((v - hoy) / (1000 * 60 * 60 * 24));
+      if (diffSeguro >= 0 && diffSeguro <= 5) {
+         al.push({msg:`${c.patente} — Seguro vence en ${diffSeguro===0?'hoy':diffSeguro+'d'}`, id:c.id, isSeguro:true});
+      } else if (diffSeguro < 0) {
+         al.push({msg:`${c.patente} — Seguro VENCIDO`, id:c.id, isSeguro:true});
+      }
+    }
   });
+  
   const bar = document.getElementById('alertas-bar');
   document.getElementById('alertas-lista').innerHTML = al.map(a=>
-    `<span class="alerta-tag" onclick="irACredito(${a.id})">${a.msg}</span>`).join('');
+    `<span class="alerta-tag" style="${a.isSeguro ? 'background:var(--amber-bg); border-color:var(--amber-border); color:var(--amber)' : ''}" onclick="${a.isSeguro ? 'showPane(\'seguros\', document.querySelector(\'.nav-item:nth-child(4)\'))' : `irACredito(${a.id})`}">${a.msg}</span>`).join('');
   bar.classList.toggle('visible', al.length > 0);
   document.getElementById('topbar-alertas').innerHTML = al.length
     ? `<span class="badge badge-red">${al.length} alerta${al.length>1?'s':''}</span>` : '';
@@ -969,7 +1100,7 @@ function irACredito(id) {
   renderTabla();
 }
 
-// ── TABLA ────────────────────────────────────────────────────────
+// ── TABLA CARTERA ────────────────────────────────────────────────
 function renderTabla() {
   const q = document.getElementById('search-input').value.toLowerCase();
   const fe = document.getElementById('filter-estado').value;
@@ -1029,7 +1160,7 @@ function renderTabla() {
       <td>$${totalGral.toLocaleString('es-AR')}</td>
       <td><span class="badge ${eBadge}">${c.estado}</span></td>
       <td style="text-align:right">
-        <button class="btn btn-sm btn-icon" style="color:#25D366; border-color:#25D366" onclick="enviarWA(${c.id})" title="Enviar WhatsApp">
+        <button class="btn btn-sm btn-icon" style="color:#25D366; border-color:#25D366" onclick="enviarWA(${c.id})" title="Enviar WhatsApp Cuota">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         </button>
         ${c.tipo === 'prendario' ? `<button class="btn btn-sm btn-icon" style="color:var(--gray-700)" onclick="imprimirContrato(${c.id})" title="Imprimir Contrato">🖨️</button>` : ''}
@@ -1290,7 +1421,10 @@ function abrirModal(id=null) {
   document.getElementById('f-ref-frec').value = c?.refuerzoFrecuencia || '6';
 
   document.getElementById('f-seguro-cia').value = c?.seguroCia || '';
+  document.getElementById('f-seguro-poliza').value = c?.seguroPoliza || '';
+  document.getElementById('f-seguro-costo').value = c?.seguroCosto || '';
   document.getElementById('f-seguro-comision').value = c?.seguroComision || '';
+  document.getElementById('f-seguro-vencimiento').value = c?.seguroVencimiento || '';
 
   togglePrendario();
   calcularCuota();
@@ -1331,7 +1465,10 @@ function guardarCredito() {
     refuerzoCantidad: parseInt(document.getElementById('f-ref-cant').value) || 0,
     refuerzoFrecuencia: parseInt(document.getElementById('f-ref-frec').value) || 6,
     seguroCia: document.getElementById('f-seguro-cia').value.trim(),
-    seguroComision: parseFloat(document.getElementById('f-seguro-comision').value) || 0
+    seguroPoliza: document.getElementById('f-seguro-poliza').value.trim(),
+    seguroCosto: parseFloat(document.getElementById('f-seguro-costo').value) || 0,
+    seguroComision: parseFloat(document.getElementById('f-seguro-comision').value) || 0,
+    seguroVencimiento: document.getElementById('f-seguro-vencimiento').value
   };
   
   if (editId) creditos[creditos.findIndex(c=>c.id===editId)] = nuevo;
@@ -1349,7 +1486,7 @@ function eliminar(id) {
 }
 
 // ── NAVEGACIÓN ───────────────────────────────────────────────────
-const paneNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos' };
+const paneNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', seguros:'Gestión de Seguros' };
 
 function showPane(id, el) {
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
@@ -1359,11 +1496,12 @@ function showPane(id, el) {
   document.getElementById('topbar-title').textContent = paneNames[id]||id;
   if(id==='pagos') { renderPagosLista(); if(pagoActual) renderPagosDetalle(pagoActual); }
   if(id==='dashboard') renderDashboard();
+  if(id==='seguros') renderSeguros();
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
 function renderAll() {
-  renderMetricas(); renderAlertas(); renderTabla(); renderDashboard();
+  renderMetricas(); renderAlertas(); renderTabla(); renderDashboard(); renderSeguros();
   renderPagosLista(); if(pagoActual) renderPagosDetalle(pagoActual);
 }
 
