@@ -210,6 +210,15 @@ body {
 .metric-card.blue .metric-label { color: var(--blue-200); }
 .metric-card.blue .metric-value { color: var(--white); }
 .metric-card.blue .metric-sub { color: var(--blue-300); }
+
+.metric-card.green {
+  background: linear-gradient(135deg, var(--green) 0%, #14532d 100%);
+  border-color: var(--green);
+}
+.metric-card.green .metric-label { color: var(--green-border); }
+.metric-card.green .metric-value { color: var(--white); }
+.metric-card.green .metric-sub { color: #86efac; }
+
 .metric-label { font-size: 11px; color: var(--gray-500); font-weight: 500; margin-bottom: 6px; letter-spacing: .02em; }
 .metric-value { font-family: var(--serif); font-size: 24px; color: var(--blue-700); line-height: 1; }
 .metric-sub { font-size: 11px; color: var(--gray-400); margin-top: 5px; }
@@ -412,6 +421,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="nav-item" onclick="showPane('pagos',this)">
       <span class="icon">✓</span><span>Pagos</span>
     </div>
+    <div class="nav-label">Campus Nexo</div>
+    <div class="nav-item" style="opacity: 0.6; cursor: default;">
+      <span class="icon">🔧</span><span>Taller <span style="font-size:8px; background:var(--amber); color:white; padding:2px 4px; border-radius:4px; margin-left:5px">Pronto</span></span>
+    </div>
     <div class="nav-label">Acciones</div>
     <div class="nav-item" onclick="abrirModal()">
       <span class="icon">＋</span><span>Nuevo crédito</span>
@@ -510,9 +523,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
                 <th onclick="sortBy('cuota')">Cuota</th>
                 <th onclick="sortBy('capital')">Capital</th>
                 <th onclick="sortBy('total')">Total a cobrar</th>
-                <th>Avance</th>
                 <th>Estado</th>
-                <th></th>
+                <th style="text-align:right">Acciones</th>
               </tr>
             </thead>
             <tbody id="tabla-body"></tbody>
@@ -560,7 +572,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
       <div class="form-group">
         <label>Teléfono</label>
-        <input type="text" id="f-tel" placeholder="Código área + número">
+        <input type="text" id="f-tel" placeholder="Código área + número (Ej: 3467...)">
       </div>
     </div>
 
@@ -648,6 +660,18 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
           <input type="date" id="f-service">
         </div>
       </div>
+      
+      <div class="form-section">Seguros (Comisiones)</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Aseguradora</label>
+          <input type="text" id="f-seguro-cia" placeholder="Ej: San Cristóbal, Federación...">
+        </div>
+        <div class="form-group">
+          <label>Comisión mensual pactada ($)</label>
+          <input type="number" id="f-seguro-comision" placeholder="Ej: 15000">
+        </div>
+      </div>
     </div>
 
     <div class="form-section">Notas</div>
@@ -678,14 +702,14 @@ function fechaDesde(m) {
 }
 
 let creditos = JSON.parse(localStorage.getItem('nexo_creditos') || 'null') || [
-  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'' },
-  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'' },
-  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, refuerzoMonto:1000000, refuerzoCantidad:4, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'' },
-  { id:4, nombre:'Ivan Andres Pedro Ariaudo', dni:'17154001', tel:'3467416235', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4500000, cuota:330000, plazo:24, refuerzoMonto:500000, refuerzoCantidad:2, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(2), proximoService:'' },
-  { id:5, nombre:'Martin Ariaudo', dni:'', tel:'3467632661', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4000000, cuota:380000, plazo:24, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(6), proximoService:'' },
-  { id:6, nombre:'Marcos Sotelo', dni:'47076042', tel:'3412654603', tipo:'prendario', garantia:'HONDA XR 150L', anio:2024, patente:'A21900Y', valorVehiculo:0, capital:2900000, cuota:966667, plazo:3, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'TERMINADA', notas:'Cancelado anticipadamente', fecha:fechaDesde(3), proximoService:'' },
-  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'' },
-  { id:8, nombre:'Leandro Roldan', dni:'', tel:'3537336261', tipo:'prendario', garantia:'PEUGEOT 308', anio:2017, patente:'AB718GG', valorVehiculo:0, capital:7210000, cuota:795000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'DNI pendiente', fecha:fechaDesde(1), proximoService:'' },
+  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'' },
+  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'' },
+  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, refuerzoMonto:1000000, refuerzoCantidad:4, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'' },
+  { id:4, nombre:'Ivan Andres Pedro Ariaudo', dni:'17154001', tel:'3467416235', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4500000, cuota:330000, plazo:24, refuerzoMonto:500000, refuerzoCantidad:2, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(2), proximoService:'' },
+  { id:5, nombre:'Martin Ariaudo', dni:'', tel:'3467632661', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4000000, cuota:380000, plazo:24, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(6), proximoService:'' },
+  { id:6, nombre:'Marcos Sotelo', dni:'47076042', tel:'3412654603', tipo:'prendario', garantia:'HONDA XR 150L', anio:2024, patente:'A21900Y', valorVehiculo:0, capital:2900000, cuota:966667, plazo:3, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'TERMINADA', notas:'Cancelado anticipadamente', fecha:fechaDesde(3), proximoService:'' },
+  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'' },
+  { id:8, nombre:'Leandro Roldan', dni:'', tel:'3537336261', tipo:'prendario', garantia:'PEUGEOT 308', anio:2017, patente:'AB718GG', valorVehiculo:0, capital:7210000, cuota:795000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'DNI pendiente', fecha:fechaDesde(1), proximoService:'' },
 ];
 
 let pagosEstado = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
@@ -730,12 +754,81 @@ function calcularCuota() {
   }
 }
 
+// ── ACCIONES: WHATSAPP Y CONTRATO ────────────────────────────────
+function enviarWA(id) {
+  const c = creditos.find(x => x.id === id);
+  if (!c.tel) { alert('El cliente no tiene un teléfono registrado.'); return; }
+  
+  let num = c.tel.replace(/\D/g, '');
+  if (!num.startsWith('54')) num = '549' + num;
+  
+  let msg = `Hola ${c.nombre.split(' ')[0]}, te escribimos de Nexo Autocréditos. `;
+  if (c.estado === 'MORA') {
+    msg += `Registramos un atraso en tu cuenta. Por favor, comunicate con nosotros a la brevedad para regularizar la situación del vehículo patente ${c.patente}.`;
+  } else {
+    msg += `Te recordamos que se aproxima el vencimiento de tu próxima cuota por un valor de $${c.cuota.toLocaleString('es-AR')}. ¡Gracias por confiar en nosotros!`;
+  }
+  
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function imprimirContrato(id) {
+  const c = creditos.find(x => x.id === id);
+  if (c.tipo !== 'prendario') { alert('El contrato de servicio obligatorio es solo para créditos prendarios.'); return; }
+  
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #000; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px;">
+      <h2 style="text-align:center; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 5px;">Contrato de Mantenimiento Obligatorio</h2>
+      <h3 style="text-align:center; color: #444; margin-top: 0; font-style: italic;">Red de Talleres Oficiales - Campus Nexo</h3>
+      <p style="text-align:right; margin-bottom: 40px;">Monte Buey, ${HOY.toLocaleDateString('es-AR')}</p>
+      
+      <p>Entre <strong>NEXO AUTOCREDITOS</strong> (en adelante "El Acreedor Prendario") y <strong>${c.nombre}</strong>, titular del DNI <strong>${c.dni || '_____________'}</strong> (en adelante "El Titular"), se acuerda el presente compromiso de servicio y mantenimiento para el vehículo prendado a favor del Acreedor.</p>
+      
+      <div style="background: #f8f9fa; padding: 15px 20px; border: 1px solid #ccc; margin: 25px 0;">
+        <strong>Vehículo Garantía:</strong> ${c.garantia} (Año ${c.anio || '____'})<br>
+        <strong>Dominio / Patente:</strong> ${c.patente}<br>
+        <strong>Capital Financiado:</strong> $${c.capital.toLocaleString('es-AR')}
+      </div>
+
+      <h4 style="margin-top: 30px; margin-bottom: 10px;">CLÁUSULAS DEL ACUERDO</h4>
+      <ol style="text-align: justify; padding-left: 20px;">
+        <li style="margin-bottom: 15px;"><strong>OBLIGATORIEDAD DE MANTENIMIENTO:</strong> El Titular se compromete irrevocablemente a realizar los servicios de mantenimiento preventivo y correctivo del vehículo detallado ut supra, de manera exclusiva en las instalaciones de <strong>Campus Nexo</strong> o talleres oficiales autorizados expresamente por Nexo Autocréditos, durante todo el período de vigencia del crédito prendario.</li>
+        <li style="margin-bottom: 15px;"><strong>PRESERVACIÓN DE LA GARANTÍA:</strong> Las partes reconocen que el vehículo constituye la garantía principal del crédito otorgado. Este acuerdo tiene como fin asegurar el correcto estado de conservación y funcionamiento del mismo, protegiendo el aforo y el valor de reventa de la unidad.</li>
+        <li style="margin-bottom: 15px;"><strong>CRONOGRAMA DE SERVICES:</strong> El Titular deberá presentarse al taller según el cronograma establecido por el fabricante o, en su defecto, cada 10.000 km o 12 meses (lo que ocurra primero).</li>
+        <li style="margin-bottom: 15px;"><strong>INCUMPLIMIENTO:</strong> El incumplimiento de la cláusula primera facultará a Nexo Autocréditos a inspeccionar el vehículo de oficio y/o considerar que existe un deterioro negligente de la garantía prendaria.</li>
+      </ol>
+
+      <div style="margin-top: 80px; display: flex; justify-content: space-between; text-align: center; padding: 0 40px;">
+        <div>
+          <p style="margin:0">___________________________</p>
+          <p style="margin:5px 0 0 0; font-size:14px">Firma del Titular</p>
+          <p style="margin:0; font-size:14px">Aclaración: ${c.nombre}</p>
+        </div>
+        <div>
+          <p style="margin:0">___________________________</p>
+          <p style="margin:5px 0 0 0; font-size:14px; font-weight:bold">NEXO AUTOCREDITOS</p>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head><title>Contrato Servicio - ${c.nombre}</title></head>
+      <body>${html}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => printWindow.print(), 250);
+}
+
 // ── MÉTRICAS ─────────────────────────────────────────────────────
 function renderMetricas() {
   const activos = creditos.filter(c => c.estado !== 'TERMINADA');
   const totalCap = creditos.reduce((s,c)=>s+c.capital,0);
   
-  // Nuevo cálculo total incluyendo refuerzos
   const totalCobrar = creditos.reduce((s,c) => {
     let totC = c.cuota * c.plazo;
     if (c.refuerzoCantidad > 0 && c.refuerzoMonto > 0) {
@@ -746,20 +839,23 @@ function renderMetricas() {
 
   const mora = creditos.filter(c=>c.estado==='MORA').length;
   const cuotaP = activos.length ? Math.round(activos.reduce((s,c)=>s+c.cuota,0)/activos.length) : 0;
+  
   const recaudacionMensual = activos.reduce((s,c)=>s+c.cuota, 0); 
+  const comisionesSeguros = activos.reduce((s,c)=>s+(c.seguroComision||0), 0);
+  
   const f = n => '$'+n.toLocaleString('es-AR');
 
   const items = [
     { label:'Recaudación Mensual', val: f(recaudacionMensual), sub:'liquidez mensual esperada', blue: true },
+    { label:'Comisiones Seguros', val: f(comisionesSeguros), sub:'ingreso extra mensual (Campus)', green: true },
     { label:'Créditos activos', val: activos.length, sub: creditos.length+' en total' },
     { label:'Capital otorgado', val: f(totalCap), sub:'suma total histórica' },
-    { label:'Cuota promedio', val: f(cuotaP), sub:'créditos activos (sin ref.)' },
     { label:'Total a cobrar', val: f(totalCobrar), sub:'cuotas + refuerzos' },
     { label:'En mora', val: mora || '—', sub: mora ? '⚠ requiere atención' : '✓ cartera sana' },
   ];
 
   document.getElementById('metrics-grid').innerHTML = items.map(i=>
-    `<div class="metric-card${i.blue?' blue':''}">
+    `<div class="metric-card${i.blue?' blue':i.green?' green':''}">
       <div class="metric-label">${i.label}</div>
       <div class="metric-value">${i.val}</div>
       <div class="metric-sub">${i.sub}</div>
@@ -851,14 +947,12 @@ function renderTabla() {
       <td style="font-weight:500;color:var(--gray-700)">${textoCuota}</td>
       <td>$${c.capital.toLocaleString('es-AR')}</td>
       <td>$${totalGral.toLocaleString('es-AR')}</td>
-      <td>
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <span class="progress-pct">${pct}%</span>
-        </div>
-      </td>
       <td><span class="badge ${eBadge}">${c.estado}</span></td>
-      <td>
+      <td style="text-align:right">
+        <button class="btn btn-sm btn-icon" style="color:#25D366; border-color:#25D366" onclick="enviarWA(${c.id})" title="Enviar WhatsApp">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </button>
+        ${c.tipo === 'prendario' ? `<button class="btn btn-sm btn-icon" style="color:var(--gray-700)" onclick="imprimirContrato(${c.id})" title="Imprimir Contrato">🖨️</button>` : ''}
         <button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})" title="Editar">✎</button>
         <button class="btn btn-sm btn-icon btn-danger" onclick="eliminar(${c.id})" title="Eliminar">✕</button>
       </td>
@@ -1055,10 +1149,12 @@ function abrirModal(id=null) {
   document.getElementById('f-fecha').value = c?.fecha||new Date().toISOString().split('T')[0];
   document.getElementById('f-service').value = c?.proximoService||'';
   
-  // Cargar datos de refuerzos
   document.getElementById('f-ref-monto').value = c?.refuerzoMonto || '';
   document.getElementById('f-ref-cant').value = c?.refuerzoCantidad || '';
   document.getElementById('f-ref-frec').value = c?.refuerzoFrecuencia || '6';
+
+  document.getElementById('f-seguro-cia').value = c?.seguroCia || '';
+  document.getElementById('f-seguro-comision').value = c?.seguroComision || '';
 
   togglePrendario();
   calcularCuota();
@@ -1097,7 +1193,9 @@ function guardarCredito() {
     proximoService: document.getElementById('f-service').value,
     refuerzoMonto: parseFloat(document.getElementById('f-ref-monto').value) || 0,
     refuerzoCantidad: parseInt(document.getElementById('f-ref-cant').value) || 0,
-    refuerzoFrecuencia: parseInt(document.getElementById('f-ref-frec').value) || 6
+    refuerzoFrecuencia: parseInt(document.getElementById('f-ref-frec').value) || 6,
+    seguroCia: document.getElementById('f-seguro-cia').value.trim(),
+    seguroComision: parseFloat(document.getElementById('f-seguro-comision').value) || 0
   };
   
   if (editId) creditos[creditos.findIndex(c=>c.id===editId)] = nuevo;
