@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexo Autocréditos — Gestión de Cartera</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 :root {
   --blue-900: #0a1628;
@@ -333,7 +333,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .cuota-btn.proxima { background: var(--amber-bg); border-color: var(--amber-border); }
 .cuota-btn.proxima .cuota-num { color: var(--amber); }
 
-/* ── MODAL ── */
+/* ── MODALES ── */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,22,40,.55); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal-overlay.open { display: flex; }
 .modal { background: var(--white); border-radius: var(--radius-xl); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 32px 36px; box-shadow: var(--shadow-lg); }
@@ -537,7 +537,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div class="page-header">
         <div>
           <div class="page-title">Seguimiento de pagos</div>
-          <div class="page-sub">Marcá cada cuota al cobrarla</div>
+          <div class="page-sub">Marcá cada cuota al cobrarla o imprimí el recibo</div>
         </div>
       </div>
       <div class="pagos-grid">
@@ -692,6 +692,23 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-cuota-overlay" onclick="cerrarModalCuotaFuera(event)">
+  <div class="modal" style="max-width: 380px; padding: 28px;">
+    <div class="modal-header" style="margin-bottom: 12px;">
+      <div>
+        <h2 id="mc-titulo" style="font-size: 19px;">Cuota N° 1</h2>
+      </div>
+    </div>
+    <p id="mc-info" style="font-size: 14px; margin-bottom: 24px; color: var(--gray-600);"></p>
+    
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn btn-primary" id="mc-btn-1" style="justify-content:center; padding:12px; font-size:13px;"></button>
+      <button class="btn" id="mc-btn-2" style="justify-content:center; padding:12px; font-size:13px;"></button>
+      <button class="btn" onclick="cerrarModalCuota()" style="justify-content:center; padding:10px; border:none; background:transparent; font-size:12px; margin-top:5px;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── DATOS ────────────────────────────────────────────────────────
 const HOY = new Date();
@@ -714,6 +731,7 @@ let creditos = JSON.parse(localStorage.getItem('nexo_creditos') || 'null') || [
 
 let pagosEstado = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
 let sortCol = null, sortDir = 1, editId = null, pagoActual = null;
+let cuotaSelId = null, cuotaSelN = null;
 
 function guardar() {
   localStorage.setItem('nexo_creditos', JSON.stringify(creditos));
@@ -754,7 +772,7 @@ function calcularCuota() {
   }
 }
 
-// ── ACCIONES: WHATSAPP Y CONTRATO ────────────────────────────────
+// ── ACCIONES: WHATSAPP, CONTRATO Y RECIBO ────────────────────────
 function enviarWA(id) {
   const c = creditos.find(x => x.id === id);
   if (!c.tel) { alert('El cliente no tiene un teléfono registrado.'); return; }
@@ -774,7 +792,7 @@ function enviarWA(id) {
 
 function imprimirContrato(id) {
   const c = creditos.find(x => x.id === id);
-  if (c.tipo !== 'prendario') { alert('El contrato de servicio obligatorio es solo para créditos prendarios.'); return; }
+  if (c.tipo !== 'prendario') { alert('El contrato de servicio es solo para créditos prendarios.'); return; }
   
   const html = `
     <div style="font-family: Arial, sans-serif; color: #000; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px;">
@@ -813,12 +831,74 @@ function imprimirContrato(id) {
   `;
   
   const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <html>
-      <head><title>Contrato Servicio - ${c.nombre}</title></head>
-      <body>${html}</body>
-    </html>
-  `);
+  printWindow.document.write(`<html><head><title>Contrato - ${c.nombre}</title></head><body>${html}</body></html>`);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => printWindow.print(), 250);
+}
+
+function imprimirRecibo(id, n) {
+  const c = creditos.find(x => x.id === id);
+  const isRef = String(n).startsWith('R');
+  const num = isRef ? n.substring(1) : n;
+  const monto = isRef ? c.refuerzoMonto : c.cuota;
+  
+  // Generamos un número de recibo ficticio pero con sentido (0001 - ID del credito y nro cuota)
+  const padId = String(c.id).padStart(4, '0');
+  const padCuota = String(num).padStart(4, '0');
+  const nroRecibo = `0001-${padId}${padCuota}`;
+
+  const vehiculoStr = c.tipo === 'prendario' ? `Vehículo: <strong>${c.garantia} ${c.anio || ''}</strong> Dominio Patente: <strong>${c.patente}</strong>` : '';
+  const conceptoStr = isRef 
+    ? `Pago Refuerzo Extraordinario N° ${num} de ${c.refuerzoCantidad} Crédito ${c.tipo.charAt(0).toUpperCase() + c.tipo.slice(1)} ${vehiculoStr}` 
+    : `Pago Cuota N° ${num} de ${c.plazo} Crédito ${c.tipo.charAt(0).toUpperCase() + c.tipo.slice(1)} ${vehiculoStr}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #000; width: 100%; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #ddd; position: relative;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+        <div>
+          <div style="font-size: 16px; margin-bottom: 8px;">RECIBO DE PAGO N° ${nroRecibo}</div>
+          <div style="font-size: 15px;">Fecha: <strong>${HOY.toLocaleDateString('es-AR')}</strong></div>
+        </div>
+        <div style="text-align: right; width: 140px;">
+          <svg viewBox="0 0 150 45" width="100%">
+            <path d="M10 25 L20 35 L45 10" stroke="#000" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <text x="55" y="22" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="800" font-size="18" fill="#000">NEXO</text>
+            <text x="55" y="34" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="600" font-size="9" fill="#000" letter-spacing="1">AUTOCREDITOS</text>
+          </svg>
+        </div>
+      </div>
+
+      <div style="font-size: 15px; line-height: 2.4;">
+        
+        <div style="display: flex; align-items: baseline;">
+          <span style="white-space: nowrap; margin-right: 8px;">Recibí de:</span>
+          <span style="flex-grow: 1; border-bottom: 2px dotted #000; text-transform: uppercase; font-weight: bold; padding-left: 10px;">${c.nombre}</span>
+        </div>
+        
+        <div style="display: flex; align-items: baseline;">
+          <span style="white-space: nowrap; margin-right: 8px;">la cantidad de PESOS:</span>
+          <span style="flex-grow: 1; border-bottom: 2px dotted #000; font-weight: bold; padding-left: 10px; font-size: 18px;">$ ${monto.toLocaleString('es-AR')}</span>
+        </div>
+
+        <div style="margin-top: 10px; text-align: justify; line-height: 1.8;">
+          En concepto de: ${conceptoStr}
+        </div>
+        
+      </div>
+
+      <div style="margin-top: 80px; width: 250px;">
+        <div style="border-top: 1px solid #000; padding-top: 8px; text-align: center; font-size: 14px; color: #444;">
+          Firma y Aclaración
+        </div>
+      </div>
+      
+    </div>
+  `;
+  
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`<html><head><title>Recibo - ${c.nombre}</title></head><body style="padding:20px;">${html}</body></html>`);
   printWindow.document.close();
   printWindow.focus();
   setTimeout(() => printWindow.print(), 250);
@@ -1023,7 +1103,7 @@ function renderDashboard() {
     <div class="venc-item"><div><div class="venc-name">Terminados</div><div class="venc-info">Ciclo completo</div></div><span class="badge badge-gray">${term}</span></div>`;
 }
 
-// ── PAGOS ────────────────────────────────────────────────────────
+// ── PAGOS Y RECIBOS ──────────────────────────────────────────────
 function renderPagosLista() {
   const lista = document.getElementById('pagos-lista');
   const activos = creditos.filter(c=>c.estado!=='TERMINADA');
@@ -1077,7 +1157,7 @@ function renderPagosDetalle(id) {
         <div class="cuotas-grid">
           ${rCuotas.map(q=>{
             const mes = q.f.toLocaleDateString('es-AR',{month:'short',year:'2-digit'});
-            return `<div class="cuota-btn ${q.e}" onclick="toggleCuota(${id},'R${q.n}')" style="border-width: 2px">
+            return `<div class="cuota-btn ${q.e}" onclick="abrirModalCuota(${id},'R${q.n}')" style="border-width: 2px">
               <div class="cuota-num">Ref ${q.n}</div>
               <div class="cuota-mes">${mes}</div>
               <div class="cuota-ico">${q.e==='pagada'?'✓':q.e==='vencida'?'!':'·'}</div>
@@ -1109,11 +1189,11 @@ function renderPagosDetalle(id) {
       ${bloqueVencidas}
     </div>
     
-    <p style="font-size:11px;color:var(--gray-400);margin-bottom:12px">Hacé click en cada cuota o refuerzo para marcarlo como pagado</p>
+    <p style="font-size:11px;color:var(--gray-400);margin-bottom:12px">Hacé click en cada cuota o refuerzo para marcarlo o imprimir su recibo</p>
     <div class="cuotas-grid">
       ${cuotas.map(q=>{
         const mes = q.f.toLocaleDateString('es-AR',{month:'short',year:'2-digit'});
-        return `<div class="cuota-btn ${q.e}" onclick="toggleCuota(${id},'${q.n}')">
+        return `<div class="cuota-btn ${q.e}" onclick="abrirModalCuota(${id},'${q.n}')">
           <div class="cuota-num">N° ${q.n}</div>
           <div class="cuota-mes">${mes}</div>
           <div class="cuota-ico">${q.e==='pagada'?'✓':q.e==='vencida'?'!':'·'}</div>
@@ -1123,13 +1203,69 @@ function renderPagosDetalle(id) {
     ${refHtml}`;
 }
 
-function toggleCuota(id,n) {
-  if (!pagosEstado[id]) pagosEstado[id]={};
-  pagosEstado[id][n] = pagosEstado[id][n]==='pagada' ? 'pendiente' : 'pagada';
-  guardar(); renderPagosDetalle(id); renderPagosLista(); renderMetricas();
+// LÓGICA DEL MENÚ DE LA CUOTA
+function abrirModalCuota(id, n) {
+  cuotaSelId = id;
+  cuotaSelN = n;
+  const c = creditos.find(x=>x.id===id);
+  const estado = (pagosEstado[id] && pagosEstado[id][n]) || 'pendiente';
+  const isRef = String(n).startsWith('R');
+  const num = isRef ? n.substring(1) : n;
+  const monto = isRef ? c.refuerzoMonto : c.cuota;
+  
+  document.getElementById('mc-titulo').textContent = isRef ? `Refuerzo N° ${num}` : `Cuota N° ${num}`;
+  document.getElementById('mc-info').textContent = `Monto a cobrar: $${monto.toLocaleString('es-AR')} - Cliente: ${c.nombre.split(' ')[0]}`;
+  
+  const btnAccion1 = document.getElementById('mc-btn-1');
+  const btnAccion2 = document.getElementById('mc-btn-2');
+  
+  if (estado === 'pendiente' || estado === 'vencida') {
+    btnAccion1.className = 'btn btn-primary';
+    btnAccion1.innerHTML = '✓ Cobrar e Imprimir Recibo';
+    btnAccion1.onclick = () => { marcarPagada(true); };
+    
+    btnAccion2.className = 'btn';
+    btnAccion2.innerHTML = 'Solo marcar como pagada';
+    btnAccion2.onclick = () => { marcarPagada(false); };
+  } else {
+    btnAccion1.className = 'btn';
+    btnAccion1.innerHTML = '🖨️ Reimprimir Recibo';
+    btnAccion1.style.borderColor = 'var(--blue-400)';
+    btnAccion1.style.color = 'var(--blue-600)';
+    btnAccion1.onclick = () => { imprimirRecibo(id, n); cerrarModalCuota(); };
+    
+    btnAccion2.className = 'btn btn-danger';
+    btnAccion2.innerHTML = '✕ Deshacer pago (Volver a pendiente)';
+    btnAccion2.onclick = () => { 
+      pagosEstado[id][n] = 'pendiente'; 
+      guardar(); renderPagosDetalle(id); renderPagosLista(); renderMetricas(); cerrarModalCuota(); 
+    };
+  }
+  
+  document.getElementById('modal-cuota-overlay').classList.add('open');
 }
 
-// ── MODAL ────────────────────────────────────────────────────────
+function marcarPagada(imprimir) {
+  if (!pagosEstado[cuotaSelId]) pagosEstado[cuotaSelId] = {};
+  pagosEstado[cuotaSelId][cuotaSelN] = 'pagada';
+  guardar();
+  renderPagosDetalle(cuotaSelId); 
+  renderPagosLista(); 
+  renderMetricas();
+  if (imprimir) {
+    imprimirRecibo(cuotaSelId, cuotaSelN);
+  }
+  cerrarModalCuota();
+}
+
+function cerrarModalCuota() {
+  document.getElementById('modal-cuota-overlay').classList.remove('open');
+}
+function cerrarModalCuotaFuera(e) {
+  if (e.target.id === 'modal-cuota-overlay') cerrarModalCuota();
+}
+
+// ── MODAL NUEVO CRÉDITO ──────────────────────────────────────────
 function abrirModal(id=null) {
   editId = id;
   const c = id ? creditos.find(x=>x.id===id) : null;
