@@ -603,6 +603,26 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <input type="date" id="f-fecha">
       </div>
     </div>
+    
+    <div class="form-section">Refuerzos / Extraordinarias</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Monto del Refuerzo ($)</label>
+        <input type="number" id="f-ref-monto" placeholder="Ej: 1000000">
+      </div>
+      <div class="form-group">
+        <label>Cantidad de Refuerzos</label>
+        <input type="number" id="f-ref-cant" placeholder="Ej: 4">
+      </div>
+      <div class="form-group full">
+        <label>Frecuencia de Refuerzos</label>
+        <select id="f-ref-frec">
+          <option value="6">Semestral (cada 6 meses)</option>
+          <option value="12">Anual (cada 12 meses)</option>
+          <option value="3">Trimestral (cada 3 meses)</option>
+        </select>
+      </div>
+    </div>
 
     <div id="prendario-section">
       <div class="form-section">Datos del vehículo y Taller</div>
@@ -658,14 +678,14 @@ function fechaDesde(m) {
 }
 
 let creditos = JSON.parse(localStorage.getItem('nexo_creditos') || 'null') || [
-  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'' },
-  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'' },
-  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'' },
-  { id:4, nombre:'Ivan Andres Pedro Ariaudo', dni:'17154001', tel:'3467416235', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4500000, cuota:330000, plazo:24, estado:'AL DIA', notas:'', fecha:fechaDesde(2), proximoService:'' },
-  { id:5, nombre:'Martin Ariaudo', dni:'', tel:'3467632661', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4000000, cuota:380000, plazo:24, estado:'AL DIA', notas:'', fecha:fechaDesde(6), proximoService:'' },
-  { id:6, nombre:'Marcos Sotelo', dni:'47076042', tel:'3412654603', tipo:'prendario', garantia:'HONDA XR 150L', anio:2024, patente:'A21900Y', valorVehiculo:0, capital:2900000, cuota:966667, plazo:3, estado:'TERMINADA', notas:'Cancelado anticipadamente', fecha:fechaDesde(3), proximoService:'' },
-  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'' },
-  { id:8, nombre:'Leandro Roldan', dni:'', tel:'3537336261', tipo:'prendario', garantia:'PEUGEOT 308', anio:2017, patente:'AB718GG', valorVehiculo:0, capital:7210000, cuota:795000, plazo:18, estado:'AL DIA', notas:'DNI pendiente', fecha:fechaDesde(1), proximoService:'' },
+  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'' },
+  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'' },
+  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, refuerzoMonto:1000000, refuerzoCantidad:4, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'' },
+  { id:4, nombre:'Ivan Andres Pedro Ariaudo', dni:'17154001', tel:'3467416235', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4500000, cuota:330000, plazo:24, refuerzoMonto:500000, refuerzoCantidad:2, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(2), proximoService:'' },
+  { id:5, nombre:'Martin Ariaudo', dni:'', tel:'3467632661', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4000000, cuota:380000, plazo:24, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(6), proximoService:'' },
+  { id:6, nombre:'Marcos Sotelo', dni:'47076042', tel:'3412654603', tipo:'prendario', garantia:'HONDA XR 150L', anio:2024, patente:'A21900Y', valorVehiculo:0, capital:2900000, cuota:966667, plazo:3, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'TERMINADA', notas:'Cancelado anticipadamente', fecha:fechaDesde(3), proximoService:'' },
+  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'' },
+  { id:8, nombre:'Leandro Roldan', dni:'', tel:'3537336261', tipo:'prendario', garantia:'PEUGEOT 308', anio:2017, patente:'AB718GG', valorVehiculo:0, capital:7210000, cuota:795000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, estado:'AL DIA', notas:'DNI pendiente', fecha:fechaDesde(1), proximoService:'' },
 ];
 
 let pagosEstado = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
@@ -705,7 +725,6 @@ function calcularCuota() {
 
   if (cap > 0 && plaz > 0 && tasa > 0) {
     const i = tasa / 100;
-    // Fórmula sistema francés
     const cuota = cap * (i / (1 - Math.pow(1 + i, -plaz)));
     document.getElementById('f-cuota').value = Math.round(cuota);
   }
@@ -715,21 +734,27 @@ function calcularCuota() {
 function renderMetricas() {
   const activos = creditos.filter(c => c.estado !== 'TERMINADA');
   const totalCap = creditos.reduce((s,c)=>s+c.capital,0);
-  const totalCobrar = creditos.reduce((s,c)=>s+c.cuota*c.plazo,0);
+  
+  // Nuevo cálculo total incluyendo refuerzos
+  const totalCobrar = creditos.reduce((s,c) => {
+    let totC = c.cuota * c.plazo;
+    if (c.refuerzoCantidad > 0 && c.refuerzoMonto > 0) {
+      totC += (c.refuerzoCantidad * c.refuerzoMonto);
+    }
+    return s + totC;
+  }, 0);
+
   const mora = creditos.filter(c=>c.estado==='MORA').length;
   const cuotaP = activos.length ? Math.round(activos.reduce((s,c)=>s+c.cuota,0)/activos.length) : 0;
-  
-  // NUEVO CÁLCULO: Suma de todas las cuotas de los créditos activos
   const recaudacionMensual = activos.reduce((s,c)=>s+c.cuota, 0); 
-  
   const f = n => '$'+n.toLocaleString('es-AR');
 
   const items = [
     { label:'Recaudación Mensual', val: f(recaudacionMensual), sub:'liquidez mensual esperada', blue: true },
     { label:'Créditos activos', val: activos.length, sub: creditos.length+' en total' },
     { label:'Capital otorgado', val: f(totalCap), sub:'suma total histórica' },
-    { label:'Cuota promedio', val: f(cuotaP), sub:'créditos activos' },
-    { label:'Total a cobrar', val: f(totalCobrar), sub:'cuotas × plazos' },
+    { label:'Cuota promedio', val: f(cuotaP), sub:'créditos activos (sin ref.)' },
+    { label:'Total a cobrar', val: f(totalCobrar), sub:'cuotas + refuerzos' },
     { label:'En mora', val: mora || '—', sub: mora ? '⚠ requiere atención' : '✓ cartera sana' },
   ];
 
@@ -798,7 +823,6 @@ function renderTabla() {
     const ltv = c.valorVehiculo ? Math.round(c.capital/c.valorVehiculo*100) : null;
     const ltvColor = ltv ? (ltv>80?'color:var(--red)':ltv>65?'color:var(--amber)':'color:var(--green)') : '';
     
-    // Armamos los textos antes para no anidar comillas y evitar errores
     let infoGarantia = '—';
     if (c.tipo === 'prendario') {
       infoGarantia = `<span style="font-size:12px;color:var(--gray-700);font-weight:500">${c.garantia} ${c.anio||''}</span><br><span style="font-size:11px;color:var(--blue-500);font-weight:600;letter-spacing:.03em">${c.patente}</span>`;
@@ -812,14 +836,21 @@ function renderTabla() {
       infoNombre += `<br><span class="badge badge-red" style="margin-top:3px;font-size:9px">sin DNI</span>`;
     }
 
+    let textoCuota = `$${c.cuota.toLocaleString('es-AR')}`;
+    if (c.refuerzoCantidad > 0 && c.refuerzoMonto > 0) {
+      textoCuota += `<br><span style="font-size:10px;color:var(--amber);font-weight:600">+ ${c.refuerzoCantidad} ref. de $${(c.refuerzoMonto/1000).toFixed(0)}k</span>`;
+    }
+
+    let totalGral = (c.cuota * c.plazo) + ((c.refuerzoMonto||0) * (c.refuerzoCantidad||0));
+
     return `<tr>
       <td class="td-name">${infoNombre}</td>
       <td><span class="badge ${tBadge}">${c.tipo}</span></td>
       <td>${infoGarantia}</td>
       <td style="color:var(--gray-700)">${c.plazo}m</td>
-      <td style="font-weight:500;color:var(--gray-700)">$${c.cuota.toLocaleString('es-AR')}</td>
+      <td style="font-weight:500;color:var(--gray-700)">${textoCuota}</td>
       <td>$${c.capital.toLocaleString('es-AR')}</td>
-      <td>$${(c.cuota*c.plazo).toLocaleString('es-AR')}</td>
+      <td>$${totalGral.toLocaleString('es-AR')}</td>
       <td>
         <div class="progress-wrap">
           <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -905,9 +936,10 @@ function renderPagosLista() {
   if (!activos.length) { lista.innerHTML='<div class="empty">Sin créditos activos</div>'; return; }
   lista.innerHTML = activos.map(c => {
     const pag = Object.values(pagosEstado[c.id]||{}).filter(v=>v==='pagada').length;
+    let extrasStr = (c.refuerzoCantidad > 0) ? `+ ${c.refuerzoCantidad} ref.` : '';
     return `<div class="pagos-item ${pagoActual===c.id?'active':''}" onclick="selPago(${c.id})">
       <div class="pagos-item-name">${c.nombre}</div>
-      <div class="pagos-item-info">${pag}/${c.plazo} cuotas · $${c.cuota.toLocaleString('es-AR')}/mes</div>
+      <div class="pagos-item-info">${pag}/${c.plazo} cuotas ${extrasStr}</div>
     </div>`;
   }).join('');
 }
@@ -922,17 +954,47 @@ function renderPagosDetalle(id) {
   const c = creditos.find(x=>x.id===id); if (!c) return;
   if (!pagosEstado[id]) pagosEstado[id]={};
   const inicio = new Date(c.fecha);
+  
+  // Procesar Cuotas Regulares
   const cuotas = Array.from({length:c.plazo},(_,i)=>{
     const n=i+1, f=new Date(inicio); f.setMonth(f.getMonth()+n);
     const e = pagosEstado[id][n] || (f<HOY?'vencida':'pendiente');
     return {n,f,e};
   });
-  const pag = cuotas.filter(q=>q.e==='pagada').length;
-  const venc = cuotas.filter(q=>q.e==='vencida').length;
-  
-  // Armamos el bloque de vencidas aparte
+  const pagReg = cuotas.filter(q=>q.e==='pagada').length;
+  let venc = cuotas.filter(q=>q.e==='vencida').length;
+  let totalDineroCobrado = pagReg * c.cuota;
+
+  // Procesar Refuerzos
+  let refHtml = '';
+  if (c.refuerzoCantidad > 0 && c.refuerzoMonto > 0) {
+    const rCuotas = Array.from({length: c.refuerzoCantidad}, (_, i) => {
+      const n = i + 1;
+      const f = new Date(inicio); f.setMonth(f.getMonth() + (n * c.refuerzoFrecuencia));
+      const e = pagosEstado[id]['R'+n] || (f<HOY?'vencida':'pendiente');
+      if (e === 'pagada') totalDineroCobrado += c.refuerzoMonto;
+      if (e === 'vencida') venc++;
+      return {n, f, e};
+    });
+
+    refHtml = `
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--gray-100)">
+        <h4 style="font-size:11px; color:var(--amber); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px">Refuerzos / Extraordinarias</h4>
+        <div class="cuotas-grid">
+          ${rCuotas.map(q=>{
+            const mes = q.f.toLocaleDateString('es-AR',{month:'short',year:'2-digit'});
+            return `<div class="cuota-btn ${q.e}" onclick="toggleCuota(${id},'R${q.n}')" style="border-width: 2px">
+              <div class="cuota-num">Ref ${q.n}</div>
+              <div class="cuota-mes">${mes}</div>
+              <div class="cuota-ico">${q.e==='pagada'?'✓':q.e==='vencida'?'!':'·'}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
   let bloqueVencidas = '';
-  if (venc) {
+  if (venc > 0) {
     bloqueVencidas = `<div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius);padding:12px 16px;min-width:110px">
         <div style="font-size:11px;color:var(--red);font-weight:600;margin-bottom:3px">VENCIDAS</div>
         <div style="font-family:var(--serif);font-size:20px;color:var(--red)">${venc}</div>
@@ -944,25 +1006,27 @@ function renderPagosDetalle(id) {
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
       <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:12px 16px;min-width:120px">
         <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:3px">COBRADO</div>
-        <div style="font-family:var(--serif);font-size:20px;color:var(--green)">$${(pag*c.cuota).toLocaleString('es-AR')}</div>
+        <div style="font-family:var(--serif);font-size:20px;color:var(--green)">$${totalDineroCobrado.toLocaleString('es-AR')}</div>
       </div>
       <div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:var(--radius);padding:12px 16px;min-width:110px">
-        <div style="font-size:11px;color:var(--blue-500);font-weight:600;margin-bottom:3px">PAGADAS</div>
-        <div style="font-family:var(--serif);font-size:20px;color:var(--blue-600)">${pag}/${c.plazo}</div>
+        <div style="font-size:11px;color:var(--blue-500);font-weight:600;margin-bottom:3px">CUOTAS PAGAS</div>
+        <div style="font-family:var(--serif);font-size:20px;color:var(--blue-600)">${pagReg}/${c.plazo}</div>
       </div>
       ${bloqueVencidas}
     </div>
-    <p style="font-size:11px;color:var(--gray-400);margin-bottom:12px">Hacé click en cada cuota para marcarla como pagada</p>
+    
+    <p style="font-size:11px;color:var(--gray-400);margin-bottom:12px">Hacé click en cada cuota o refuerzo para marcarlo como pagado</p>
     <div class="cuotas-grid">
       ${cuotas.map(q=>{
         const mes = q.f.toLocaleDateString('es-AR',{month:'short',year:'2-digit'});
-        return `<div class="cuota-btn ${q.e}" onclick="toggleCuota(${id},${q.n})">
+        return `<div class="cuota-btn ${q.e}" onclick="toggleCuota(${id},'${q.n}')">
           <div class="cuota-num">N° ${q.n}</div>
           <div class="cuota-mes">${mes}</div>
           <div class="cuota-ico">${q.e==='pagada'?'✓':q.e==='vencida'?'!':'·'}</div>
         </div>`;
       }).join('')}
-    </div>`;
+    </div>
+    ${refHtml}`;
 }
 
 function toggleCuota(id,n) {
@@ -985,14 +1049,19 @@ function abrirModal(id=null) {
   document.getElementById('f-patente').value = c?.patente||'';
   document.getElementById('f-valor-vehiculo').value = c?.valorVehiculo||'';
   document.getElementById('f-capital').value = c?.capital||'';
-  document.getElementById('f-tasa').value = '8'; // Tasa por defecto, se puede cambiar para escalas
+  document.getElementById('f-tasa').value = '8'; 
   document.getElementById('f-plazo').value = c?.plazo||'';
   document.getElementById('f-cuota').value = c?.cuota||'';
   document.getElementById('f-fecha').value = c?.fecha||new Date().toISOString().split('T')[0];
   document.getElementById('f-service').value = c?.proximoService||'';
   
+  // Cargar datos de refuerzos
+  document.getElementById('f-ref-monto').value = c?.refuerzoMonto || '';
+  document.getElementById('f-ref-cant').value = c?.refuerzoCantidad || '';
+  document.getElementById('f-ref-frec').value = c?.refuerzoFrecuencia || '6';
+
   togglePrendario();
-  calcularCuota(); // Actualiza los textos de retención al abrir
+  calcularCuota();
   document.getElementById('modal-overlay').classList.add('open');
 }
 
@@ -1025,7 +1094,10 @@ function guardarCredito() {
     valorVehiculo: parseFloat(document.getElementById('f-valor-vehiculo').value)||0,
     fecha: document.getElementById('f-fecha').value,
     notas: document.getElementById('f-notas').value.trim(),
-    proximoService: document.getElementById('f-service').value
+    proximoService: document.getElementById('f-service').value,
+    refuerzoMonto: parseFloat(document.getElementById('f-ref-monto').value) || 0,
+    refuerzoCantidad: parseInt(document.getElementById('f-ref-cant').value) || 0,
+    refuerzoFrecuencia: parseInt(document.getElementById('f-ref-frec').value) || 6
   };
   
   if (editId) creditos[creditos.findIndex(c=>c.id===editId)] = nuevo;
