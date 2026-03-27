@@ -718,14 +718,18 @@ function renderMetricas() {
   const totalCobrar = creditos.reduce((s,c)=>s+c.cuota*c.plazo,0);
   const mora = creditos.filter(c=>c.estado==='MORA').length;
   const cuotaP = activos.length ? Math.round(activos.reduce((s,c)=>s+c.cuota,0)/activos.length) : 0;
+  
+  // NUEVO CÁLCULO: Suma de todas las cuotas de los créditos activos
+  const recaudacionMensual = activos.reduce((s,c)=>s+c.cuota, 0); 
+  
   const f = n => '$'+n.toLocaleString('es-AR');
 
   const items = [
-    { label:'Créditos activos', val: activos.length, sub: creditos.length+' total registrados', blue: true },
+    { label:'Recaudación Mensual', val: f(recaudacionMensual), sub:'liquidez mensual esperada', blue: true },
+    { label:'Créditos activos', val: activos.length, sub: creditos.length+' en total' },
     { label:'Capital otorgado', val: f(totalCap), sub:'suma total histórica' },
-    { label:'Total a cobrar', val: f(totalCobrar), sub:'cuotas × plazos' },
     { label:'Cuota promedio', val: f(cuotaP), sub:'créditos activos' },
-    { label:'Con garantía prendaria', val: creditos.filter(c=>c.tipo==='prendario').length, sub:`${creditos.filter(c=>c.tipo==='personal').length} personales` },
+    { label:'Total a cobrar', val: f(totalCobrar), sub:'cuotas × plazos' },
     { label:'En mora', val: mora || '—', sub: mora ? '⚠ requiere atención' : '✓ cartera sana' },
   ];
 
