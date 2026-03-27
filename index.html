@@ -359,6 +359,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .empty { padding: 36px; text-align: center; color: var(--gray-400); font-size: 13px; }
 .empty-icon { font-size: 32px; margin-bottom: 8px; }
 
+/* Checklist de Legajos */
+.checklist { display: flex; flex-direction: column; gap: 8px; background: var(--gray-50); padding: 16px; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+.check-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--blue-600); cursor: pointer; }
+.check-item span { font-size: 13px; color: var(--gray-700); }
+.check-item input:checked + span { text-decoration: line-through; color: var(--gray-400); }
+
 /* ── DIVIDER ── */
 .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .page-title { font-family: var(--serif); font-size: 22px; color: var(--blue-900); font-style: italic; }
@@ -418,8 +425,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="nav-item" onclick="showPane('seguros',this)">
       <span class="icon">🛡️</span><span>Seguros</span>
     </div>
-    <div class="nav-item" style="opacity: 0.6; cursor: default;">
-      <span class="icon">🔧</span><span>Taller <span style="font-size:8px; background:var(--amber); color:white; padding:2px 4px; border-radius:4px; margin-left:5px">Pronto</span></span>
+    <div class="nav-item" style="opacity: 0.6; cursor: default;" title="Se habilitará al llegar a la meta de 500 prendas">
+      <span class="icon">🔧</span><span>Taller <span style="font-size:8px; background:var(--amber); color:white; padding:2px 4px; border-radius:4px; margin-left:5px">Meta</span></span>
     </div>
     <div class="nav-label">Acciones</div>
     <div class="nav-item" onclick="abrirModal()">
@@ -518,7 +525,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
                 <th onclick="sortBy('plazo')">Plazo</th>
                 <th onclick="sortBy('cuota')">Cuota</th>
                 <th onclick="sortBy('capital')">Capital</th>
-                <th onclick="sortBy('total')">Total a cobrar</th>
+                <th>Legajo</th>
                 <th>Estado</th>
                 <th style="text-align:right">Acciones</th>
               </tr>
@@ -729,6 +736,39 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-legajo-overlay" onclick="cerrarModalLegajoFuera(event)">
+  <div class="modal" style="max-width: 450px;">
+    <div class="modal-header">
+      <div class="modal-icon" style="background:var(--blue-50); color:var(--blue-600); border-color:var(--blue-200);">📁</div>
+      <div>
+        <h2 id="ml-titulo">Legajo Digital</h2>
+        <small id="ml-sub">Archivos y documentos del cliente</small>
+      </div>
+    </div>
+    
+    <div class="form-section">Enlace a Google Drive</div>
+    <div class="form-group full" style="margin-bottom: 20px;">
+      <label>Pegá acá el link de la carpeta con las fotos y PDFs</label>
+      <input type="text" id="fl-url" placeholder="Ej: https://drive.google.com/drive/folders/1a2b3c..." style="margin-bottom: 8px;">
+      <a id="btn-abrir-drive" href="#" target="_blank" class="btn btn-sm" style="display:none; color:var(--blue-600); border-color:var(--blue-300); text-decoration:none; justify-content:center;">Abrir carpeta en Drive ↗</a>
+    </div>
+
+    <div class="form-section">Checklist de Documentación Física/Digital</div>
+    <div class="checklist">
+      <label class="check-item"><input type="checkbox" id="chk-dni"><span>DNI (Frente y Dorso)</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-titulo"><span>Título Automotor / 08 Firmado</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-contrato"><span>Contrato de Prenda firmado</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-pagare"><span>Pagarés firmados</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-poliza"><span>Póliza de Seguro vigente</span></label>
+    </div>
+
+    <div class="modal-footer" style="margin-top: 24px;">
+      <button class="btn" onclick="cerrarModalLegajo()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarLegajo()">Guardar Legajo</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-cuota-overlay" onclick="cerrarModalCuotaFuera(event)">
   <div class="modal" style="max-width: 380px; padding: 28px;">
     <div class="modal-header" style="margin-bottom: 12px;">
@@ -756,15 +796,15 @@ function fechaDesde(m) {
 }
 
 let creditos = JSON.parse(localStorage.getItem('nexo_creditos') || 'null') || [
-  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'San Cristóbal', seguroPoliza:'884912', seguroCosto:45000, seguroComision:6750, seguroVencimiento:new Date(HOY.getTime() + 5*86400000).toISOString().split('T')[0], estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'' },
-  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroPoliza:'', seguroCosto:0, seguroComision:0, seguroVencimiento:'', estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'' },
-  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, refuerzoMonto:1000000, refuerzoCantidad:4, refuerzoFrecuencia:6, seguroCia:'Federación', seguroPoliza:'339100', seguroCosto:38000, seguroComision:5700, seguroVencimiento:new Date(HOY.getTime() - 2*86400000).toISOString().split('T')[0], estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'' },
-  { id:4, nombre:'Ivan Andres Pedro Ariaudo', dni:'17154001', tel:'3467416235', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4500000, cuota:330000, plazo:24, refuerzoMonto:500000, refuerzoCantidad:2, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(2), proximoService:'' },
-  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'' }
+  { id:1, nombre:'Luciano Manuel Bracamonte', dni:'33728035', tel:'3472431087', tipo:'prendario', garantia:'PEUGEOT 207', anio:2010, patente:'JDA 417', valorVehiculo:0, capital:5000000, cuota:420000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'San Cristóbal', seguroPoliza:'884912', seguroCosto:45000, seguroComision:6750, seguroVencimiento:new Date(HOY.getTime() + 5*86400000).toISOString().split('T')[0], estado:'AL DIA', notas:'', fecha:fechaDesde(4), proximoService:'', legajo: { url:'', dni:true, titulo:true, contrato:true, pagare:true, poliza:true } },
+  { id:2, nombre:'Victor Hugo Canova', dni:'21936155', tel:'3534279365', tipo:'prendario', garantia:'FIAT IDEA', anio:2008, patente:'GIW 123', valorVehiculo:0, capital:4180000, cuota:440000, plazo:18, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroPoliza:'', seguroCosto:0, seguroComision:0, seguroVencimiento:'', estado:'AL DIA', notas:'', fecha:fechaDesde(3), proximoService:'', legajo: { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false } },
+  { id:3, nombre:'Cristian Machado', dni:'39474196', tel:'3534081335', tipo:'prendario', garantia:'CLIO PLUS 5PTAS', anio:2011, patente:'KFM 458', valorVehiculo:4000000, capital:6000000, cuota:350000, plazo:24, refuerzoMonto:1000000, refuerzoCantidad:4, refuerzoFrecuencia:6, seguroCia:'Federación', seguroPoliza:'339100', seguroCosto:38000, seguroComision:5700, seguroVencimiento:new Date(HOY.getTime() - 2*86400000).toISOString().split('T')[0], estado:'AL DIA', notas:'', fecha:fechaDesde(5), proximoService:'', legajo: { url:'', dni:true, titulo:false, contrato:true, pagare:false, poliza:true } },
+  { id:4, nombre:'Ivan Andres Pedro Ariaudo', dni:'17154001', tel:'3467416235', tipo:'personal', garantia:'', anio:null, patente:'', valorVehiculo:0, capital:4500000, cuota:330000, plazo:24, refuerzoMonto:500000, refuerzoCantidad:2, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(2), proximoService:'', legajo: { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false } },
+  { id:7, nombre:'Romina Gisele Cerruti', dni:'32943265', tel:'3472509706', tipo:'prendario', garantia:'CITROEN PICASSO', anio:2011, patente:'KFQ960', valorVehiculo:0, capital:9215000, cuota:770000, plazo:36, refuerzoMonto:0, refuerzoCantidad:0, refuerzoFrecuencia:6, seguroCia:'', seguroComision:0, estado:'AL DIA', notas:'', fecha:fechaDesde(8), proximoService:'', legajo: { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false } }
 ];
 
 let pagosEstado = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
-let sortCol = null, sortDir = 1, editId = null, pagoActual = null;
+let sortCol = null, sortDir = 1, editId = null, pagoActual = null, legajoActualId = null;
 let cuotaSelId = null, cuotaSelN = null;
 
 function guardar() {
@@ -949,6 +989,53 @@ function imprimirRecibo(id, n) {
   setTimeout(() => printWindow.print(), 250);
 }
 
+// ── BÓVEDA DIGITAL (LEGAJOS) ─────────────────────────────────────
+function abrirLegajo(id) {
+  legajoActualId = id;
+  const c = creditos.find(x => x.id === id);
+  
+  document.getElementById('ml-titulo').textContent = `Legajo de ${c.nombre.split(' ')[0]}`;
+  
+  // Si no tiene el objeto legajo, se lo creamos vacío
+  if (!c.legajo) c.legajo = { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false };
+  
+  document.getElementById('fl-url').value = c.legajo.url || '';
+  document.getElementById('chk-dni').checked = c.legajo.dni;
+  document.getElementById('chk-titulo').checked = c.legajo.titulo;
+  document.getElementById('chk-contrato').checked = c.legajo.contrato;
+  document.getElementById('chk-pagare').checked = c.legajo.pagare;
+  document.getElementById('chk-poliza').checked = c.legajo.poliza;
+
+  const btnDrive = document.getElementById('btn-abrir-drive');
+  if (c.legajo.url && c.legajo.url.includes('http')) {
+    btnDrive.href = c.legajo.url;
+    btnDrive.style.display = 'inline-flex';
+  } else {
+    btnDrive.style.display = 'none';
+  }
+
+  document.getElementById('modal-legajo-overlay').classList.add('open');
+}
+
+function guardarLegajo() {
+  const c = creditos.find(x => x.id === legajoActualId);
+  c.legajo = {
+    url: document.getElementById('fl-url').value.trim(),
+    dni: document.getElementById('chk-dni').checked,
+    titulo: document.getElementById('chk-titulo').checked,
+    contrato: document.getElementById('chk-contrato').checked,
+    pagare: document.getElementById('chk-pagare').checked,
+    poliza: document.getElementById('chk-poliza').checked
+  };
+  
+  guardar();
+  renderTabla();
+  cerrarModalLegajo();
+}
+
+function cerrarModalLegajo() { document.getElementById('modal-legajo-overlay').classList.remove('open'); legajoActualId=null; }
+function cerrarModalLegajoFuera(e) { if(e.target.id==='modal-legajo-overlay') cerrarModalLegajo(); }
+
 // ── MÉTRICAS Y TABLAS (SEGUROS INCLUIDO) ─────────────────────────
 function renderMetricas() {
   const activos = creditos.filter(c => c.estado !== 'TERMINADA');
@@ -988,7 +1075,6 @@ function renderMetricas() {
 function renderSeguros() {
   const prendasActivas = creditos.filter(c => c.tipo === 'prendario' && c.estado !== 'TERMINADA');
   
-  // Métricas exclusivas de seguros
   const totalComisiones = prendasActivas.reduce((s,c)=>s+(c.seguroComision||0), 0);
   const totalPrimas = prendasActivas.reduce((s,c)=>s+(c.seguroCosto||0), 0);
   const asegurados = prendasActivas.filter(c=>c.seguroCia).length;
@@ -1011,7 +1097,6 @@ function renderSeguros() {
     </div>
   `;
 
-  // Tabla de seguros
   const tbody = document.getElementById('tabla-seguros-body');
   
   if (!prendasActivas.length) { 
@@ -1024,22 +1109,16 @@ function renderSeguros() {
     let infoAseguradora = tieneSeguro ? `<span style="font-weight:600; color:var(--blue-600)">${c.seguroCia}</span><br><span style="font-size:10px; color:var(--gray-500)">Póliza: ${c.seguroPoliza||'Sin N°'}</span>` : `<span class="badge badge-gray">Sin seguro registrado</span>`;
     
     let vencText = '—';
-    let vencStyle = '';
     if (tieneSeguro && c.seguroVencimiento) {
       const v = new Date(c.seguroVencimiento);
       const hoy = new Date();
-      // Reset hours for accurate day diff
       v.setHours(0,0,0,0); hoy.setHours(0,0,0,0);
       const diffDias = Math.floor((v - hoy) / (1000 * 60 * 60 * 24));
       
       const vStr = v.toLocaleDateString('es-AR');
-      if (diffDias < 0) {
-        vencText = `<span style="color:var(--red); font-weight:600">Vencido (${vStr})</span>`;
-      } else if (diffDias <= 7) {
-        vencText = `<span style="color:var(--amber); font-weight:600">Vence en ${diffDias} días</span>`;
-      } else {
-        vencText = `<span style="color:var(--green); font-weight:500">${vStr}</span>`;
-      }
+      if (diffDias < 0) vencText = `<span style="color:var(--red); font-weight:600">Vencido (${vStr})</span>`;
+      else if (diffDias <= 7) vencText = `<span style="color:var(--amber); font-weight:600">Vence en ${diffDias} días</span>`;
+      else vencText = `<span style="color:var(--green); font-weight:500">${vStr}</span>`;
     }
 
     return `<tr>
@@ -1072,7 +1151,6 @@ function renderAlertas() {
     if (dias>=0 && dias<=7 && c.estado!=='TERMINADA')
       al.push({msg:`${c.nombre.split(' ')[0]} — cuota vence en ${dias===0?'hoy':dias+'d'}`, id:c.id});
       
-    // Alerta Seguros
     if (c.tipo === 'prendario' && c.estado !== 'TERMINADA' && c.seguroVencimiento) {
       const v = new Date(c.seguroVencimiento);
       v.setHours(0,0,0,0); 
@@ -1122,9 +1200,6 @@ function renderTabla() {
   }
   
   tbody.innerHTML = lista.map(c => {
-    const inicio = new Date(c.fecha);
-    const mp = Math.min(c.plazo, Math.max(0, Math.round((HOY-inicio)/864e5/30)));
-    const pct = c.estado==='TERMINADA' ? 100 : Math.round(mp/c.plazo*100);
     const eBadge = c.estado==='AL DIA'?'badge-green':c.estado==='MORA'?'badge-red':'badge-gray';
     const tBadge = c.tipo==='prendario'?'badge-blue':'badge-amber';
     const ltv = c.valorVehiculo ? Math.round(c.capital/c.valorVehiculo*100) : null;
@@ -1150,6 +1225,27 @@ function renderTabla() {
 
     let totalGral = (c.cuota * c.plazo) + ((c.refuerzoMonto||0) * (c.refuerzoCantidad||0));
 
+    // Lógica para estado visual del legajo
+    const leg = c.legajo || { dni:false, titulo:false, contrato:false };
+    const maxDocs = c.tipo === 'prendario' ? 5 : 2; // Prendario necesita titulo y poliza, personal no.
+    let countDocs = 0;
+    if (leg.dni) countDocs++;
+    if (leg.contrato) countDocs++;
+    if (c.tipo === 'prendario') {
+      if (leg.titulo) countDocs++;
+      if (leg.poliza) countDocs++;
+      if (leg.pagare) countDocs++;
+    } else {
+      if (leg.pagare) countDocs++;
+    }
+    
+    let legajoBadge = `<span class="badge badge-gray" style="cursor:pointer" onclick="abrirLegajo(${c.id})">Vacío</span>`;
+    if (countDocs === maxDocs) {
+      legajoBadge = `<span class="badge badge-green" style="cursor:pointer" onclick="abrirLegajo(${c.id})">Completo ✓</span>`;
+    } else if (countDocs > 0) {
+      legajoBadge = `<span class="badge badge-amber" style="cursor:pointer" onclick="abrirLegajo(${c.id})">Inc. (${countDocs}/${maxDocs})</span>`;
+    }
+
     return `<tr>
       <td class="td-name">${infoNombre}</td>
       <td><span class="badge ${tBadge}">${c.tipo}</span></td>
@@ -1157,13 +1253,13 @@ function renderTabla() {
       <td style="color:var(--gray-700)">${c.plazo}m</td>
       <td style="font-weight:500;color:var(--gray-700)">${textoCuota}</td>
       <td>$${c.capital.toLocaleString('es-AR')}</td>
-      <td>$${totalGral.toLocaleString('es-AR')}</td>
+      <td style="text-align:center">${legajoBadge}</td>
       <td><span class="badge ${eBadge}">${c.estado}</span></td>
-      <td style="text-align:right">
+      <td style="text-align:right; min-width: 140px;">
+        <button class="btn btn-sm btn-icon" style="color:var(--blue-500); border-color:var(--blue-200); background:var(--blue-50)" onclick="abrirLegajo(${c.id})" title="Bóveda Digital (Legajo)">📁</button>
         <button class="btn btn-sm btn-icon" style="color:#25D366; border-color:#25D366" onclick="enviarWA(${c.id})" title="Enviar WhatsApp Cuota">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         </button>
-        ${c.tipo === 'prendario' ? `<button class="btn btn-sm btn-icon" style="color:var(--gray-700)" onclick="imprimirContrato(${c.id})" title="Imprimir Contrato">🖨️</button>` : ''}
         <button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})" title="Editar">✎</button>
         <button class="btn btn-sm btn-icon btn-danger" onclick="eliminar(${c.id})" title="Eliminar">✕</button>
       </td>
@@ -1175,7 +1271,7 @@ function sortBy(col) {
   if (sortCol===col) sortDir*=-1; else {sortCol=col; sortDir=1;}
   document.querySelectorAll('thead th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
   const ths = document.querySelectorAll('thead th');
-  const cols = ['nombre',null,'garantia','plazo','cuota','capital'];
+  const cols = ['nombre',null,'garantia','plazo','cuota','capital','legajo','estado'];
   const idx = cols.indexOf(col);
   if(idx>=0) ths[idx].classList.add(sortDir===1?'sort-asc':'sort-desc');
   renderTabla();
@@ -1334,68 +1430,6 @@ function renderPagosDetalle(id) {
     ${refHtml}`;
 }
 
-// LÓGICA DEL MENÚ DE LA CUOTA
-function abrirModalCuota(id, n) {
-  cuotaSelId = id;
-  cuotaSelN = n;
-  const c = creditos.find(x=>x.id===id);
-  const estado = (pagosEstado[id] && pagosEstado[id][n]) || 'pendiente';
-  const isRef = String(n).startsWith('R');
-  const num = isRef ? n.substring(1) : n;
-  const monto = isRef ? c.refuerzoMonto : c.cuota;
-  
-  document.getElementById('mc-titulo').textContent = isRef ? `Refuerzo N° ${num}` : `Cuota N° ${num}`;
-  document.getElementById('mc-info').textContent = `Monto a cobrar: $${monto.toLocaleString('es-AR')} - Cliente: ${c.nombre.split(' ')[0]}`;
-  
-  const btnAccion1 = document.getElementById('mc-btn-1');
-  const btnAccion2 = document.getElementById('mc-btn-2');
-  
-  if (estado === 'pendiente' || estado === 'vencida') {
-    btnAccion1.className = 'btn btn-primary';
-    btnAccion1.innerHTML = '✓ Cobrar e Imprimir Recibo';
-    btnAccion1.onclick = () => { marcarPagada(true); };
-    
-    btnAccion2.className = 'btn';
-    btnAccion2.innerHTML = 'Solo marcar como pagada';
-    btnAccion2.onclick = () => { marcarPagada(false); };
-  } else {
-    btnAccion1.className = 'btn';
-    btnAccion1.innerHTML = '🖨️ Reimprimir Recibo';
-    btnAccion1.style.borderColor = 'var(--blue-400)';
-    btnAccion1.style.color = 'var(--blue-600)';
-    btnAccion1.onclick = () => { imprimirRecibo(id, n); cerrarModalCuota(); };
-    
-    btnAccion2.className = 'btn btn-danger';
-    btnAccion2.innerHTML = '✕ Deshacer pago (Volver a pendiente)';
-    btnAccion2.onclick = () => { 
-      pagosEstado[id][n] = 'pendiente'; 
-      guardar(); renderPagosDetalle(id); renderPagosLista(); renderMetricas(); cerrarModalCuota(); 
-    };
-  }
-  
-  document.getElementById('modal-cuota-overlay').classList.add('open');
-}
-
-function marcarPagada(imprimir) {
-  if (!pagosEstado[cuotaSelId]) pagosEstado[cuotaSelId] = {};
-  pagosEstado[cuotaSelId][cuotaSelN] = 'pagada';
-  guardar();
-  renderPagosDetalle(cuotaSelId); 
-  renderPagosLista(); 
-  renderMetricas();
-  if (imprimir) {
-    imprimirRecibo(cuotaSelId, cuotaSelN);
-  }
-  cerrarModalCuota();
-}
-
-function cerrarModalCuota() {
-  document.getElementById('modal-cuota-overlay').classList.remove('open');
-}
-function cerrarModalCuotaFuera(e) {
-  if (e.target.id === 'modal-cuota-overlay') cerrarModalCuota();
-}
-
 // ── MODAL NUEVO CRÉDITO ──────────────────────────────────────────
 function abrirModal(id=null) {
   editId = id;
@@ -1447,6 +1481,9 @@ function guardarCredito() {
   
   if (!nombre||!capital||!cuota||!plazo) { alert('Completá los campos obligatorios (*)'); return; }
   
+  // Respetar el legajo que ya tenía si estamos editando
+  const legajoExistente = editId ? creditos.find(c=>c.id===editId).legajo : { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false };
+
   const nuevo = {
     id: editId || (Math.max(0,...creditos.map(c=>c.id),0)+1),
     nombre, capital, cuota, plazo,
@@ -1468,7 +1505,8 @@ function guardarCredito() {
     seguroPoliza: document.getElementById('f-seguro-poliza').value.trim(),
     seguroCosto: parseFloat(document.getElementById('f-seguro-costo').value) || 0,
     seguroComision: parseFloat(document.getElementById('f-seguro-comision').value) || 0,
-    seguroVencimiento: document.getElementById('f-seguro-vencimiento').value
+    seguroVencimiento: document.getElementById('f-seguro-vencimiento').value,
+    legajo: legajoExistente
   };
   
   if (editId) creditos[creditos.findIndex(c=>c.id===editId)] = nuevo;
