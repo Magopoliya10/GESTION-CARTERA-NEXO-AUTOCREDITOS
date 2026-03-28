@@ -153,8 +153,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .cuota-btn.pagada .cuota-num { color: var(--green); }
 .cuota-btn.vencida { background: var(--red-bg); border-color: var(--red-border); }
 .cuota-btn.vencida .cuota-num { color: var(--red); }
-.cuota-btn.proxima { background: var(--amber-bg); border-color: var(--amber-border); }
-.cuota-btn.proxima .cuota-num { color: var(--amber); }
 
 /* ── MODALES ── */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,22,40,.55); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
@@ -270,11 +268,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <button class="btn btn-primary" onclick="abrirModal()">+ Nuevo crédito</button>
     </div>
   </header>
-
-  <div class="alertas-bar" id="alertas-bar">
-    <span style="font-size:11px;color:var(--red);font-weight:600;">⚠ Alertas activas</span>
-    <div id="alertas-lista" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
-  </div>
 
   <div class="content">
 
@@ -512,10 +505,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // === ¡IMPORTANTE! CORREOS CON ACCESO TOTAL (DUEÑOS) ===
   const CORREOS_ADMIN = ["facundo@nexo.com", "sofia@nexo.com"];
 
-  // Variables Globales
   window.HOY = new Date();
   window.creditos = [];
   window.pagosEstado = {};
@@ -525,18 +516,15 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.pagoActual = null; window.legajoActualId = null;
   window.cuotaSelId = null; window.cuotaSelN = null;
 
-  // ESCUCHAR INICIO DE SESIÓN
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-layout').style.display = 'flex';
       document.getElementById('user-display').textContent = user.email;
 
-      // Verificar si es jefe o empleado
       window.IS_ADMIN = CORREOS_ADMIN.includes(user.email.toLowerCase());
       aplicarPermisos();
 
-      // Conectarse a la nube
       onSnapshot(doc(db, "empresa", "datos_nexo"), async (docSnap) => {
         if (docSnap.exists()) {
           window.creditos = docSnap.data().creditos || [];
@@ -545,9 +533,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         } else if (window.IS_ADMIN) {
           const locales = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
           const pagosLocales = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
-          if (locales.length > 0) {
-            await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales });
-          }
+          if (locales.length > 0) await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales });
         }
       });
     } else {
@@ -577,13 +563,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
   // ── LÓGICA DE ROLES Y NAVEGACIÓN ──
   function aplicarPermisos() {
-    // Si NO es admin, agrega la clase 'hide-admin'. Si ES admin, se la saca.
     document.querySelectorAll('.admin-only').forEach(el => {
       if (window.IS_ADMIN) el.classList.remove('hide-admin');
       else el.classList.add('hide-admin');
     });
-
-    // Forzar pantalla inicial según rol
     if (!window.IS_ADMIN) {
       document.getElementById('nav-dashboard').classList.remove('active');
       window.showPane('cartera', document.querySelector('.nav-item:nth-child(2)'));
@@ -750,9 +733,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <td>$${(c.seguroCosto||0).toLocaleString('es-AR')}</td>
         ${window.IS_ADMIN ? `<td style="color:var(--green);font-weight:600" class="admin-only">$${(c.seguroComision||0).toLocaleString('es-AR')}</td>` : ''}
         <td>${c.seguroVencimiento || '—'}</td>
-        <td style="text-align:right">
-          <button class="btn btn-sm" style="color:var(--amber); border-color:var(--amber-border)" onclick="abrirModalSeguro(${c.id})">Editar Seguro ✎</button>
-        </td>
+        <td style="text-align:right"><button class="btn btn-sm" style="color:var(--amber); border-color:var(--amber-border)" onclick="abrirModalSeguro(${c.id})">Editar Seguro ✎</button></td>
       </tr>`;
     }).join('');
   };
@@ -831,13 +812,14 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const btn1 = document.getElementById('mc-btn-1'); const btn2 = document.getElementById('mc-btn-2'); const btn3 = document.getElementById('mc-btn-3');
     
     if (estado === 'pendiente' || estado === 'vencida') {
-      btn1.className = 'btn btn-primary'; btn1.innerHTML = '✓ Cobrar e Imprimir'; btn1.onclick = () => window.marcarPagada(true);
+      btn1.className = 'btn btn-primary'; btn1.innerHTML = '✓ Cobrar e Imprimir'; btn1.style.display = 'flex'; btn1.onclick = () => window.marcarPagada(true);
       btn2.className = 'btn'; btn2.innerHTML = 'Solo marcar pagada'; btn2.style.display = 'flex'; btn2.onclick = () => window.marcarPagada(false);
       btn3.style.display = 'none';
     } else {
-      btn1.style.display = 'none'; btn2.style.display = 'none';
-      btn3.className = 'btn btn-danger'; btn3.innerHTML = '✕ Deshacer pago'; btn3.style.display = 'flex';
-      btn3.onclick = () => { window.pagosEstado[id][n] = 'pendiente'; window.guardar(); window.cerrarModalCuota(); window.renderAll(); };
+      // SI YA ESTÁ PAGADA -> BOTON PARA IMPRIMIR RECIBO O DESHACER
+      btn1.className = 'btn'; btn1.innerHTML = '🖨️ Imprimir Recibo'; btn1.style.display = 'flex'; btn1.onclick = () => window.imprimirRecibo(id, n);
+      btn2.style.display = 'none';
+      btn3.className = 'btn btn-danger'; btn3.innerHTML = '✕ Deshacer pago'; btn3.style.display = 'flex'; btn3.onclick = () => { window.pagosEstado[id][n] = 'pendiente'; window.guardar(); window.cerrarModalCuota(); window.renderAll(); };
     }
     document.getElementById('modal-cuota-overlay').classList.add('open');
   };
@@ -860,6 +842,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('f-tipo').value = c?.tipo||'prendario';
     document.getElementById('f-estado').value = c?.estado||'AL DIA';
     document.getElementById('f-capital').value = c?.capital||'';
+    document.getElementById('f-tasa').value = c?.tasa||8; // Cargar la tasa guardada (o 8% por defecto)
     document.getElementById('f-plazo').value = c?.plazo||'';
     document.getElementById('f-cuota').value = c?.cuota||'';
     document.getElementById('f-fecha').value = c?.fecha||window.HOY.toISOString().split('T')[0];
@@ -867,7 +850,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('f-ref-cant').value = c?.refuerzoCantidad||'';
     document.getElementById('f-ref-frec').value = c?.refuerzoFrecuencia||'6';
     
-    // Si estamos editando, cargamos la info de seguro al modal por si las moscas
     document.getElementById('f-seguro-cia').value = c?.seguroCia||'';
     document.getElementById('f-seguro-poliza').value = c?.seguroPoliza||'';
     document.getElementById('f-seguro-costo').value = c?.seguroCosto||'';
@@ -894,6 +876,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const nuevo = {
       id: window.editId || Date.now(),
       nombre, capital, cuota, plazo,
+      tasa: parseFloat(document.getElementById('f-tasa').value) || 8, // Se guarda la tasa para la métrica
       dni: document.getElementById('f-dni').value,
       tel: document.getElementById('f-tel').value,
       tipo: document.getElementById('f-tipo').value,
@@ -951,30 +934,47 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.renderMetricas = () => {
     if(!window.IS_ADMIN) return;
     const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
-    const totCap = window.creditos.reduce((s,c)=>s+c.capital,0);
+    
+    // Cálculos
+    const totCap = acts.reduce((s,c)=>s+c.capital, 0); // Capital solo de los activos
     const recMens = acts.reduce((s,c)=>s+c.cuota, 0); 
     const comSeg = acts.reduce((s,c)=>s+(c.seguroComision||0), 0);
+    
+    let totalACobrar = 0;
+    let interesPonderado = 0;
+
+    acts.forEach(c => {
+      totalACobrar += (c.cuota * c.plazo) + ((c.refuerzoMonto || 0) * (c.refuerzoCantidad || 0));
+      let tasaReal = c.tasa || 8; // Promediamos sobre 8% si es un crédito viejo sin tasa guardada
+      interesPonderado += (c.capital * tasaReal);
+    });
+
+    const tem = totCap ? (interesPonderado / totCap) : 0;
+    const tna = tem * 12;
+
     const f = n => '$'+n.toLocaleString('es-AR');
     document.getElementById('metrics-grid').innerHTML = `
       <div class="metric-card blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div></div>
-      <div class="metric-card green"><div class="metric-label">Comisiones Seguros</div><div class="metric-value">${f(comSeg)}</div></div>
-      <div class="metric-card"><div class="metric-label">Capital Otorgado Histórico</div><div class="metric-value">${f(totCap)}</div></div>
-      <div class="metric-card"><div class="metric-label">Créditos Activos</div><div class="metric-value">${acts.length}</div></div>
+      <div class="metric-card green"><div class="metric-label">Total a Cobrar (Contratos)</div><div class="metric-value">${f(totalACobrar)}</div></div>
+      <div class="metric-card"><div class="metric-label">Capital en Calle</div><div class="metric-value">${f(totCap)}</div></div>
+      <div class="metric-card"><div class="metric-label">Rendimiento Promedio</div><div class="metric-value">${tem.toFixed(1)}% <span style="font-size:12px;color:var(--gray-500);font-family:var(--sans);font-weight:600">TEM</span></div><div class="metric-sub">TNA: ${tna.toFixed(1)}%</div></div>
+      <div class="metric-card"><div class="metric-label">Comisiones Seguros</div><div class="metric-value">${f(comSeg)}</div></div>
     `;
   };
 
   window.renderDashboard = () => {
     if(!window.IS_ADMIN) return;
-    const totalCap = window.creditos.reduce((s,c)=>s+c.capital,0);
-    const sorted = [...window.creditos].sort((a,b)=>b.capital-a.capital).slice(0,5);
+    const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
+    const totalCap = acts.reduce((s,c)=>s+c.capital,0);
+    const sorted = [...acts].sort((a,b)=>b.capital-a.capital).slice(0,5);
     document.getElementById('dash-barras').innerHTML = sorted.map(c => {
       const pct = totalCap ? Math.round(c.capital/totalCap*100) : 0;
       return `<div class="bar-row"><span class="bar-label">${c.nombre.split(' ').slice(0,2).join(' ')}</span><div class="bar-track"><div class="bar-fill-h" style="width:${pct}%"></div></div><span class="bar-val-h">$${(c.capital/1e6).toFixed(1)}M</span></div>`;
     }).join('');
 
-    const pr = window.creditos.filter(c=>c.tipo==='prendario').length;
-    const pe = window.creditos.filter(c=>c.tipo==='personal').length;
-    const tot = window.creditos.length || 1;
+    const pr = acts.filter(c=>c.tipo==='prendario').length;
+    const pe = acts.filter(c=>c.tipo==='personal').length;
+    const tot = acts.length || 1;
     document.getElementById('dash-tipo').innerHTML = `
       <div class="bar-row"><span class="bar-label">Prendarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pr/tot*100)}%"></div></div><span class="bar-val-h">${pr}</span></div>
       <div class="bar-row"><span class="bar-label">Personales</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pe/tot*100)}%;background:var(--amber)"></div></div><span class="bar-val-h">${pe}</span></div>`;
