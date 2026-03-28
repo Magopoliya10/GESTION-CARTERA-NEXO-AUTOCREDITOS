@@ -29,7 +29,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sans); font-size: 13px; line-height: 1.6; min-height: 100vh; }
 
-/* ── LOGIN ── */
+/* ── LOGIN SCREEN ── */
 #login-screen { position: fixed; inset: 0; background: var(--blue-900); display: flex; align-items: center; justify-content: center; z-index: 9999; }
 .login-box { background: var(--white); padding: 40px; border-radius: var(--radius-xl); width: 100%; max-width: 380px; box-shadow: var(--shadow-lg); text-align: center; }
 .login-box h1 { font-family: var(--serif); color: var(--blue-800); font-size: 28px; margin-bottom: 5px; font-style: italic; }
@@ -40,8 +40,8 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .login-box button:hover { background: var(--blue-600); }
 #login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
 
-/* ── ROLES (Ocultar elementos a empleados) ── */
-.hide-admin { display: none !important; }
+/* ── ROLES (Ocultar a empleados) ── */
+.admin-only { display: none !important; }
 
 /* ── ESTRUCTURA APP ── */
 #app-layout { display: none; min-height: 100vh; }
@@ -77,15 +77,16 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .btn-danger:hover { background: var(--red-bg); }
 .btn-icon { padding: 7px; border-radius: 8px; }
 
-/* ── ALERTAS Y METRICAS ── */
+/* ── ALERTAS ── */
 .alertas-bar { display: none; align-items: center; gap: 8px; padding: 10px 32px; background: var(--red-bg); border-bottom: 1px solid var(--red-border); flex-wrap: wrap; }
 .alertas-bar.visible { display: flex; }
-.alerta-tag { background: var(--white); border: 1px solid var(--red-border); color: var(--red); border-radius: 99px; padding: 3px 12px; font-size: 11px; cursor: pointer; font-weight: 500; }
+.alerta-tag { background: var(--white); border: 1px solid var(--red-border); color: var(--red); border-radius: 99px; padding: 3px 12px; font-size: 11px; cursor: pointer; font-weight: 500; transition: all .15s; }
 .alerta-tag:hover { background: var(--red); color: var(--white); }
 
+/* ── DASHBOARD METRICS ── */
 .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 14px; margin-bottom: 24px; }
-.metric-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); transition: transform .15s; }
-.metric-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.metric-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s; display: flex; flex-direction: column; justify-content: center; }
+.metric-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 .metric-card.blue { background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%); border-color: var(--blue-600); }
 .metric-card.blue .metric-label { color: var(--blue-200); }
 .metric-card.blue .metric-value { color: var(--white); }
@@ -94,12 +95,19 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .metric-card.green .metric-label { color: var(--green-border); }
 .metric-card.green .metric-value { color: var(--white); }
 .metric-card.green .metric-sub { color: #86efac; }
-.metric-label { font-size: 11px; color: var(--gray-500); font-weight: 500; margin-bottom: 6px; }
+.metric-label { font-size: 11px; color: var(--gray-500); font-weight: 500; margin-bottom: 6px; letter-spacing: .02em; }
 .metric-value { font-family: var(--serif); font-size: 24px; color: var(--blue-700); line-height: 1; }
 .metric-sub { font-size: 11px; color: var(--gray-400); margin-top: 5px; }
 
-/* ── TABLAS Y CARDS ── */
-.card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+/* RECUADRO HERO (Recaudación Mensual Más Grande) */
+@media(min-width: 768px) {
+  .metric-card.hero { grid-column: span 2; padding: 24px 28px; }
+  .metric-card.hero .metric-label { font-size: 13px; margin-bottom: 10px; }
+  .metric-card.hero .metric-value { font-size: 38px; }
+  .metric-card.hero .metric-sub { font-size: 12px; margin-top: 8px; }
+}
+
+.card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 16px; }
 .card-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
 .card-title { font-size: 13px; font-weight: 600; color: var(--gray-700); }
 .card-body { padding: 20px; }
@@ -107,82 +115,99 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
 .search-wrap { position: relative; flex: 1; min-width: 200px; }
 .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 13px; }
-.search-input { width: 100%; padding: 8px 12px 8px 32px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-700); font-size: 12px; outline: none; }
-select.flt { padding: 8px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-size: 12px; outline: none; cursor: pointer; }
+.search-input { width: 100%; padding: 8px 12px 8px 32px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-700); font-family: var(--sans); font-size: 12px; outline: none; transition: border-color .15s; }
+.search-input:focus { border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(30,91,170,.08); }
+select.flt { padding: 8px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-600); font-family: var(--sans); font-size: 12px; outline: none; cursor: pointer; transition: border-color .15s; }
+select.flt:focus { border-color: var(--blue-400); }
 
+/* ── TABLAS ── */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-thead th { text-align: left; font-size: 11px; color: var(--gray-500); font-weight: 600; text-transform: uppercase; padding: 10px 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; cursor: pointer; }
+thead th { text-align: left; font-size: 11px; color: var(--gray-500); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 10px 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; cursor: pointer; user-select: none; transition: color .15s; }
+thead th:hover { color: var(--blue-600); }
+thead th.sort-asc::after { content: ' ↑'; color: var(--blue-500); }
+thead th.sort-desc::after { content: ' ↓'; color: var(--blue-500); }
 tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .1s; }
 tbody tr:hover { background: var(--blue-50); }
 tbody td { padding: 11px 14px; font-size: 12px; color: var(--gray-600); white-space: nowrap; }
 tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal; min-width: 150px; }
 
-.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 9px; border-radius: 99px; font-weight: 600; }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 9px; border-radius: 99px; font-weight: 600; letter-spacing: .02em; }
 .badge-green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
 .badge-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
 .badge-amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
 .badge-gray   { background: var(--gray-100);  color: var(--gray-500); border: 1px solid var(--gray-200); }
 .badge-blue   { background: var(--blue-50);   color: var(--blue-600); border: 1px solid var(--blue-200); }
 
-/* ── DASHBOARD BARS ── */
+/* ── GRAFICOS DASHBOARD ── */
 .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
 .bar-label { font-size: 12px; color: var(--gray-600); min-width: 125px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar-track { flex: 1; background: var(--gray-100); border-radius: 4px; height: 7px; }
-.bar-fill-h { height: 7px; border-radius: 4px; background: linear-gradient(90deg, var(--blue-400), var(--blue-600)); }
+.bar-fill-h { height: 7px; border-radius: 4px; background: linear-gradient(90deg, var(--blue-400), var(--blue-600)); transition: width .6s cubic-bezier(.4,0,.2,1); }
 .bar-val-h { font-size: 11px; color: var(--gray-500); min-width: 65px; text-align: right; }
 .venc-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--gray-100); }
+.venc-item:last-child { border: none; }
 .venc-name { font-size: 12px; color: var(--gray-700); font-weight: 500; }
-.venc-info { font-size: 11px; color: var(--gray-400); }
+.venc-info { font-size: 12px; color: var(--blue-600); font-weight: 700; }
 
 /* ── PAGOS ── */
-.pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); background: var(--white); min-height: 450px; }
+.pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); min-height: 420px; }
 .pagos-lista { border-right: 1px solid var(--gray-100); overflow-y: auto; max-height: 560px; }
-.pagos-item { padding: 13px 18px; border-bottom: 1px solid var(--gray-100); cursor: pointer; }
+.pagos-item { padding: 13px 18px; border-bottom: 1px solid var(--gray-100); cursor: pointer; transition: background .1s; }
 .pagos-item:hover { background: var(--blue-50); }
 .pagos-item.active { background: var(--blue-50); border-left: 3px solid var(--blue-500); }
 .pagos-item-name { font-size: 12px; color: var(--gray-800); font-weight: 600; }
 .pagos-item-info { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
 .pagos-detalle { padding: 22px 24px; }
-.cuotas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; margin-top: 15px; }
-.cuota-btn { padding: 9px 6px; border-radius: var(--radius); border: 1.5px solid var(--gray-200); text-align: center; cursor: pointer; background: var(--white); box-shadow: var(--shadow-sm); }
+.pagos-detalle h3 { font-family: var(--serif); font-size: 18px; color: var(--blue-800); margin-bottom: 5px; font-style: italic; }
+.cuotas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; margin-top: 10px; }
+.cuota-btn { padding: 9px 6px; border-radius: var(--radius); border: 1.5px solid var(--gray-200); text-align: center; cursor: pointer; transition: all .15s; background: var(--white); box-shadow: var(--shadow-sm); }
 .cuota-btn .cuota-num { font-size: 11px; color: var(--gray-600); font-weight: 600; }
 .cuota-btn .cuota-mes { font-size: 10px; color: var(--gray-400); margin-top: 2px; }
+.cuota-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .cuota-btn.pagada { background: var(--green-bg); border-color: var(--green-border); }
 .cuota-btn.pagada .cuota-num { color: var(--green); }
 .cuota-btn.vencida { background: var(--red-bg); border-color: var(--red-border); }
 .cuota-btn.vencida .cuota-num { color: var(--red); }
+.cuota-btn.proxima { background: var(--amber-bg); border-color: var(--amber-border); }
+.cuota-btn.proxima .cuota-num { color: var(--amber); }
 
 /* ── MODALES ── */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,22,40,.55); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal-overlay.open { display: flex; }
 .modal { background: var(--white); border-radius: var(--radius-xl); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 32px 36px; box-shadow: var(--shadow-lg); }
 .modal-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
-.modal-icon { width: 42px; height: 42px; background: var(--blue-50); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid var(--blue-200); }
+.modal-icon { width: 42px; height: 42px; background: var(--blue-50); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid var(--blue-200); flex-shrink: 0; }
 .modal h2 { font-family: var(--serif); font-size: 21px; color: var(--blue-800); font-style: italic; }
-.modal h2 small { display: block; font-family: var(--sans); font-size: 12px; color: var(--gray-400); font-weight: 400; margin-top: 2px; }
+.modal h2 small { display: block; font-family: var(--sans); font-style: normal; font-size: 12px; color: var(--gray-400); font-weight: 400; margin-top: 2px; }
 
-.form-section { font-size: 11px; font-weight: 600; color: var(--blue-500); text-transform: uppercase; margin: 20px 0px 12px 0px; padding-bottom: 6px; border-bottom: 1px solid var(--blue-100); }
+.form-section { font-size: 11px; font-weight: 600; color: var(--blue-500); text-transform: uppercase; letter-spacing: .08em; margin: 20px 0px 12px 0px; padding-bottom: 6px; border-bottom: 1px solid var(--blue-100); }
+.form-section:first-of-type { margin-top: 0px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group.full { grid-column: 1 / -1; }
-.form-group label { font-size: 11px; color: var(--gray-500); font-weight: 600; }
-.form-group input, .form-group select, .form-group textarea { padding: 9px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-size: 13px; outline: none; }
+.form-group label { font-size: 11px; color: var(--gray-500); font-weight: 600; letter-spacing: .03em; }
+.form-group input, .form-group select, .form-group textarea { padding: 9px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-800); font-family: var(--sans); font-size: 13px; outline: none; transition: border-color .15s, box-shadow .15s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(30,91,170,.08); }
 .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--gray-100); }
 
-.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.page-title { font-family: var(--serif); font-size: 22px; color: var(--blue-900); font-style: italic; }
-.page-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
-.pane { display: none; }
-.pane.active { display: block; }
 .empty { padding: 36px; text-align: center; color: var(--gray-400); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
 
-/* Checklist de Legajos */
+/* Checklist Legajos */
 .checklist { display: flex; flex-direction: column; gap: 8px; background: var(--gray-50); padding: 16px; border-radius: var(--radius); border: 1px solid var(--gray-200); }
 .check-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--blue-600); cursor: pointer; }
 .check-item span { font-size: 13px; color: var(--gray-700); }
+.check-item input:checked + span { text-decoration: line-through; color: var(--gray-400); }
+
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.page-title { font-family: var(--serif); font-size: 22px; color: var(--blue-900); font-style: italic; }
+.page-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+.pane { display: none; }
+.pane.active { display: block; }
 
 @media(max-width: 900px) {
   .sidebar { width: 60px; min-width: 60px; }
@@ -193,6 +218,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .dash-row { grid-template-columns: 1fr; }
   .pagos-grid { grid-template-columns: 1fr; }
   .content { padding: 20px 16px; }
+  .topbar { padding: 0 16px; }
+}
+@media(max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+  .metric-card.hero { grid-column: 1 / -1; }
 }
 </style>
 </head>
@@ -269,21 +300,27 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     </div>
   </header>
 
+  <div class="alertas-bar" id="alertas-bar">
+    <span style="font-size:11px;color:var(--red);font-weight:600;">⚠ Alertas activas</span>
+    <div id="alertas-lista" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  </div>
+
   <div class="content">
 
     <div class="pane active admin-only" id="pane-dashboard">
       <div class="page-header">
         <div><div class="page-title">Resumen general</div><div class="page-sub">Vista ejecutiva de la cartera</div></div>
       </div>
-      <div class="metrics-grid" id="metrics-grid"></div>
+      <div class="metrics-grid" id="metrics-grid">
+        </div>
       <div class="dash-row">
         <div class="card">
           <div class="card-header"><span class="card-title">Capital por cliente</span></div>
           <div class="card-body" id="dash-barras"></div>
         </div>
         <div class="card">
-          <div class="card-header"><span class="card-title">Próximos vencimientos</span></div>
-          <div class="card-body" id="dash-venc"></div>
+          <div class="card-header"><span class="card-title" id="venc-titulo">Próximos vencimientos</span></div>
+          <div class="card-body" id="dash-venc" style="max-height: 250px; overflow-y: auto;"></div>
         </div>
       </div>
       <div class="dash-row">
@@ -310,7 +347,15 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
               <input type="text" class="search-input" id="search-input" placeholder="Buscar por nombre, patente, DNI..." oninput="renderTabla()">
             </div>
             <select class="flt" id="filter-estado" onchange="renderTabla()">
-              <option value="">Todos los estados</option><option value="AL DIA">Al día</option><option value="MORA">En mora</option><option value="TERMINADA">Terminada</option>
+              <option value="">Todos los estados</option>
+              <option value="AL DIA">Al día</option>
+              <option value="MORA">En mora</option>
+              <option value="TERMINADA">Terminada</option>
+            </select>
+            <select class="flt" id="filter-tipo" onchange="renderTabla()">
+              <option value="">Todos los tipos</option>
+              <option value="prendario">Prendario</option>
+              <option value="personal">Personal</option>
             </select>
           </div>
         </div>
@@ -321,8 +366,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
                 <th onclick="sortBy('nombre')">Titular</th>
                 <th>Tipo</th>
                 <th onclick="sortBy('garantia')">Garantía / Patente</th>
-                <th>Plazo</th>
-                <th>Cuota</th>
+                <th onclick="sortBy('plazo')">Plazo</th>
+                <th onclick="sortBy('cuota')">Cuota</th>
                 <th class="admin-only" onclick="sortBy('capital')">Capital</th>
                 <th class="admin-only">Legajo</th>
                 <th>Estado</th>
@@ -342,14 +387,17 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div class="pagos-grid">
         <div class="pagos-lista" id="pagos-lista"></div>
         <div class="pagos-detalle" id="pagos-detalle">
-          <div class="empty">Seleccioná un crédito para gestionar sus cuotas</div>
+          <div class="empty">
+            <div class="empty-icon">📋</div>
+            Seleccioná un crédito para gestionar sus cuotas
+          </div>
         </div>
       </div>
     </div>
 
     <div class="pane" id="pane-seguros">
       <div class="page-header">
-        <div><div class="page-title">Gestión de Seguros</div><div class="page-sub">Control de pólizas, comisiones y vencimientos</div></div>
+        <div><div class="page-title">Gestión de Seguros</div><div class="page-sub">Control de pólizas, comisiones y vencimientos (Campus Nexo)</div></div>
       </div>
       <div class="metrics-grid admin-only" id="seguros-metrics-grid"></div>
       <div class="card">
@@ -381,51 +429,53 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
     <div class="form-section">Datos del cliente</div>
     <div class="form-grid">
-      <div class="form-group full"><label>Nombre completo *</label><input type="text" id="f-nombre"></div>
-      <div class="form-group"><label>DNI</label><input type="text" id="f-dni"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="f-tel"></div>
+      <div class="form-group full"><label>Nombre completo *</label><input type="text" id="f-nombre" placeholder="Ej: Juan Carlos García"></div>
+      <div class="form-group"><label>DNI</label><input type="text" id="f-dni" placeholder="Número sin puntos"></div>
+      <div class="form-group"><label>Teléfono</label><input type="text" id="f-tel" placeholder="Código área + número"></div>
     </div>
 
     <div class="form-section">Datos del crédito</div>
     <div class="form-grid">
-      <div class="form-group"><label>Tipo de crédito *</label><select id="f-tipo" onchange="togglePrendario()"><option value="prendario">Prendario</option><option value="personal">Personal</option></select></div>
+      <div class="form-group"><label>Tipo de crédito *</label><select id="f-tipo" onchange="togglePrendario()"><option value="prendario">Prendario (con garantía)</option><option value="personal">Personal (sin garantía)</option></select></div>
       <div class="form-group"><label>Estado</label><select id="f-estado"><option value="AL DIA">Al día</option><option value="MORA">En mora</option><option value="TERMINADA">Terminada</option></select></div>
-      <div class="form-group"><label>Capital otorgado ($) *</label><input type="number" id="f-capital" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500);"></small></div>
+      <div class="form-group"><label>Capital otorgado ($) *</label><input type="number" id="f-capital" placeholder="Ej: 5000000" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500); font-weight: 500; margin-top: 2px;"></small></div>
       <div class="form-group"><label>Tasa Mensual (TEM %) *</label><input type="number" id="f-tasa" value="8" step="0.1" oninput="calcularCuota()"></div>
-      <div class="form-group"><label>Plazo (meses) *</label><input type="number" id="f-plazo" oninput="calcularCuota()"></div>
-      <div class="form-group"><label>Cuota mensual ($) *</label><input type="number" id="f-cuota"></div>
-      <div class="form-group"><label>Fecha de inicio</label><input type="date" id="f-fecha"></div>
+      <div class="form-group"><label>Plazo (meses) *</label><input type="number" id="f-plazo" placeholder="Ej: 24" oninput="calcularCuota()"></div>
+      <div class="form-group"><label>Cuota mensual ($) *</label><input type="number" id="f-cuota" placeholder="Calculada automáticamente"></div>
+      <div class="form-group full"><label>Fecha de inicio</label><input type="date" id="f-fecha"></div>
     </div>
     
     <div class="form-section">Refuerzos / Extraordinarias</div>
     <div class="form-grid">
-      <div class="form-group"><label>Monto del Refuerzo ($)</label><input type="number" id="f-ref-monto"></div>
-      <div class="form-group"><label>Cantidad de Refuerzos</label><input type="number" id="f-ref-cant"></div>
-      <div class="form-group full"><label>Frecuencia</label><select id="f-ref-frec"><option value="6">Semestral (6m)</option><option value="12">Anual (12m)</option><option value="3">Trimestral (3m)</option></select></div>
+      <div class="form-group"><label>Monto del Refuerzo ($)</label><input type="number" id="f-ref-monto" placeholder="Ej: 1000000"></div>
+      <div class="form-group"><label>Cantidad de Refuerzos</label><input type="number" id="f-ref-cant" placeholder="Ej: 4"></div>
+      <div class="form-group full"><label>Frecuencia de Refuerzos</label><select id="f-ref-frec"><option value="6">Semestral (cada 6 meses)</option><option value="12">Anual (cada 12 meses)</option><option value="3">Trimestral (cada 3 meses)</option></select></div>
     </div>
 
     <div id="prendario-section">
       <div class="form-section">Datos del vehículo y Taller</div>
       <div class="form-grid">
-        <div class="form-group"><label>Marca y modelo</label><input type="text" id="f-garantia"></div>
-        <div class="form-group"><label>Año</label><input type="number" id="f-anio"></div>
-        <div class="form-group"><label>Patente</label><input type="text" id="f-patente"></div>
-        <div class="form-group"><label>Valor del vehículo ($)</label><input type="number" id="f-valor-vehiculo"></div>
+        <div class="form-group"><label>Marca y modelo</label><input type="text" id="f-garantia" placeholder="Ej: Toyota Corolla"></div>
+        <div class="form-group"><label>Año</label><input type="number" id="f-anio" placeholder="Ej: 2018"></div>
+        <div class="form-group"><label>Patente</label><input type="text" id="f-patente" placeholder="Ej: AB123CD"></div>
+        <div class="form-group"><label>Valor del vehículo ($)</label><input type="number" id="f-valor-vehiculo" placeholder="Para calcular aforo"></div>
       </div>
       
       <div class="form-section">Seguros Inicial</div>
       <p style="font-size:11px; color:var(--gray-500); margin-bottom:10px;">Para editar pólizas existentes más rápido, usá el botón "Editar Seguro" en la pestaña Seguros.</p>
       <div class="form-grid">
-        <div class="form-group"><label>Aseguradora</label><input type="text" id="f-seguro-cia"></div>
-        <div class="form-group"><label>N° de Póliza</label><input type="text" id="f-seguro-poliza"></div>
-        <div class="form-group"><label>Costo de la cuota ($)</label><input type="number" id="f-seguro-costo"></div>
-        <div class="form-group admin-only"><label style="color:var(--green)">Tu comisión ($)</label><input type="number" id="f-seguro-comision"></div>
-        <div class="form-group full"><label style="color:var(--red)">Vencimiento</label><input type="date" id="f-seguro-vencimiento"></div>
+        <div class="form-group"><label>Aseguradora</label><input type="text" id="f-seguro-cia" placeholder="Ej: San Cristóbal..."></div>
+        <div class="form-group"><label>N° de Póliza</label><input type="text" id="f-seguro-poliza" placeholder="Ej: 12345678"></div>
+        <div class="form-group"><label>Costo de la cuota mensual ($)</label><input type="number" id="f-seguro-costo" placeholder="Lo que paga el cliente"></div>
+        <div class="form-group admin-only"><label style="color:var(--green)">Tu comisión mensual pactada ($)</label><input type="number" id="f-seguro-comision" placeholder="Ej: 15000"></div>
+        <div class="form-group full"><label style="color:var(--red)">Día de vencimiento (Recordatorio)</label><input type="date" id="f-seguro-vencimiento"></div>
       </div>
     </div>
 
     <div class="form-section">Notas</div>
-    <div class="form-group full"><textarea id="f-notas" rows="2"></textarea></div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Observaciones</label><textarea id="f-notas" rows="2" placeholder="Información adicional..." style="resize:vertical"></textarea></div>
+    </div>
 
     <div class="modal-footer"><button class="btn" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarCredito()">Guardar crédito</button></div>
   </div>
@@ -455,14 +505,15 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   <div class="modal" style="max-width: 450px;">
     <div class="modal-header">
       <div class="modal-icon" style="background:var(--blue-50); color:var(--blue-600); border-color:var(--blue-200);">📁</div>
-      <div><h2 id="ml-titulo">Legajo Digital</h2></div>
+      <div><h2 id="ml-titulo">Legajo Digital</h2><small id="ml-sub">Archivos y documentos del cliente</small></div>
     </div>
     <div class="form-section">Enlace a Google Drive</div>
     <div class="form-group full" style="margin-bottom: 20px;">
+      <label>Pegá acá el link de la carpeta con las fotos y PDFs</label>
       <input type="text" id="fl-url" placeholder="Ej: https://drive.google.com/..." style="margin-bottom: 8px;">
-      <a id="btn-abrir-drive" href="#" target="_blank" class="btn btn-sm" style="display:none; color:var(--blue-600); justify-content:center;">Abrir carpeta en Drive ↗</a>
+      <a id="btn-abrir-drive" href="#" target="_blank" class="btn btn-sm" style="display:none; color:var(--blue-600); border-color:var(--blue-300); text-decoration:none; justify-content:center;">Abrir carpeta en Drive ↗</a>
     </div>
-    <div class="form-section">Checklist de Documentación</div>
+    <div class="form-section">Checklist de Documentación Física/Digital</div>
     <div class="checklist">
       <label class="check-item"><input type="checkbox" id="chk-dni"><span>DNI (Frente y Dorso)</span></label>
       <label class="check-item"><input type="checkbox" id="chk-titulo"><span>Título Automotor / 08 Firmado</span></label>
@@ -482,7 +533,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <button class="btn btn-primary" id="mc-btn-1" style="justify-content:center; padding:12px; font-size:13px;"></button>
       <button class="btn" id="mc-btn-2" style="justify-content:center; padding:12px; font-size:13px;"></button>
       <button class="btn" id="mc-btn-3" style="justify-content:center; padding:12px; font-size:13px; display:none;"></button>
-      <button class="btn" onclick="cerrarModalCuota()" style="justify-content:center; padding:10px; border:none; background:transparent;">Cancelar</button>
+      <button class="btn" onclick="cerrarModalCuota()" style="justify-content:center; padding:10px; border:none; background:transparent; font-size:12px; margin-top:5px;">Cancelar</button>
     </div>
   </div>
 </div>
@@ -492,6 +543,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+  // ACÁ ESTÁN TUS CREDENCIALES EXACTAS DE FIREBASE
   const firebaseConfig = {
     apiKey: "AIzaSyBWbWA2e2i6K7bQ3Jj3yOHP8BK03RbgQ4w",
     authDomain: "gestion-cartera-nexo.firebaseapp.com",
@@ -505,8 +557,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // === ¡IMPORTANTE! CORREOS CON ACCESO TOTAL (DUEÑOS) ===
   const CORREOS_ADMIN = ["facundo@nexo.com", "sofia@nexo.com"];
 
+  // Variables Globales
   window.HOY = new Date();
   window.creditos = [];
   window.pagosEstado = {};
@@ -516,24 +570,31 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.pagoActual = null; window.legajoActualId = null;
   window.cuotaSelId = null; window.cuotaSelN = null;
 
+  // ESCUCHAR INICIO DE SESIÓN
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-layout').style.display = 'flex';
       document.getElementById('user-display').textContent = user.email;
 
+      // Verificar si es jefe o empleado
       window.IS_ADMIN = CORREOS_ADMIN.includes(user.email.toLowerCase());
       aplicarPermisos();
 
+      // Conectarse a la nube y escuchar cambios en tiempo real
       onSnapshot(doc(db, "empresa", "datos_nexo"), async (docSnap) => {
         if (docSnap.exists()) {
           window.creditos = docSnap.data().creditos || [];
           window.pagosEstado = docSnap.data().pagosEstado || {};
           window.renderAll();
         } else if (window.IS_ADMIN) {
+          // Si la nube está vacía, subir los datos locales de tu compu (MIGRACIÓN)
+          console.log("Subiendo datos locales a la nube...");
           const locales = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
           const pagosLocales = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
-          if (locales.length > 0) await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales });
+          if (locales.length > 0) {
+            await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales });
+          }
         }
       });
     } else {
@@ -542,22 +603,34 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     }
   });
 
+  // BOTÓN LOGIN Y LOGOUT
   document.getElementById('btn-login').addEventListener('click', async () => {
     const email = document.getElementById('login-email').value;
     const pass = document.getElementById('login-password').value;
     document.getElementById('login-error').style.display = 'none';
-    try { await signInWithEmailAndPassword(auth, email, pass); } 
-    catch (e) { document.getElementById('login-error').style.display = 'block'; }
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (e) {
+      document.getElementById('login-error').style.display = 'block';
+    }
   });
 
-  document.getElementById('btn-logout').addEventListener('click', () => { signOut(auth); });
+  window.cerrarSesion = () => signOut(auth);
 
+  // FUNCIÓN PARA GUARDAR EN LA NUBE
   window.guardar = async () => {
     localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
     localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
+    
     if (auth.currentUser) {
-      try { await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: window.creditos, pagosEstado: window.pagosEstado }); } 
-      catch (e) { console.log("Guardado local."); }
+      try {
+        await setDoc(doc(db, "empresa", "datos_nexo"), {
+          creditos: window.creditos,
+          pagosEstado: window.pagosEstado
+        });
+      } catch (e) {
+        alert("Error de conexión. Se guardó localmente.");
+      }
     }
   };
 
@@ -567,6 +640,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       if (window.IS_ADMIN) el.classList.remove('hide-admin');
       else el.classList.add('hide-admin');
     });
+
     if (!window.IS_ADMIN) {
       document.getElementById('nav-dashboard').classList.remove('active');
       window.showPane('cartera', document.querySelector('.nav-item:nth-child(2)'));
@@ -594,13 +668,19 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const cap = parseFloat(document.getElementById('f-capital').value) || 0;
     const plaz = parseInt(document.getElementById('f-plazo').value) || 0;
     const tasa = parseFloat(document.getElementById('f-tasa').value) || 0;
+    
     if (cap > 0) {
-      const aEntregar = cap - (cap * 0.03);
-      document.getElementById('resumen-otorgamiento').innerText = `Retención (3%): $${(cap*0.03).toLocaleString('es-AR')} | A transferir: $${aEntregar.toLocaleString('es-AR')}`;
+      const retenido = cap * 0.03;
+      const aEntregar = cap - retenido;
+      document.getElementById('resumen-otorgamiento').innerText = `Gasto otorg. (3%): $${retenido.toLocaleString('es-AR')} | Neto a transferir: $${aEntregar.toLocaleString('es-AR')}`;
+    } else {
+      document.getElementById('resumen-otorgamiento').innerText = '';
     }
+
     if (cap > 0 && plaz > 0 && tasa > 0) {
       const i = tasa / 100;
-      document.getElementById('f-cuota').value = Math.round(cap * (i / (1 - Math.pow(1 + i, -plaz))));
+      const cuota = cap * (i / (1 - Math.pow(1 + i, -plaz)));
+      document.getElementById('f-cuota').value = Math.round(cuota);
     }
   };
 
@@ -673,7 +753,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.renderTabla = () => {
     const q = document.getElementById('search-input').value.toLowerCase();
     const fe = document.getElementById('filter-estado').value;
-    let lista = window.creditos.filter(c => (!q || c.nombre.toLowerCase().includes(q) || c.patente.toLowerCase().includes(q)) && (!fe||c.estado===fe));
+    const ft = document.getElementById('filter-tipo').value;
+    let lista = window.creditos.filter(c => {
+      const m = !q || c.nombre.toLowerCase().includes(q) || c.patente.toLowerCase().includes(q);
+      return m && (!fe||c.estado===fe) && (!ft||c.tipo===ft);
+    });
     
     if (window.sortCol) lista.sort((a,b) => {
       const va=a[window.sortCol], vb=b[window.sortCol];
@@ -681,7 +765,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     });
 
     document.getElementById('cartera-sub').textContent = `${lista.length} créditos`;
-    document.getElementById('tabla-body').innerHTML = lista.map(c => {
+    const tbody = document.getElementById('tabla-body');
+    if (!lista.length) { tbody.innerHTML = `<tr><td colspan="9" class="empty">Sin resultados</td></tr>`; return; }
+    
+    tbody.innerHTML = lista.map(c => {
       const eBadge = c.estado==='AL DIA'?'badge-green':c.estado==='MORA'?'badge-red':'badge-gray';
       
       let legTxt = `<span class="badge badge-gray" onclick="abrirLegajo(${c.id})" style="cursor:pointer">Vacío</span>`;
@@ -733,7 +820,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <td>$${(c.seguroCosto||0).toLocaleString('es-AR')}</td>
         ${window.IS_ADMIN ? `<td style="color:var(--green);font-weight:600" class="admin-only">$${(c.seguroComision||0).toLocaleString('es-AR')}</td>` : ''}
         <td>${c.seguroVencimiento || '—'}</td>
-        <td style="text-align:right"><button class="btn btn-sm" style="color:var(--amber); border-color:var(--amber-border)" onclick="abrirModalSeguro(${c.id})">Editar Seguro ✎</button></td>
+        <td style="text-align:right">
+          <button class="btn btn-sm" style="color:var(--amber); border-color:var(--amber-border)" onclick="abrirModalSeguro(${c.id})">Editar Seguro ✎</button>
+        </td>
       </tr>`;
     }).join('');
   };
@@ -763,7 +852,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.cerrarModalSeguro = () => document.getElementById('modal-seguro-overlay').classList.remove('open');
   window.cerrarModalSeguroFuera = (e) => { if (e.target.id === 'modal-seguro-overlay') window.cerrarModalSeguro(); };
 
-  // ── PAGOS Y CUOTAS (CON REFUERZOS) ──
+  // ── PAGOS Y CUOTAS ──
   window.renderPagosLista = () => {
     const activos = window.creditos.filter(c=>c.estado!=='TERMINADA');
     document.getElementById('pagos-lista').innerHTML = activos.map(c => {
@@ -779,8 +868,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if (!window.pagosEstado[id]) window.pagosEstado[id]={};
     const inicio = new Date(c.fecha);
     
+    // Todas las cuotas se calculan para el día 10 del mes correspondiente
     const cuotas = Array.from({length:c.plazo},(_,i)=>{
-      const n=i+1, f=new Date(inicio); f.setMonth(f.getMonth()+n);
+      const n=i+1; 
+      let m = inicio.getMonth() + n;
+      let y = inicio.getFullYear();
+      if (m > 11) { y += Math.floor(m/12); m = m % 12; }
+      const f = new Date(y, m, 10); // Fijar al día 10
       return {n, f, e: window.pagosEstado[id][n] || (f<window.HOY?'vencida':'pendiente')};
     });
 
@@ -788,7 +882,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if (c.refuerzoCantidad > 0 && c.refuerzoMonto > 0) {
       const frec = c.refuerzoFrecuencia || 6;
       const rCuotas = Array.from({length: c.refuerzoCantidad}, (_, i) => {
-        const n = i + 1; const f = new Date(inicio); f.setMonth(f.getMonth() + (n * frec));
+        const n = i + 1; 
+        let m = inicio.getMonth() + (n * frec);
+        let y = inicio.getFullYear();
+        if (m > 11) { y += Math.floor(m/12); m = m % 12; }
+        const f = new Date(y, m, 10); // Fijar al día 10
         return {n, f, e: window.pagosEstado[id]['R'+n] || (f<window.HOY?'vencida':'pendiente')};
       });
       refHtml = `<h4 style="margin-top:20px; font-size:12px; color:var(--amber)">Refuerzos Extraordinarios</h4><div class="cuotas-grid">` + 
@@ -816,7 +914,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       btn2.className = 'btn'; btn2.innerHTML = 'Solo marcar pagada'; btn2.style.display = 'flex'; btn2.onclick = () => window.marcarPagada(false);
       btn3.style.display = 'none';
     } else {
-      // SI YA ESTÁ PAGADA -> BOTON PARA IMPRIMIR RECIBO O DESHACER
       btn1.className = 'btn'; btn1.innerHTML = '🖨️ Imprimir Recibo'; btn1.style.display = 'flex'; btn1.onclick = () => window.imprimirRecibo(id, n);
       btn2.style.display = 'none';
       btn3.className = 'btn btn-danger'; btn3.innerHTML = '✕ Deshacer pago'; btn3.style.display = 'flex'; btn3.onclick = () => { window.pagosEstado[id][n] = 'pendiente'; window.guardar(); window.cerrarModalCuota(); window.renderAll(); };
@@ -842,7 +939,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('f-tipo').value = c?.tipo||'prendario';
     document.getElementById('f-estado').value = c?.estado||'AL DIA';
     document.getElementById('f-capital').value = c?.capital||'';
-    document.getElementById('f-tasa').value = c?.tasa||8; // Cargar la tasa guardada (o 8% por defecto)
+    document.getElementById('f-tasa').value = c?.tasa||8; 
     document.getElementById('f-plazo').value = c?.plazo||'';
     document.getElementById('f-cuota').value = c?.cuota||'';
     document.getElementById('f-fecha').value = c?.fecha||window.HOY.toISOString().split('T')[0];
@@ -876,7 +973,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const nuevo = {
       id: window.editId || Date.now(),
       nombre, capital, cuota, plazo,
-      tasa: parseFloat(document.getElementById('f-tasa').value) || 8, // Se guarda la tasa para la métrica
+      tasa: parseFloat(document.getElementById('f-tasa').value) || 8,
       dni: document.getElementById('f-dni').value,
       tel: document.getElementById('f-tel').value,
       tipo: document.getElementById('f-tipo').value,
@@ -935,8 +1032,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(!window.IS_ADMIN) return;
     const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
     
-    // Cálculos
-    const totCap = acts.reduce((s,c)=>s+c.capital, 0); // Capital solo de los activos
+    const totCap = acts.reduce((s,c)=>s+c.capital, 0); 
     const recMens = acts.reduce((s,c)=>s+c.cuota, 0); 
     const comSeg = acts.reduce((s,c)=>s+(c.seguroComision||0), 0);
     
@@ -945,17 +1041,18 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
     acts.forEach(c => {
       totalACobrar += (c.cuota * c.plazo) + ((c.refuerzoMonto || 0) * (c.refuerzoCantidad || 0));
-      let tasaReal = c.tasa || 8; // Promediamos sobre 8% si es un crédito viejo sin tasa guardada
+      let tasaReal = c.tasa || 8;
       interesPonderado += (c.capital * tasaReal);
     });
 
     const tem = totCap ? (interesPonderado / totCap) : 0;
     const tna = tem * 12;
-
     const f = n => '$'+n.toLocaleString('es-AR');
+
+    // Se le agrega la clase 'hero' a la primera tarjeta para que ocupe 2 columnas
     document.getElementById('metrics-grid').innerHTML = `
-      <div class="metric-card blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div></div>
-      <div class="metric-card green"><div class="metric-label">Total a Cobrar (Contratos)</div><div class="metric-value">${f(totalACobrar)}</div></div>
+      <div class="metric-card hero blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div><div class="metric-sub">Liquidez mensual esperada</div></div>
+      <div class="metric-card green"><div class="metric-label">Total a Cobrar</div><div class="metric-value">${f(totalACobrar)}</div></div>
       <div class="metric-card"><div class="metric-label">Capital en Calle</div><div class="metric-value">${f(totCap)}</div></div>
       <div class="metric-card"><div class="metric-label">Rendimiento Promedio</div><div class="metric-value">${tem.toFixed(1)}% <span style="font-size:12px;color:var(--gray-500);font-family:var(--sans);font-weight:600">TEM</span></div><div class="metric-sub">TNA: ${tna.toFixed(1)}%</div></div>
       <div class="metric-card"><div class="metric-label">Comisiones Seguros</div><div class="metric-value">${f(comSeg)}</div></div>
@@ -965,6 +1062,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.renderDashboard = () => {
     if(!window.IS_ADMIN) return;
     const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
+    
+    // Gráfico de barras de capital
     const totalCap = acts.reduce((s,c)=>s+c.capital,0);
     const sorted = [...acts].sort((a,b)=>b.capital-a.capital).slice(0,5);
     document.getElementById('dash-barras').innerHTML = sorted.map(c => {
@@ -972,6 +1071,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       return `<div class="bar-row"><span class="bar-label">${c.nombre.split(' ').slice(0,2).join(' ')}</span><div class="bar-track"><div class="bar-fill-h" style="width:${pct}%"></div></div><span class="bar-val-h">$${(c.capital/1e6).toFixed(1)}M</span></div>`;
     }).join('');
 
+    // Gráfico de tipos
     const pr = acts.filter(c=>c.tipo==='prendario').length;
     const pe = acts.filter(c=>c.tipo==='personal').length;
     const tot = acts.length || 1;
@@ -979,11 +1079,41 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div class="bar-row"><span class="bar-label">Prendarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pr/tot*100)}%"></div></div><span class="bar-val-h">${pr}</span></div>
       <div class="bar-row"><span class="bar-label">Personales</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pe/tot*100)}%;background:var(--amber)"></div></div><span class="bar-val-h">${pe}</span></div>`;
 
+    // Gráfico de estado
     const alDia = window.creditos.filter(c=>c.estado==='AL DIA').length;
     const mora = window.creditos.filter(c=>c.estado==='MORA').length;
     document.getElementById('dash-estado').innerHTML = `
       <div class="venc-item"><div><div class="venc-name">Al día</div></div><span class="badge badge-green">${alDia}</span></div>
       <div class="venc-item"><div><div class="venc-name">En mora</div></div><span class="badge ${mora?'badge-red':'badge-gray'}">${mora||'—'}</span></div>`;
+
+    // LÓGICA VENCIMIENTOS DÍA 10
+    const hoy = window.HOY;
+    let mesRef = hoy.getMonth();
+    let anioRef = hoy.getFullYear();
+    
+    // Si ya pasamos el día 10, proyectamos al mes que viene
+    if (hoy.getDate() > 10) {
+      mesRef++;
+      if(mesRef > 11) { mesRef = 0; anioRef++; }
+    }
+    
+    const fechaVenc = new Date(anioRef, mesRef, 10);
+    const mesTxt = fechaVenc.toLocaleString('es-AR', { month: 'long' });
+    document.getElementById('venc-titulo').textContent = `Vencimientos: 10 de ${mesTxt}`;
+
+    const vencen = acts.filter(c => {
+      const inicio = new Date(c.fecha);
+      const mesesTranscurridos = (anioRef - inicio.getFullYear()) * 12 + (mesRef - inicio.getMonth());
+      // Chequear si el crédito ya empezó y si la cuota correspondiente NO está pagada
+      return mesesTranscurridos > 0 && mesesTranscurridos <= c.plazo && (!window.pagosEstado[c.id] || window.pagosEstado[c.id][mesesTranscurridos] !== 'pagada');
+    });
+
+    document.getElementById('dash-venc').innerHTML = vencen.length ? vencen.map(c => `
+      <div class="venc-item">
+        <span class="venc-name">${c.nombre.split(' ').slice(0,2).join(' ')}</span>
+        <span class="venc-info">$${c.cuota.toLocaleString('es-AR')}</span>
+      </div>
+    `).join('') : '<div class="empty" style="padding:15px">No hay cobros pendientes para esta fecha</div>';
   };
 
   window.renderAll = () => {
