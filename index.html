@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexo Autocréditos — Gestión de Cartera</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e5baa">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1547,6 +1550,12 @@ document.getElementById('fecha-hoy').textContent =
   HOY.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});
 
 renderAll();
+// Registrar el Service Worker para PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
 </script>
 </body>
 </html>
