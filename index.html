@@ -40,9 +40,6 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .login-box button:hover { background: var(--blue-600); }
 #login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
 
-/* ── ROLES (Ocultar a empleados) ── */
-.admin-only { display: none !important; }
-
 /* ── ESTRUCTURA APP ── */
 #app-layout { display: none; min-height: 100vh; }
 .sidebar { width: 240px; min-width: 240px; background: var(--blue-900); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
@@ -636,9 +633,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
   // ── LÓGICA DE ROLES Y NAVEGACIÓN ──
   function aplicarPermisos() {
+    // Ya no usamos clases de CSS conflictivas, manejamos el display directo con JS
     document.querySelectorAll('.admin-only').forEach(el => {
-      if (window.IS_ADMIN) el.classList.remove('hide-admin');
-      else el.classList.add('hide-admin');
+      el.style.display = window.IS_ADMIN ? '' : 'none';
     });
 
     if (!window.IS_ADMIN) {
@@ -1049,7 +1046,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const tna = tem * 12;
     const f = n => '$'+n.toLocaleString('es-AR');
 
-    // Se le agrega la clase 'hero' a la primera tarjeta para que ocupe 2 columnas
+    // Se le agrega la clase 'hero' a la primera tarjeta para que ocupe el doble
     document.getElementById('metrics-grid').innerHTML = `
       <div class="metric-card hero blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div><div class="metric-sub">Liquidez mensual esperada</div></div>
       <div class="metric-card green"><div class="metric-label">Total a Cobrar</div><div class="metric-value">${f(totalACobrar)}</div></div>
