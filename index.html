@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <style>
-/* ── VARIABLES Y RESET (Mismo que antes) ── */
+/* ── VARIABLES Y RESET ── */
 :root {
   --blue-900: #0a1628; --blue-800: #0d2040; --blue-700: #103058; --blue-600: #1a4a8a;
   --blue-500: #1e5baa; --blue-400: #2e73d0; --blue-300: #5b9de8; --blue-200: #a8c8f5;
@@ -29,41 +29,25 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sans); font-size: 13px; line-height: 1.6; min-height: 100vh; }
 
-/* ── PANTALLA DE LOGIN ── */
-#login-screen {
-  position: fixed; inset: 0; background: var(--blue-900);
-  display: flex; align-items: center; justify-content: center; z-index: 9999;
-}
-.login-box {
-  background: var(--white); padding: 40px; border-radius: var(--radius-xl);
-  width: 100%; max-width: 380px; box-shadow: var(--shadow-lg); text-align: center;
-}
+/* ── LOGIN SCREEN ── */
+#login-screen { position: fixed; inset: 0; background: var(--blue-900); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.login-box { background: var(--white); padding: 40px; border-radius: var(--radius-xl); width: 100%; max-width: 380px; box-shadow: var(--shadow-lg); text-align: center; }
 .login-box h1 { font-family: var(--serif); color: var(--blue-800); font-size: 28px; margin-bottom: 5px; font-style: italic; }
 .login-box p { color: var(--gray-500); margin-bottom: 24px; font-size: 13px; }
-.login-box input {
-  width: 100%; padding: 12px 14px; margin-bottom: 14px;
-  border: 1.5px solid var(--gray-200); border-radius: var(--radius);
-  font-family: var(--sans); font-size: 14px; outline: none; transition: all .2s;
-}
+.login-box input { width: 100%; padding: 12px 14px; margin-bottom: 14px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-family: var(--sans); font-size: 14px; outline: none; transition: all .2s; }
 .login-box input:focus { border-color: var(--blue-500); box-shadow: 0 0 0 3px var(--blue-100); }
-.login-box button {
-  width: 100%; padding: 12px; background: var(--blue-500); color: var(--white);
-  border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; font-family: var(--sans);
-  cursor: pointer; transition: background .2s; margin-top: 10px;
-}
+.login-box button { width: 100%; padding: 12px; background: var(--blue-500); color: var(--white); border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: background .2s; margin-top: 10px; }
 .login-box button:hover { background: var(--blue-600); }
 #login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
 
-/* ── INTERFAZ APP (Oculta hasta login) ── */
+/* ── APP LAYOUT ── */
 #app-layout { display: none; min-height: 100vh; }
-
-/* ── COMPONENTES GENERALES ── */
 .sidebar { width: 240px; min-width: 240px; background: var(--blue-900); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
 .sidebar-logo { padding: 24px 22px 20px; border-bottom: 1px solid rgba(255,255,255,.07); display: flex; align-items: center; gap: 12px; }
-.logo-mark { width: 38px; height: 38px; background: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-mark { width: 38px; height: 38px; background: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
 .logo-mark svg { width: 22px; height: 22px; }
 .logo-text { flex: 1; }
-.logo-name { font-family: var(--serif); font-size: 15px; color: var(--white); line-height: 1.1; }
+.logo-name { font-family: var(--serif); font-size: 15px; color: var(--white); line-height: 1.1; letter-spacing: -0.01em; }
 .logo-sub { font-size: 10px; color: var(--blue-300); letter-spacing: .05em; text-transform: uppercase; margin-top: 1px; }
 .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
 .nav-label { font-size: 10px; color: var(--blue-400); text-transform: uppercase; letter-spacing: .1em; padding: 0 10px; margin-bottom: 6px; margin-top: 16px; }
@@ -92,10 +76,12 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 
 .alertas-bar { display: none; align-items: center; gap: 8px; padding: 10px 32px; background: var(--red-bg); border-bottom: 1px solid var(--red-border); flex-wrap: wrap; }
 .alertas-bar.visible { display: flex; }
-.alerta-tag { background: var(--white); border: 1px solid var(--red-border); color: var(--red); border-radius: 99px; padding: 3px 12px; font-size: 11px; cursor: pointer; font-weight: 500; }
+.alerta-tag { background: var(--white); border: 1px solid var(--red-border); color: var(--red); border-radius: 99px; padding: 3px 12px; font-size: 11px; cursor: pointer; font-weight: 500; transition: all .15s; }
+.alerta-tag:hover { background: var(--red); color: var(--white); }
 
 .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 14px; margin-bottom: 24px; }
-.metric-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.metric-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s; }
+.metric-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 .metric-card.blue { background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%); border-color: var(--blue-600); }
 .metric-card.blue .metric-label { color: var(--blue-200); }
 .metric-card.blue .metric-value { color: var(--white); }
@@ -104,7 +90,7 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .metric-card.green .metric-label { color: var(--green-border); }
 .metric-card.green .metric-value { color: var(--white); }
 .metric-card.green .metric-sub { color: #86efac; }
-.metric-label { font-size: 11px; color: var(--gray-500); font-weight: 500; margin-bottom: 6px; }
+.metric-label { font-size: 11px; color: var(--gray-500); font-weight: 500; margin-bottom: 6px; letter-spacing: .02em; }
 .metric-value { font-family: var(--serif); font-size: 24px; color: var(--blue-700); line-height: 1; }
 .metric-sub { font-size: 11px; color: var(--gray-400); margin-top: 5px; }
 
@@ -116,34 +102,43 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
 .search-wrap { position: relative; flex: 1; min-width: 200px; }
 .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 13px; }
-.search-input { width: 100%; padding: 8px 12px 8px 32px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-700); font-family: var(--sans); font-size: 12px; outline: none; }
-select.flt { padding: 8px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-600); font-family: var(--sans); font-size: 12px; outline: none; cursor: pointer; }
+.search-input { width: 100%; padding: 8px 12px 8px 32px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-700); font-family: var(--sans); font-size: 12px; outline: none; transition: border-color .15s; }
+.search-input:focus { border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(30,91,170,.08); }
+select.flt { padding: 8px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-600); font-family: var(--sans); font-size: 12px; outline: none; cursor: pointer; transition: border-color .15s; }
+select.flt:focus { border-color: var(--blue-400); }
 
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-thead th { text-align: left; font-size: 11px; color: var(--gray-500); font-weight: 600; text-transform: uppercase; padding: 10px 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; cursor: pointer; }
-tbody tr { border-bottom: 1px solid var(--gray-100); }
+thead th { text-align: left; font-size: 11px; color: var(--gray-500); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 10px 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; cursor: pointer; user-select: none; transition: color .15s; }
+thead th:hover { color: var(--blue-600); }
+thead th.sort-asc::after { content: ' ↑'; color: var(--blue-500); }
+thead th.sort-desc::after { content: ' ↓'; color: var(--blue-500); }
+tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .1s; }
+tbody tr:hover { background: var(--blue-50); }
 tbody td { padding: 11px 14px; font-size: 12px; color: var(--gray-600); white-space: nowrap; }
 tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal; min-width: 150px; }
 
-.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 9px; border-radius: 99px; font-weight: 600; }
-.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-.badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
-.badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
-.badge-gray { background: var(--gray-100); color: var(--gray-500); border: 1px solid var(--gray-200); }
-.badge-blue { background: var(--blue-50); color: var(--blue-600); border: 1px solid var(--blue-200); }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 9px; border-radius: 99px; font-weight: 600; letter-spacing: .02em; }
+.badge-green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+.badge-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
+.badge-amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
+.badge-gray   { background: var(--gray-100);  color: var(--gray-500); border: 1px solid var(--gray-200); }
+.badge-blue   { background: var(--blue-50);   color: var(--blue-600); border: 1px solid var(--blue-200); }
 
 .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
 .bar-label { font-size: 12px; color: var(--gray-600); min-width: 125px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar-track { flex: 1; background: var(--gray-100); border-radius: 4px; height: 7px; }
-.bar-fill-h { height: 7px; border-radius: 4px; background: linear-gradient(90deg, var(--blue-400), var(--blue-600)); }
+.bar-fill-h { height: 7px; border-radius: 4px; background: linear-gradient(90deg, var(--blue-400), var(--blue-600)); transition: width .6s cubic-bezier(.4,0,.2,1); }
 .bar-val-h { font-size: 11px; color: var(--gray-500); min-width: 65px; text-align: right; }
 .venc-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--gray-100); }
+.venc-item:last-child { border: none; }
+.venc-name { font-size: 12px; color: var(--gray-700); font-weight: 500; }
+.venc-info { font-size: 11px; color: var(--gray-400); }
 
-.pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); min-height: 420px; }
+.pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); min-height: 420px; }
 .pagos-lista { border-right: 1px solid var(--gray-100); overflow-y: auto; max-height: 560px; }
-.pagos-item { padding: 13px 18px; border-bottom: 1px solid var(--gray-100); cursor: pointer; }
+.pagos-item { padding: 13px 18px; border-bottom: 1px solid var(--gray-100); cursor: pointer; transition: background .1s; }
 .pagos-item:hover { background: var(--blue-50); }
 .pagos-item.active { background: var(--blue-50); border-left: 3px solid var(--blue-500); }
 .pagos-item-name { font-size: 12px; color: var(--gray-800); font-weight: 600; }
@@ -151,39 +146,55 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .pagos-detalle { padding: 22px 24px; }
 .pagos-detalle h3 { font-family: var(--serif); font-size: 18px; color: var(--blue-800); margin-bottom: 16px; font-style: italic; }
 .cuotas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
-.cuota-btn { padding: 9px 6px; border-radius: var(--radius); border: 1.5px solid var(--gray-200); text-align: center; cursor: pointer; background: var(--white); box-shadow: var(--shadow-sm); }
+.cuota-btn { padding: 9px 6px; border-radius: var(--radius); border: 1.5px solid var(--gray-200); text-align: center; cursor: pointer; transition: all .15s; background: var(--white); box-shadow: var(--shadow-sm); }
 .cuota-btn .cuota-num { font-size: 11px; color: var(--gray-600); font-weight: 600; }
 .cuota-btn .cuota-mes { font-size: 10px; color: var(--gray-400); margin-top: 2px; }
+.cuota-btn .cuota-ico { font-size: 12px; margin-top: 3px; }
+.cuota-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .cuota-btn.pagada { background: var(--green-bg); border-color: var(--green-border); }
 .cuota-btn.pagada .cuota-num { color: var(--green); }
 .cuota-btn.vencida { background: var(--red-bg); border-color: var(--red-border); }
 .cuota-btn.vencida .cuota-num { color: var(--red); }
+.cuota-btn.proxima { background: var(--amber-bg); border-color: var(--amber-border); }
+.cuota-btn.proxima .cuota-num { color: var(--amber); }
 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,22,40,.55); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal-overlay.open { display: flex; }
 .modal { background: var(--white); border-radius: var(--radius-xl); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 32px 36px; box-shadow: var(--shadow-lg); }
 .modal-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
-.modal-icon { width: 42px; height: 42px; background: var(--blue-50); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid var(--blue-200); }
+.modal-icon { width: 42px; height: 42px; background: var(--blue-50); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid var(--blue-200); flex-shrink: 0; }
 .modal h2 { font-family: var(--serif); font-size: 21px; color: var(--blue-800); font-style: italic; }
-.modal h2 small { display: block; font-family: var(--sans); font-size: 12px; color: var(--gray-400); font-weight: 400; margin-top: 2px; }
+.modal h2 small { display: block; font-family: var(--sans); font-style: normal; font-size: 12px; color: var(--gray-400); font-weight: 400; margin-top: 2px; }
 
-.form-section { font-size: 11px; font-weight: 600; color: var(--blue-500); text-transform: uppercase; margin: 20px 0px 12px 0px; padding-bottom: 6px; border-bottom: 1px solid var(--blue-100); }
+.form-section { font-size: 11px; font-weight: 600; color: var(--blue-500); text-transform: uppercase; letter-spacing: .08em; margin: 20px 0px 12px 0px; padding-bottom: 6px; border-bottom: 1px solid var(--blue-100); }
+.form-section:first-of-type { margin-top: 0px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group.full { grid-column: 1 / -1; }
-.form-group label { font-size: 11px; color: var(--gray-500); font-weight: 600; }
-.form-group input, .form-group select, .form-group textarea { padding: 9px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-800); font-family: var(--sans); font-size: 13px; outline: none; }
+.form-group label { font-size: 11px; color: var(--gray-500); font-weight: 600; letter-spacing: .03em; }
+.form-group input, .form-group select, .form-group textarea { padding: 9px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-800); font-family: var(--sans); font-size: 13px; outline: none; transition: border-color .15s, box-shadow .15s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(30,91,170,.08); }
 .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--gray-100); }
+
+.empty { padding: 36px; text-align: center; color: var(--gray-400); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+/* Checklist de Legajos */
+.checklist { display: flex; flex-direction: column; gap: 8px; background: var(--gray-50); padding: 16px; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+.check-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--blue-600); cursor: pointer; }
+.check-item span { font-size: 13px; color: var(--gray-700); }
+.check-item input:checked + span { text-decoration: line-through; color: var(--gray-400); }
 
 .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .page-title { font-family: var(--serif); font-size: 22px; color: var(--blue-900); font-style: italic; }
 .page-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
 .pane { display: none; }
 .pane.active { display: block; }
-.empty { padding: 36px; text-align: center; color: var(--gray-400); font-size: 13px; }
 
-/* ROLES Y PERMISOS */
-.solo-admin { display: none; } /* Esta clase se oculta por defecto hasta validar rol */
+/* ── CLASE CLAVE PARA ROLES ── */
+.solo-admin { display: none; }
 
 @media(max-width: 900px) {
   .sidebar { width: 60px; min-width: 60px; }
@@ -195,6 +206,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .pagos-grid { grid-template-columns: 1fr; }
   .content { padding: 20px 16px; }
   .topbar { padding: 0 16px; }
+}
+@media(max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
@@ -208,7 +223,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </svg>
     </div>
     <h1>Nexo Autocréditos</h1>
-    <p>Ingresá para acceder al sistema</p>
+    <p>Ingresá para acceder al sistema en la nube</p>
     
     <input type="email" id="login-email" placeholder="Correo electrónico">
     <input type="password" id="login-password" placeholder="Contraseña">
@@ -219,11 +234,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 </div>
 
 <div class="layout" id="app-layout">
-
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-mark">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M4 13L9.5 18.5L20 7" stroke="#1e5baa" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 13L9.5 18.5L20 7" stroke="#1e5baa" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </div>
     <div class="logo-text">
       <div class="logo-name">Nexo</div>
@@ -246,7 +262,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="nav-item" onclick="showPane('seguros',this)">
       <span class="icon">🛡️</span><span>Seguros</span>
     </div>
-    <div class="nav-item" style="opacity: 0.6; cursor: default;" title="Próximamente">
+    <div class="nav-item" style="opacity: 0.6; cursor: default;">
       <span class="icon">🔧</span><span>Taller <span style="font-size:8px; background:var(--amber); color:white; padding:2px 4px; border-radius:4px; margin-left:5px">Meta</span></span>
     </div>
     <div class="nav-label">Acciones</div>
@@ -279,18 +295,40 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
     <div class="pane active solo-admin" id="pane-dashboard">
       <div class="page-header">
-        <div><div class="page-title">Resumen general</div><div class="page-sub">Vista ejecutiva de la cartera</div></div>
+        <div>
+          <div class="page-title">Resumen general</div>
+          <div class="page-sub">Vista ejecutiva de la cartera</div>
+        </div>
       </div>
       <div class="metrics-grid" id="metrics-grid"></div>
       <div class="dash-row">
-        <div class="card"><div class="card-header"><span class="card-title">Capital por cliente</span></div><div class="card-body" id="dash-barras"></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">Próximos vencimientos</span></div><div class="card-body" id="dash-venc"></div></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Capital por cliente</span></div>
+          <div class="card-body" id="dash-barras"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Próximos vencimientos</span><span class="badge badge-blue" id="badge-venc">30 días</span></div>
+          <div class="card-body" id="dash-venc"></div>
+        </div>
+      </div>
+      <div class="dash-row">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Distribución por tipo</span></div>
+          <div class="card-body" id="dash-tipo"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Estado del portafolio</span></div>
+          <div class="card-body" id="dash-estado"></div>
+        </div>
       </div>
     </div>
 
     <div class="pane" id="pane-cartera">
       <div class="page-header">
-        <div><div class="page-title">Cartera de créditos</div><div class="page-sub" id="cartera-sub"></div></div>
+        <div>
+          <div class="page-title">Cartera de créditos</div>
+          <div class="page-sub" id="cartera-sub"></div>
+        </div>
       </div>
       <div class="card">
         <div class="card-body" style="padding-bottom:0">
@@ -300,7 +338,15 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
               <input type="text" class="search-input" id="search-input" placeholder="Buscar por nombre, patente, DNI..." oninput="renderTabla()">
             </div>
             <select class="flt" id="filter-estado" onchange="renderTabla()">
-              <option value="">Todos</option><option value="AL DIA">Al día</option><option value="MORA">En mora</option><option value="TERMINADA">Terminada</option>
+              <option value="">Todos los estados</option>
+              <option value="AL DIA">Al día</option>
+              <option value="MORA">En mora</option>
+              <option value="TERMINADA">Terminada</option>
+            </select>
+            <select class="flt" id="filter-tipo" onchange="renderTabla()">
+              <option value="">Todos los tipos</option>
+              <option value="prendario">Prendario</option>
+              <option value="personal">Personal</option>
             </select>
           </div>
         </div>
@@ -311,10 +357,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
                 <th onclick="sortBy('nombre')">Titular</th>
                 <th>Tipo</th>
                 <th onclick="sortBy('garantia')">Garantía / Patente</th>
-                <th>Plazo</th>
-                <th>Cuota</th>
-                <th class="solo-admin">Capital</th>
-                <th class="solo-admin">Total</th>
+                <th onclick="sortBy('plazo')">Plazo</th>
+                <th onclick="sortBy('cuota')">Cuota</th>
+                <th class="solo-admin" onclick="sortBy('capital')">Capital</th>
                 <th class="solo-admin">Legajo</th>
                 <th>Estado</th>
                 <th style="text-align:right">Acciones</th>
@@ -328,21 +373,31 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
     <div class="pane" id="pane-pagos">
       <div class="page-header">
-        <div><div class="page-title">Seguimiento de pagos</div><div class="page-sub">Marcá cada cuota al cobrarla o imprimí el recibo</div></div>
+        <div>
+          <div class="page-title">Seguimiento de pagos</div>
+          <div class="page-sub">Marcá cada cuota al cobrarla o imprimí el recibo</div>
+        </div>
       </div>
       <div class="pagos-grid">
         <div class="pagos-lista" id="pagos-lista"></div>
         <div class="pagos-detalle" id="pagos-detalle">
-          <div class="empty">Seleccioná un crédito para gestionar sus cuotas</div>
+          <div class="empty">
+            <div class="empty-icon">📋</div>
+            Seleccioná un crédito para gestionar sus cuotas
+          </div>
         </div>
       </div>
     </div>
 
     <div class="pane" id="pane-seguros">
       <div class="page-header">
-        <div><div class="page-title">Gestión de Seguros</div><div class="page-sub">Control de pólizas y vencimientos</div></div>
+        <div>
+          <div class="page-title">Gestión de Seguros</div>
+          <div class="page-sub">Control de pólizas, comisiones y vencimientos (Campus Nexo)</div>
+        </div>
       </div>
-      <div class="metrics-grid solo-admin" id="seguros-metrics-grid"></div>
+      <div class="metrics-grid solo-admin" id="seguros-metrics-grid">
+        </div>
       <div class="card">
         <div class="table-wrap">
           <table>
@@ -367,275 +422,208 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   <div class="modal">
     <div class="modal-header">
       <div class="modal-icon">📝</div>
-      <div><h2 id="modal-titulo">Nuevo crédito<small id="modal-sub">Completá los datos del cliente y la operación</small></h2></div>
+      <div>
+        <h2 id="modal-titulo">Nuevo crédito<small id="modal-sub">Completá los datos del cliente y la operación</small></h2>
+      </div>
     </div>
 
-    <div class="form-section">Datos Generales</div>
+    <div class="form-section">Datos del cliente</div>
     <div class="form-grid">
-      <div class="form-group full"><label>Nombre completo *</label><input type="text" id="f-nombre"></div>
-      <div class="form-group"><label>DNI</label><input type="text" id="f-dni"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="f-tel"></div>
-      <div class="form-group"><label>Tipo de crédito *</label><select id="f-tipo"><option value="prendario">Prendario</option><option value="personal">Personal</option></select></div>
-      <div class="form-group"><label>Estado</label><select id="f-estado"><option value="AL DIA">Al día</option><option value="MORA">En mora</option><option value="TERMINADA">Terminada</option></select></div>
-      <div class="form-group"><label>Capital otorgado ($) *</label><input type="number" id="f-capital" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500);"></small></div>
-      <div class="form-group"><label>Tasa Mensual (TEM %) *</label><input type="number" id="f-tasa" value="8" step="0.1" oninput="calcularCuota()"></div>
-      <div class="form-group"><label>Plazo (meses) *</label><input type="number" id="f-plazo" oninput="calcularCuota()"></div>
-      <div class="form-group"><label>Cuota mensual ($) *</label><input type="number" id="f-cuota"></div>
-      <div class="form-group"><label>Fecha de inicio</label><input type="date" id="f-fecha"></div>
+      <div class="form-group full">
+        <label>Nombre completo *</label>
+        <input type="text" id="f-nombre" placeholder="Ej: Juan Carlos García">
+      </div>
+      <div class="form-group">
+        <label>DNI</label>
+        <input type="text" id="f-dni" placeholder="Número sin puntos">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" id="f-tel" placeholder="Código área + número (Ej: 3467...)">
+      </div>
+    </div>
+
+    <div class="form-section">Datos del crédito</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tipo de crédito *</label>
+        <select id="f-tipo" onchange="togglePrendario()">
+          <option value="prendario">Prendario (con garantía)</option>
+          <option value="personal">Personal (sin garantía)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="f-estado">
+          <option value="AL DIA">Al día</option>
+          <option value="MORA">En mora</option>
+          <option value="TERMINADA">Terminada</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Capital otorgado ($) *</label>
+        <input type="number" id="f-capital" placeholder="5000000" oninput="calcularCuota()">
+        <small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500); font-weight: 500; margin-top: 2px;"></small>
+      </div>
+      <div class="form-group">
+        <label>Tasa Mensual (TEM %) *</label>
+        <input type="number" id="f-tasa" value="8" step="0.1" oninput="calcularCuota()">
+      </div>
+      <div class="form-group">
+        <label>Plazo (meses) *</label>
+        <input type="number" id="f-plazo" placeholder="24" oninput="calcularCuota()">
+      </div>
+      <div class="form-group">
+        <label>Cuota mensual ($) *</label>
+        <input type="number" id="f-cuota" placeholder="Calculada automáticamente">
+      </div>
+      <div class="form-group">
+        <label>Fecha de inicio</label>
+        <input type="date" id="f-fecha">
+      </div>
     </div>
     
-    <div class="form-section">Garantía y Seguros</div>
+    <div class="form-section">Refuerzos / Extraordinarias</div>
     <div class="form-grid">
-      <div class="form-group"><label>Garantía / Auto</label><input type="text" id="f-garantia"></div>
-      <div class="form-group"><label>Año</label><input type="number" id="f-anio"></div>
-      <div class="form-group"><label>Patente</label><input type="text" id="f-patente"></div>
-      <div class="form-group"><label>Valor Vehículo ($)</label><input type="number" id="f-valor-vehiculo"></div>
-      <div class="form-group"><label>Aseguradora</label><input type="text" id="f-seguro-cia"></div>
-      <div class="form-group"><label>N° Póliza</label><input type="text" id="f-seguro-poliza"></div>
-      <div class="form-group"><label>Costo mensual ($)</label><input type="number" id="f-seguro-costo"></div>
-      <div class="form-group solo-admin"><label>Comisión Nexo ($)</label><input type="number" id="f-seguro-comision"></div>
-      <div class="form-group"><label>Vencimiento Seguro</label><input type="date" id="f-seguro-vencimiento"></div>
+      <div class="form-group">
+        <label>Monto del Refuerzo ($)</label>
+        <input type="number" id="f-ref-monto" placeholder="Ej: 1000000">
+      </div>
+      <div class="form-group">
+        <label>Cantidad de Refuerzos</label>
+        <input type="number" id="f-ref-cant" placeholder="Ej: 4">
+      </div>
+      <div class="form-group full">
+        <label>Frecuencia de Refuerzos</label>
+        <select id="f-ref-frec">
+          <option value="6">Semestral (cada 6 meses)</option>
+          <option value="12">Anual (cada 12 meses)</option>
+          <option value="3">Trimestral (cada 3 meses)</option>
+        </select>
+      </div>
     </div>
-    <div class="modal-footer"><button class="btn" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarCredito()">Guardar</button></div>
+
+    <div id="prendario-section">
+      <div class="form-section">Datos del vehículo y Taller</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Marca y modelo</label>
+          <input type="text" id="f-garantia" placeholder="Ej: Toyota Corolla">
+        </div>
+        <div class="form-group">
+          <label>Año</label>
+          <input type="number" id="f-anio" placeholder="2018">
+        </div>
+        <div class="form-group">
+          <label>Patente</label>
+          <input type="text" id="f-patente" placeholder="AB123CD">
+        </div>
+        <div class="form-group">
+          <label>Valor del vehículo ($)</label>
+          <input type="number" id="f-valor-vehiculo" placeholder="Para calcular LTV">
+        </div>
+        <div class="form-group full">
+          <label style="color:var(--amber)">Próximo Service Oficial</label>
+          <input type="date" id="f-service">
+        </div>
+      </div>
+      
+      <div class="form-section">Seguros</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Aseguradora</label>
+          <input type="text" id="f-seguro-cia" placeholder="Ej: San Cristóbal...">
+        </div>
+        <div class="form-group">
+          <label>N° de Póliza</label>
+          <input type="text" id="f-seguro-poliza" placeholder="Ej: 12345678">
+        </div>
+        <div class="form-group">
+          <label>Costo de la cuota mensual ($)</label>
+          <input type="number" id="f-seguro-costo" placeholder="Lo que paga el cliente">
+        </div>
+        <div class="form-group solo-admin">
+          <label style="color:var(--green)">Tu comisión mensual pactada ($)</label>
+          <input type="number" id="f-seguro-comision" placeholder="Ej: 15000">
+        </div>
+        <div class="form-group full">
+          <label style="color:var(--red)">Día de vencimiento (Recordatorio)</label>
+          <input type="date" id="f-seguro-vencimiento">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">Notas</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Observaciones</label>
+        <textarea id="f-notas" rows="2" placeholder="Información adicional..." style="resize:vertical"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCredito()">Guardar crédito</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-legajo-overlay" onclick="cerrarModalLegajoFuera(event)">
+  <div class="modal" style="max-width: 450px;">
+    <div class="modal-header">
+      <div class="modal-icon" style="background:var(--blue-50); color:var(--blue-600); border-color:var(--blue-200);">📁</div>
+      <div>
+        <h2 id="ml-titulo">Legajo Digital</h2>
+        <small id="ml-sub">Archivos y documentos del cliente</small>
+      </div>
+    </div>
+    
+    <div class="form-section">Enlace a Google Drive</div>
+    <div class="form-group full" style="margin-bottom: 20px;">
+      <label>Pegá acá el link de la carpeta con las fotos y PDFs</label>
+      <input type="text" id="fl-url" placeholder="Ej: https://drive.google.com/..." style="margin-bottom: 8px;">
+      <a id="btn-abrir-drive" href="#" target="_blank" class="btn btn-sm" style="display:none; color:var(--blue-600); border-color:var(--blue-300); text-decoration:none; justify-content:center;">Abrir carpeta en Drive ↗</a>
+    </div>
+
+    <div class="form-section">Checklist de Documentación Física/Digital</div>
+    <div class="checklist">
+      <label class="check-item"><input type="checkbox" id="chk-dni"><span>DNI (Frente y Dorso)</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-titulo"><span>Título Automotor / 08 Firmado</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-contrato"><span>Contrato de Prenda firmado</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-pagare"><span>Pagarés firmados</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-poliza"><span>Póliza de Seguro vigente</span></label>
+    </div>
+
+    <div class="modal-footer" style="margin-top: 24px;">
+      <button class="btn" onclick="cerrarModalLegajo()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarLegajo()">Guardar Legajo</button>
+    </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="modal-cuota-overlay" onclick="cerrarModalCuotaFuera(event)">
   <div class="modal" style="max-width: 380px; padding: 28px;">
-    <div class="modal-header" style="margin-bottom: 12px;"><div><h2 id="mc-titulo" style="font-size: 19px;">Cuota</h2></div></div>
+    <div class="modal-header" style="margin-bottom: 12px;">
+      <div>
+        <h2 id="mc-titulo" style="font-size: 19px;">Cuota N° 1</h2>
+      </div>
+    </div>
     <p id="mc-info" style="font-size: 14px; margin-bottom: 24px; color: var(--gray-600);"></p>
+    
     <div style="display:flex; flex-direction:column; gap:10px;">
       <button class="btn btn-primary" id="mc-btn-1" style="justify-content:center; padding:12px; font-size:13px;"></button>
       <button class="btn" id="mc-btn-2" style="justify-content:center; padding:12px; font-size:13px;"></button>
-      <button class="btn" onclick="cerrarModalCuota()" style="justify-content:center; padding:10px; border:none; background:transparent;">Cancelar</button>
+      <button class="btn" onclick="cerrarModalCuota()" style="justify-content:center; padding:10px; border:none; background:transparent; font-size:12px; margin-top:5px;">Cancelar</button>
     </div>
   </div>
 </div>
 
-<script>
-// Variables Globales
-const HOY = new Date();
-let creditos = [];
-let pagosEstado = {};
-let sortCol = null, sortDir = 1, editId = null, pagoActual = null, cuotaSelId = null, cuotaSelN = null;
-
-// ROL Y PERMISOS: Se actualiza cuando el usuario se loguea
-let IS_ADMIN = false; 
-
-function aplicarPermisosUI() {
-  document.querySelectorAll('.solo-admin').forEach(el => {
-    el.style.display = IS_ADMIN ? '' : 'none';
-  });
-  if (!IS_ADMIN) {
-    document.getElementById('nav-dashboard').classList.remove('active');
-    showPane('cartera', document.querySelector('.nav-item:nth-child(2)'));
-  } else {
-    showPane('dashboard', document.getElementById('nav-dashboard'));
-  }
-}
-
-// ── NAVEGACIÓN ──
-const paneNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', seguros:'Gestión de Seguros' };
-function showPane(id, el) {
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('pane-'+id).classList.add('active');
-  if(el) el.classList.add('active');
-  document.getElementById('topbar-title').textContent = paneNames[id]||id;
-  if(id==='pagos') { renderPagosLista(); if(pagoActual) renderPagosDetalle(pagoActual); }
-  if(id==='dashboard' && IS_ADMIN) renderDashboard();
-  if(id==='seguros') renderSeguros();
-}
-
-function calcularCuota() {
-  const cap = parseFloat(document.getElementById('f-capital').value) || 0;
-  const plaz = parseInt(document.getElementById('f-plazo').value) || 0;
-  const tasa = parseFloat(document.getElementById('f-tasa').value) || 0;
-  if (cap > 0 && plaz > 0 && tasa > 0) {
-    const i = tasa / 100;
-    document.getElementById('f-cuota').value = Math.round(cap * (i / (1 - Math.pow(1 + i, -plaz))));
-  }
-}
-
-// ── RENDERIZADOS ──
-function renderAll() {
-  if (IS_ADMIN) { renderMetricas(); renderDashboard(); }
-  renderAlertas(); renderTabla(); renderSeguros();
-  renderPagosLista(); if(pagoActual) renderPagosDetalle(pagoActual);
-}
-
-function renderAlertas() { /* Lógica intacta de antes */ }
-function renderMetricas() { /* Lógica intacta de antes */ }
-function renderDashboard() { /* Lógica intacta de antes */ }
-
-function renderTabla() {
-  const q = document.getElementById('search-input').value.toLowerCase();
-  let lista = creditos.filter(c => (!q || c.nombre.toLowerCase().includes(q) || c.patente.toLowerCase().includes(q)));
-  document.getElementById('cartera-sub').textContent = `${lista.length} de ${creditos.length} créditos`;
-  
-  document.getElementById('tabla-body').innerHTML = lista.map(c => {
-    const textoCuota = `$${c.cuota.toLocaleString('es-AR')}`;
-    const totalGral = (c.cuota * c.plazo);
-    
-    // Ocultar botones de borrar si no es admin
-    const btnBorrar = IS_ADMIN ? `<button class="btn btn-sm btn-icon btn-danger" onclick="eliminar(${c.id})">✕</button>` : '';
-    
-    // Columnas admin
-    const colCap = IS_ADMIN ? `<td>$${c.capital.toLocaleString('es-AR')}</td>` : '';
-    const colTot = IS_ADMIN ? `<td>$${totalGral.toLocaleString('es-AR')}</td>` : '';
-    const colLeg = IS_ADMIN ? `<td style="text-align:center"><span class="badge badge-gray">📁</span></td>` : '';
-
-    return `<tr>
-      <td class="td-name">${c.nombre}</td>
-      <td><span class="badge badge-blue">${c.tipo}</span></td>
-      <td>${c.garantia} <br><span style="font-size:10px">${c.patente}</span></td>
-      <td>${c.plazo}m</td>
-      <td>${textoCuota}</td>
-      ${colCap}${colTot}${colLeg}
-      <td><span class="badge badge-green">${c.estado}</span></td>
-      <td style="text-align:right; min-width: 100px;">
-        <button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})">✎</button>
-        ${btnBorrar}
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function renderSeguros() {
-  const prendas = creditos.filter(c => c.tipo === 'prendario' && c.estado !== 'TERMINADA');
-  
-  if(IS_ADMIN) {
-    const comisiones = prendas.reduce((s,c)=>s+(c.seguroComision||0), 0);
-    document.getElementById('seguros-metrics-grid').innerHTML = `
-      <div class="metric-card green"><div class="metric-label">Comisiones Limpias</div><div class="metric-value">$${comisiones.toLocaleString('es-AR')}</div></div>
-    `;
-  }
-  
-  document.getElementById('tabla-seguros-body').innerHTML = prendas.map(c => {
-    const colComi = IS_ADMIN ? `<td style="color:var(--green);font-weight:600">$${(c.seguroComision||0).toLocaleString('es-AR')}</td>` : '';
-    return `<tr>
-      <td class="td-name">${c.nombre}</td>
-      <td>${c.garantia}<br><span style="font-size:10px">${c.patente}</span></td>
-      <td>${c.seguroCia || '-'}</td>
-      <td>$${(c.seguroCosto||0).toLocaleString('es-AR')}</td>
-      ${colComi}
-      <td>${c.seguroVencimiento || '-'}</td>
-      <td style="text-align:right"><button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})">✎</button></td>
-    </tr>`;
-  }).join('');
-}
-
-function renderPagosLista() {
-  const activos = creditos.filter(c=>c.estado!=='TERMINADA');
-  document.getElementById('pagos-lista').innerHTML = activos.map(c => {
-    return `<div class="pagos-item ${pagoActual===c.id?'active':''}" onclick="selPago(${c.id})">
-      <div class="pagos-item-name">${c.nombre}</div>
-      <div class="pagos-item-info">${c.plazo} cuotas</div>
-    </div>`;
-  }).join('');
-}
-
-function selPago(id) { pagoActual = id; renderPagosLista(); renderPagosDetalle(id); }
-
-function renderPagosDetalle(id) {
-  const c = creditos.find(x=>x.id===id); if (!c) return;
-  if (!pagosEstado[id]) pagosEstado[id]={};
-  const inicio = new Date(c.fecha);
-  
-  const cuotas = Array.from({length:c.plazo},(_,i)=>{
-    const n=i+1, f=new Date(inicio); f.setMonth(f.getMonth()+n);
-    return {n, f, e: pagosEstado[id][n] || (f<HOY?'vencida':'pendiente')};
-  });
-  
-  document.getElementById('pagos-detalle').innerHTML = `
-    <h3>${c.nombre}</h3>
-    <div class="cuotas-grid">
-      ${cuotas.map(q=>`<div class="cuota-btn ${q.e}" onclick="abrirModalCuota(${id},'${q.n}')">
-        <div class="cuota-num">N° ${q.n}</div><div class="cuota-mes">${q.f.toLocaleDateString('es-AR',{month:'short'})}</div>
-      </div>`).join('')}
-    </div>`;
-}
-
-function abrirModalCuota(id, n) {
-  cuotaSelId = id; cuotaSelN = n;
-  const estado = (pagosEstado[id] && pagosEstado[id][n]) || 'pendiente';
-  document.getElementById('mc-titulo').textContent = `Cuota N° ${n}`;
-  const btn1 = document.getElementById('mc-btn-1'); const btn2 = document.getElementById('mc-btn-2');
-  
-  if (estado === 'pendiente' || estado === 'vencida') {
-    btn1.className = 'btn btn-primary'; btn1.innerHTML = '✓ Cobrar'; btn1.onclick = () => marcarPagada();
-    btn2.style.display = 'none';
-  } else {
-    btn1.style.display = 'none';
-    btn2.style.display = 'flex'; btn2.className = 'btn btn-danger'; btn2.innerHTML = '✕ Deshacer pago';
-    btn2.onclick = () => { pagosEstado[id][n] = 'pendiente'; guardarDatos(); cerrarModalCuota(); renderAll(); };
-  }
-  document.getElementById('modal-cuota-overlay').classList.add('open');
-}
-
-function marcarPagada() {
-  if (!pagosEstado[cuotaSelId]) pagosEstado[cuotaSelId] = {};
-  pagosEstado[cuotaSelId][cuotaSelN] = 'pagada';
-  guardarDatos(); cerrarModalCuota(); renderAll();
-}
-
-function cerrarModalCuota() { document.getElementById('modal-cuota-overlay').classList.remove('open'); }
-function cerrarModalCuotaFuera(e) { if (e.target.id === 'modal-cuota-overlay') cerrarModalCuota(); }
-
-function abrirModal(id=null) {
-  editId = id;
-  const c = id ? creditos.find(x=>x.id===id) : null;
-  ['nombre','dni','tel','garantia'].forEach(k => document.getElementById('f-'+k).value = c?.[k]||'');
-  document.getElementById('f-capital').value = c?.capital||'';
-  document.getElementById('f-plazo').value = c?.plazo||'';
-  document.getElementById('f-cuota').value = c?.cuota||'';
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function cerrarModal() { document.getElementById('modal-overlay').classList.remove('open'); editId=null; }
-function cerrarModalFuera(e) { if(e.target.id==='modal-overlay') cerrarModal(); }
-
-function guardarCredito() {
-  const nombre = document.getElementById('f-nombre').value;
-  const capital = parseFloat(document.getElementById('f-capital').value);
-  const cuota = parseFloat(document.getElementById('f-cuota').value);
-  const plazo = parseInt(document.getElementById('f-plazo').value);
-  if(!nombre) return alert('Nombre obligatorio');
-  
-  const nuevo = {
-    id: editId || Date.now(),
-    nombre, capital, cuota, plazo,
-    tipo: document.getElementById('f-tipo').value,
-    estado: document.getElementById('f-estado').value,
-    garantia: document.getElementById('f-garantia').value,
-    fecha: document.getElementById('f-fecha').value || new Date().toISOString().split('T')[0],
-    seguroCia: document.getElementById('f-seguro-cia').value,
-    seguroCosto: parseFloat(document.getElementById('f-seguro-costo').value)||0,
-    seguroComision: parseFloat(document.getElementById('f-seguro-comision').value)||0
-  };
-  
-  if (editId) creditos[creditos.findIndex(c=>c.id===editId)] = nuevo;
-  else creditos.push(nuevo);
-  
-  guardarDatos(); cerrarModal(); renderAll();
-}
-
-function eliminar(id) {
-  if (!confirm('¿Eliminar crédito?')) return;
-  creditos = creditos.filter(x=>x.id!==id); delete pagosEstado[id];
-  guardarDatos(); renderAll();
-}
-
-// Service Worker para PWA (Instalación)
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }
-</script>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  // ACÁ PEGÁ EXACTAMENTE EL CÓDIGO QUE TE DIO GOOGLE FIREBASE
+  // ACÁ ESTÁN TUS CREDENCIALES EXACTAS DE FIREBASE
   const firebaseConfig = {
     apiKey: "AIzaSyBWbWA2e2i6K7bQ3Jj3yOHP8BK03RbgQ4w",
     authDomain: "gestion-cartera-nexo.firebaseapp.com",
@@ -649,73 +637,73 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', () => naviga
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // EMAILS DE LOS DUEÑOS (Tienen acceso a todo)
+  // === ¡IMPORTANTE! CORREOS CON ACCESO TOTAL (DUEÑOS) ===
   const CORREOS_ADMIN = ["facundo@nexo.com", "sofia@nexo.com"];
 
-  // Escuchar si alguien inicia sesión o se desconecta
-  onAuthStateChanged(auth, async (user) => {
-    const loginScreen = document.getElementById('login-screen');
-    const appLayout = document.getElementById('app-layout');
-    
-    if (user) {
-      // 1. Ocultar Login y mostrar App
-      loginScreen.style.display = 'none';
-      appLayout.style.display = 'flex';
-      
-      // 2. Verificar si es dueño o empleado
-      IS_ADMIN = CORREOS_ADMIN.includes(user.email.toLowerCase());
-      document.getElementById('user-display').textContent = user.email;
-      aplicarPermisosUI();
+  // Variables Globales
+  window.HOY = new Date();
+  window.creditos = [];
+  window.pagosEstado = {};
+  window.IS_ADMIN = false;
+  
+  window.sortCol = null; window.sortDir = 1; window.editId = null; 
+  window.pagoActual = null; window.legajoActualId = null;
+  window.cuotaSelId = null; window.cuotaSelN = null;
 
-      // 3. Traer los datos desde la nube
-      const docRef = doc(db, "empresa", "datos_nexo");
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        window.creditos = docSnap.data().creditos || [];
-        window.pagosEstado = docSnap.data().pagosEstado || {};
-      } else {
-        // Si la nube está vacía, subimos los datos viejos de tu celular (Solo la primera vez)
-        window.creditos = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
-        window.pagosEstado = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
-        await setDoc(docRef, { creditos: window.creditos, pagosEstado: window.pagosEstado });
-      }
-      
-      window.renderAll();
+  // ESCUCHAR INICIO DE SESIÓN
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-layout').style.display = 'flex';
+      document.getElementById('user-display').textContent = user.email;
+
+      // Verificar si es jefe o empleado
+      window.IS_ADMIN = CORREOS_ADMIN.includes(user.email.toLowerCase());
+      aplicarPermisos();
+
+      // Conectarse a la nube y escuchar cambios en tiempo real
+      onSnapshot(doc(db, "empresa", "datos_nexo"), async (docSnap) => {
+        if (docSnap.exists()) {
+          window.creditos = docSnap.data().creditos || [];
+          window.pagosEstado = docSnap.data().pagosEstado || {};
+          window.renderAll();
+        } else if (window.IS_ADMIN) {
+          // Si la nube está vacía, subir los datos locales de tu compu (MIGRACIÓN)
+          console.log("Subiendo datos locales a la nube...");
+          const locales = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
+          const pagosLocales = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
+          if (locales.length > 0) {
+            await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales });
+          }
+        }
+      });
     } else {
-      // Si no hay nadie logueado, mostrar pantalla de Login
-      loginScreen.style.display = 'flex';
-      appLayout.style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('app-layout').style.display = 'none';
     }
   });
 
-  // Función para Iniciar Sesión (Desde el botón de la interfaz)
+  // BOTÓN LOGIN Y LOGOUT
   document.getElementById('btn-login').addEventListener('click', async () => {
     const email = document.getElementById('login-email').value;
     const pass = document.getElementById('login-password').value;
-    const errBox = document.getElementById('login-error');
-    errBox.style.display = 'none';
-    
+    document.getElementById('login-error').style.display = 'none';
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-    } catch (error) {
-      errBox.style.display = 'block';
-      console.error(error);
+    } catch (e) {
+      document.getElementById('login-error').style.display = 'block';
     }
   });
 
-  // Función para Cerrar Sesión
   document.getElementById('btn-logout').addEventListener('click', () => {
     signOut(auth);
   });
 
-  // Reemplazamos tu función vieja de guardar local por una que guarda en la Nube
-  window.guardarDatos = async () => {
-    // Guarda local por las dudas (backup secundario)
+  // FUNCIÓN PARA GUARDAR EN LA NUBE
+  window.guardar = async () => {
     localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
     localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
     
-    // Guarda en Firebase (La nube principal)
     if (auth.currentUser) {
       try {
         await setDoc(doc(db, "empresa", "datos_nexo"), {
@@ -723,11 +711,379 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', () => naviga
           pagosEstado: window.pagosEstado
         });
       } catch (e) {
-        alert("Error al guardar en la nube. Revisá tu conexión a internet.");
+        alert("Error de conexión. Se guardó localmente.");
       }
     }
   };
-</script>
 
+  // ── LÓGICA DE LA APLICACIÓN ──
+  function aplicarPermisos() {
+    document.querySelectorAll('.solo-admin').forEach(el => {
+      el.style.display = window.IS_ADMIN ? '' : 'none';
+    });
+    if (!window.IS_ADMIN) {
+      document.getElementById('nav-dashboard').classList.remove('active');
+      window.showPane('cartera', document.querySelector('.nav-item:nth-child(2)'));
+    } else {
+      window.showPane('dashboard', document.getElementById('nav-dashboard'));
+    }
+  }
+
+  window.calcularCuota = () => {
+    const cap = parseFloat(document.getElementById('f-capital').value) || 0;
+    const plaz = parseInt(document.getElementById('f-plazo').value) || 0;
+    const tasa = parseFloat(document.getElementById('f-tasa').value) || 0;
+    
+    if (cap > 0) {
+      const retenido = cap * 0.03;
+      const aEntregar = cap - retenido;
+      document.getElementById('resumen-otorgamiento').innerText = `Gasto otorg. (3%): $${retenido.toLocaleString('es-AR')} | Neto a transferir: $${aEntregar.toLocaleString('es-AR')}`;
+    } else {
+      document.getElementById('resumen-otorgamiento').innerText = '';
+    }
+
+    if (cap > 0 && plaz > 0 && tasa > 0) {
+      const i = tasa / 100;
+      const cuota = cap * (i / (1 - Math.pow(1 + i, -plaz)));
+      document.getElementById('f-cuota').value = Math.round(cuota);
+    }
+  };
+
+  window.enviarWA = (id) => {
+    const c = window.creditos.find(x => x.id === id);
+    if (!c.tel) { alert('El cliente no tiene teléfono.'); return; }
+    let num = c.tel.replace(/\D/g, '');
+    if (!num.startsWith('54')) num = '549' + num;
+    let msg = `Hola ${c.nombre.split(' ')[0]}, te escribimos de Nexo Autocréditos. Te recordamos que se aproxima el vencimiento de tu próxima cuota por un valor de $${c.cuota.toLocaleString('es-AR')}.`;
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  window.imprimirRecibo = (id, n) => {
+    const c = window.creditos.find(x => x.id === id);
+    const isRef = String(n).startsWith('R');
+    const num = isRef ? n.substring(1) : n;
+    const monto = isRef ? c.refuerzoMonto : c.cuota;
+    const nroRecibo = `0001-${String(c.id).padStart(4, '0')}${String(num).padStart(4, '0')}`;
+
+    const html = `
+      <div style="font-family: Arial; padding: 30px; border: 1px solid #ddd; max-width: 600px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+          <div><div style="font-size: 16px;">RECIBO N° ${nroRecibo}</div><div>Fecha: <strong>${window.HOY.toLocaleDateString('es-AR')}</strong></div></div>
+          <div><strong style="font-size:18px">NEXO AUTOCREDITOS</strong></div>
+        </div>
+        <div style="font-size: 15px; line-height: 2;">
+          <div>Recibí de: <strong>${c.nombre}</strong></div>
+          <div>La cantidad de PESOS: <strong style="font-size: 18px;">$ ${monto.toLocaleString('es-AR')}</strong></div>
+          <div>En concepto de: ${isRef ? 'Refuerzo N° '+num : 'Cuota N° '+num} de Crédito ${c.tipo}. ${c.garantia ? 'Vehículo: '+c.garantia : ''}</div>
+        </div>
+        <div style="margin-top: 50px; text-align: center; width: 200px;">
+          <div style="border-top: 1px solid #000; padding-top: 5px;">Firma de Nexo Autocréditos</div>
+        </div>
+      </div>
+    `;
+    const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
+  };
+
+  // ── BÓVEDA DIGITAL (LEGAJOS) ──
+  window.abrirLegajo = (id) => {
+    window.legajoActualId = id;
+    const c = window.creditos.find(x => x.id === id);
+    document.getElementById('ml-titulo').textContent = `Legajo de ${c.nombre.split(' ')[0]}`;
+    if (!c.legajo) c.legajo = { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false };
+    
+    document.getElementById('fl-url').value = c.legajo.url || '';
+    ['dni','titulo','contrato','pagare','poliza'].forEach(k => document.getElementById('chk-'+k).checked = c.legajo[k]);
+
+    const btnDrive = document.getElementById('btn-abrir-drive');
+    if (c.legajo.url && c.legajo.url.includes('http')) {
+      btnDrive.href = c.legajo.url; btnDrive.style.display = 'inline-flex';
+    } else {
+      btnDrive.style.display = 'none';
+    }
+    document.getElementById('modal-legajo-overlay').classList.add('open');
+  };
+
+  window.guardarLegajo = () => {
+    const c = window.creditos.find(x => x.id === window.legajoActualId);
+    c.legajo = { url: document.getElementById('fl-url').value.trim() };
+    ['dni','titulo','contrato','pagare','poliza'].forEach(k => c.legajo[k] = document.getElementById('chk-'+k).checked);
+    window.guardar(); window.renderTabla(); window.cerrarModalLegajo();
+  };
+
+  window.cerrarModalLegajo = () => { document.getElementById('modal-legajo-overlay').classList.remove('open'); };
+  window.cerrarModalLegajoFuera = (e) => { if(e.target.id==='modal-legajo-overlay') window.cerrarModalLegajo(); };
+
+  // ── METRICAS Y DASHBOARD ──
+  window.renderMetricas = () => {
+    if(!window.IS_ADMIN) return;
+    const activos = window.creditos.filter(c => c.estado !== 'TERMINADA');
+    const totalCap = window.creditos.reduce((s,c)=>s+c.capital,0);
+    const recaudacionMensual = activos.reduce((s,c)=>s+c.cuota, 0); 
+    const comisionesSeguros = activos.reduce((s,c)=>s+(c.seguroComision||0), 0);
+    const mora = window.creditos.filter(c=>c.estado==='MORA').length;
+    
+    const f = n => '$'+n.toLocaleString('es-AR');
+    const items = [
+      { label:'Recaudación Mensual', val: f(recaudacionMensual), sub:'liquidez mensual esperada', blue: true },
+      { label:'Comisiones Seguros', val: f(comisionesSeguros), sub:'ingreso extra mensual (Campus)', green: true },
+      { label:'Créditos activos', val: activos.length, sub: window.creditos.length+' en total' },
+      { label:'Capital otorgado', val: f(totalCap), sub:'suma total histórica' },
+      { label:'En mora', val: mora || '—', sub: mora ? '⚠ requiere atención' : '✓ cartera sana' },
+    ];
+    document.getElementById('metrics-grid').innerHTML = items.map(i=>
+      `<div class="metric-card${i.blue?' blue':i.green?' green':''}"><div class="metric-label">${i.label}</div><div class="metric-value">${i.val}</div><div class="metric-sub">${i.sub}</div></div>`
+    ).join('');
+  };
+
+  window.renderDashboard = () => {
+    if(!window.IS_ADMIN) return;
+    const totalCap = window.creditos.reduce((s,c)=>s+c.capital,0);
+    const sorted = [...window.creditos].sort((a,b)=>b.capital-a.capital);
+    document.getElementById('dash-barras').innerHTML = sorted.map(c => {
+      const pct = totalCap ? Math.round(c.capital/totalCap*100) : 0;
+      return `<div class="bar-row"><span class="bar-label">${c.nombre.split(' ').slice(0,2).join(' ')}</span><div class="bar-track"><div class="bar-fill-h" style="width:${pct}%"></div></div><span class="bar-val-h">$${(c.capital/1e6).toFixed(1)}M</span></div>`;
+    }).join('');
+
+    const pr = window.creditos.filter(c=>c.tipo==='prendario').length;
+    const pe = window.creditos.filter(c=>c.tipo==='personal').length;
+    const tot = window.creditos.length || 1;
+    document.getElementById('dash-tipo').innerHTML = `
+      <div class="bar-row"><span class="bar-label">Prendarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pr/tot*100)}%"></div></div><span class="bar-val-h">${pr}</span></div>
+      <div class="bar-row"><span class="bar-label">Personales</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pe/tot*100)}%;background:var(--amber)"></div></div><span class="bar-val-h">${pe}</span></div>`;
+
+    const alDia = window.creditos.filter(c=>c.estado==='AL DIA').length;
+    const mora = window.creditos.filter(c=>c.estado==='MORA').length;
+    document.getElementById('dash-estado').innerHTML = `
+      <div class="venc-item"><div><div class="venc-name">Al día</div></div><span class="badge badge-green">${alDia}</span></div>
+      <div class="venc-item"><div><div class="venc-name">En mora</div></div><span class="badge ${mora?'badge-red':'badge-gray'}">${mora||'—'}</span></div>`;
+  };
+
+  // ── TABLA CARTERA ──
+  window.renderTabla = () => {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const fe = document.getElementById('filter-estado').value;
+    const ft = document.getElementById('filter-tipo').value;
+    let lista = window.creditos.filter(c => {
+      const m = !q || c.nombre.toLowerCase().includes(q) || c.patente.toLowerCase().includes(q);
+      return m && (!fe||c.estado===fe) && (!ft||c.tipo===ft);
+    });
+    
+    if (window.sortCol) lista.sort((a,b) => {
+      const va=a[window.sortCol], vb=b[window.sortCol];
+      return (typeof va==='number' ? va-vb : String(va).localeCompare(String(vb)))*window.sortDir;
+    });
+
+    document.getElementById('cartera-sub').textContent = `${lista.length} de ${window.creditos.length} créditos`;
+    const tbody = document.getElementById('tabla-body');
+    
+    if (!lista.length) { tbody.innerHTML = `<tr><td colspan="9" class="empty">Sin resultados</td></tr>`; return; }
+    
+    tbody.innerHTML = lista.map(c => {
+      const eBadge = c.estado==='AL DIA'?'badge-green':c.estado==='MORA'?'badge-red':'badge-gray';
+      
+      // Control visual del legajo (Solo Admin)
+      let legajoBadge = '';
+      if (window.IS_ADMIN) {
+        const leg = c.legajo || { dni:false, titulo:false, contrato:false };
+        const maxDocs = c.tipo === 'prendario' ? 5 : 2;
+        let countDocs = 0;
+        if (leg.dni) countDocs++; if (leg.contrato) countDocs++;
+        if (c.tipo === 'prendario') { if (leg.titulo) countDocs++; if (leg.poliza) countDocs++; if (leg.pagare) countDocs++; } else { if (leg.pagare) countDocs++; }
+        
+        let legTxt = `<span class="badge badge-gray" style="cursor:pointer" onclick="abrirLegajo(${c.id})">Vacío</span>`;
+        if (countDocs === maxDocs) legTxt = `<span class="badge badge-green" style="cursor:pointer" onclick="abrirLegajo(${c.id})">Completo ✓</span>`;
+        else if (countDocs > 0) legTxt = `<span class="badge badge-amber" style="cursor:pointer" onclick="abrirLegajo(${c.id})">Inc. (${countDocs}/${maxDocs})</span>`;
+        legajoBadge = `<td style="text-align:center" class="solo-admin">${legTxt}</td>`;
+      }
+
+      return `<tr>
+        <td class="td-name">${c.nombre}</td>
+        <td><span class="badge badge-blue">${c.tipo}</span></td>
+        <td>${c.garantia||'—'}<br><span style="font-size:10px; color:var(--blue-500)">${c.patente||''}</span></td>
+        <td style="color:var(--gray-700)">${c.plazo}m</td>
+        <td style="font-weight:500">$${c.cuota.toLocaleString('es-AR')}</td>
+        ${window.IS_ADMIN ? `<td class="solo-admin">$${c.capital.toLocaleString('es-AR')}</td>` : ''}
+        ${legajoBadge}
+        <td><span class="badge ${eBadge}">${c.estado}</span></td>
+        <td style="text-align:right">
+          ${window.IS_ADMIN ? `<button class="btn btn-sm btn-icon" style="color:var(--blue-500); border-color:var(--blue-200); background:var(--blue-50)" onclick="abrirLegajo(${c.id})">📁</button>` : ''}
+          <button class="btn btn-sm btn-icon" style="color:#25D366; border-color:#25D366" onclick="enviarWA(${c.id})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+          <button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})">✎</button>
+          ${window.IS_ADMIN ? `<button class="btn btn-sm btn-icon btn-danger solo-admin" onclick="eliminar(${c.id})">✕</button>` : ''}
+        </td>
+      </tr>`;
+    }).join('');
+  };
+
+  window.sortBy = (col) => {
+    if (window.sortCol===col) window.sortDir*=-1; else {window.sortCol=col; window.sortDir=1;}
+    window.renderTabla();
+  };
+
+  // ── SEGUROS ──
+  window.renderSeguros = () => {
+    const prendas = window.creditos.filter(c => c.tipo === 'prendario' && c.estado !== 'TERMINADA');
+    
+    if (window.IS_ADMIN) {
+      const totalComisiones = prendas.reduce((s,c)=>s+(c.seguroComision||0), 0);
+      document.getElementById('seguros-metrics-grid').innerHTML = `
+        <div class="metric-card green"><div class="metric-label">Comisiones Limpias</div><div class="metric-value">$${totalComisiones.toLocaleString('es-AR')}</div></div>
+      `;
+    }
+
+    document.getElementById('tabla-seguros-body').innerHTML = prendas.map(c => {
+      return `<tr>
+        <td class="td-name">${c.nombre}</td>
+        <td>${c.garantia}<br><span style="font-size:10px">${c.patente}</span></td>
+        <td>${c.seguroCia || '<span class="badge badge-gray">Sin seguro</span>'}</td>
+        <td>$${(c.seguroCosto||0).toLocaleString('es-AR')}</td>
+        ${window.IS_ADMIN ? `<td style="color:var(--green);font-weight:600" class="solo-admin">$${(c.seguroComision||0).toLocaleString('es-AR')}</td>` : ''}
+        <td>${c.seguroVencimiento || '—'}</td>
+        <td style="text-align:right"><button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})">✎</button></td>
+      </tr>`;
+    }).join('');
+  };
+
+  // ── PAGOS ──
+  window.renderPagosLista = () => {
+    const activos = window.creditos.filter(c=>c.estado!=='TERMINADA');
+    document.getElementById('pagos-lista').innerHTML = activos.map(c => {
+      const pag = Object.values(window.pagosEstado[c.id]||{}).filter(v=>v==='pagada').length;
+      return `<div class="pagos-item ${window.pagoActual===c.id?'active':''}" onclick="selPago(${c.id})"><div class="pagos-item-name">${c.nombre}</div><div class="pagos-item-info">${pag}/${c.plazo} cuotas</div></div>`;
+    }).join('');
+  };
+
+  window.selPago = (id) => { window.pagoActual = id; window.renderPagosLista(); window.renderPagosDetalle(id); };
+
+  window.renderPagosDetalle = (id) => {
+    const c = window.creditos.find(x=>x.id===id); if (!c) return;
+    if (!window.pagosEstado[id]) window.pagosEstado[id]={};
+    const inicio = new Date(c.fecha);
+    
+    const cuotas = Array.from({length:c.plazo},(_,i)=>{
+      const n=i+1, f=new Date(inicio); f.setMonth(f.getMonth()+n);
+      return {n, f, e: window.pagosEstado[id][n] || (f<window.HOY?'vencida':'pendiente')};
+    });
+    
+    document.getElementById('pagos-detalle').innerHTML = `
+      <h3>${c.nombre}</h3>
+      <p style="font-size:11px;color:var(--gray-400);margin-bottom:12px">Hacé click en cada cuota para cobrarla</p>
+      <div class="cuotas-grid">
+        ${cuotas.map(q=>`<div class="cuota-btn ${q.e}" onclick="abrirModalCuota(${id},'${q.n}')"><div class="cuota-num">N° ${q.n}</div><div class="cuota-mes">${q.f.toLocaleDateString('es-AR',{month:'short'})}</div></div>`).join('')}
+      </div>`;
+  };
+
+  window.abrirModalCuota = (id, n) => {
+    window.cuotaSelId = id; window.cuotaSelN = n;
+    const estado = (window.pagosEstado[id] && window.pagosEstado[id][n]) || 'pendiente';
+    document.getElementById('mc-titulo').textContent = `Cuota N° ${n}`;
+    const btn1 = document.getElementById('mc-btn-1'); const btn2 = document.getElementById('mc-btn-2');
+    
+    if (estado === 'pendiente' || estado === 'vencida') {
+      btn1.className = 'btn btn-primary'; btn1.innerHTML = '✓ Cobrar e Imprimir'; btn1.onclick = () => window.marcarPagada(true);
+      btn2.style.display = 'flex'; btn2.className = 'btn'; btn2.innerHTML = 'Solo marcar pagada'; btn2.onclick = () => window.marcarPagada(false);
+    } else {
+      btn1.style.display = 'none';
+      btn2.style.display = 'flex'; btn2.className = 'btn btn-danger'; btn2.innerHTML = '✕ Deshacer pago'; btn2.onclick = () => { window.pagosEstado[id][n] = 'pendiente'; window.guardar(); window.cerrarModalCuota(); window.renderAll(); };
+    }
+    document.getElementById('modal-cuota-overlay').classList.add('open');
+  };
+
+  window.marcarPagada = (imprimir) => {
+    if (!window.pagosEstado[window.cuotaSelId]) window.pagosEstado[window.cuotaSelId] = {};
+    window.pagosEstado[window.cuotaSelId][window.cuotaSelN] = 'pagada';
+    window.guardar(); window.renderAll(); window.cerrarModalCuota();
+    if(imprimir) window.imprimirRecibo(window.cuotaSelId, window.cuotaSelN);
+  };
+  
+  window.cerrarModalCuota = () => document.getElementById('modal-cuota-overlay').classList.remove('open');
+  window.cerrarModalCuotaFuera = (e) => { if (e.target.id === 'modal-cuota-overlay') window.cerrarModalCuota(); };
+
+  // ── MODAL CREDITO Y NAVEGACION ──
+  window.abrirModal = (id=null) => {
+    window.editId = id; const c = id ? window.creditos.find(x=>x.id===id) : null;
+    document.getElementById('modal-titulo').childNodes[0].textContent = id ? 'Editar crédito' : 'Nuevo crédito';
+    ['nombre','dni','tel','garantia','patente','notas'].forEach(k => document.getElementById('f-'+k).value = c?.[k]||'');
+    document.getElementById('f-tipo').value = c?.tipo||'prendario';
+    document.getElementById('f-estado').value = c?.estado||'AL DIA';
+    document.getElementById('f-capital').value = c?.capital||'';
+    document.getElementById('f-plazo').value = c?.plazo||'';
+    document.getElementById('f-cuota').value = c?.cuota||'';
+    document.getElementById('f-fecha').value = c?.fecha||new Date().toISOString().split('T')[0];
+    document.getElementById('f-seguro-cia').value = c?.seguroCia||'';
+    document.getElementById('f-seguro-poliza').value = c?.seguroPoliza||'';
+    document.getElementById('f-seguro-costo').value = c?.seguroCosto||'';
+    document.getElementById('f-seguro-comision').value = c?.seguroComision||'';
+    document.getElementById('f-seguro-vencimiento').value = c?.seguroVencimiento||'';
+    
+    window.togglePrendario(); window.calcularCuota();
+    document.getElementById('modal-overlay').classList.add('open');
+  };
+
+  window.togglePrendario = () => { document.getElementById('prendario-section').style.display = document.getElementById('f-tipo').value==='prendario' ? '' : 'none'; };
+  window.cerrarModal = () => { document.getElementById('modal-overlay').classList.remove('open'); window.editId=null; };
+  window.cerrarModalFuera = (e) => { if(e.target.id==='modal-overlay') window.cerrarModal(); };
+
+  window.guardarCredito = () => {
+    const nombre = document.getElementById('f-nombre').value;
+    const capital = parseFloat(document.getElementById('f-capital').value);
+    const cuota = parseFloat(document.getElementById('f-cuota').value);
+    const plazo = parseInt(document.getElementById('f-plazo').value);
+    if(!nombre||!capital||!cuota||!plazo) return alert('Completá los campos obligatorios (*)');
+    
+    const legajoExist = window.editId ? window.creditos.find(c=>c.id===window.editId).legajo : { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false };
+
+    const nuevo = {
+      id: window.editId || Date.now(),
+      nombre, capital, cuota, plazo,
+      dni: document.getElementById('f-dni').value,
+      tel: document.getElementById('f-tel').value,
+      tipo: document.getElementById('f-tipo').value,
+      estado: document.getElementById('f-estado').value,
+      garantia: document.getElementById('f-garantia').value,
+      patente: document.getElementById('f-patente').value.toUpperCase(),
+      fecha: document.getElementById('f-fecha').value,
+      notas: document.getElementById('f-notas').value,
+      seguroCia: document.getElementById('f-seguro-cia').value,
+      seguroPoliza: document.getElementById('f-seguro-poliza').value,
+      seguroCosto: parseFloat(document.getElementById('f-seguro-costo').value)||0,
+      seguroComision: parseFloat(document.getElementById('f-seguro-comision').value)||0,
+      seguroVencimiento: document.getElementById('f-seguro-vencimiento').value,
+      legajo: legajoExist
+    };
+    
+    if (window.editId) window.creditos[window.creditos.findIndex(c=>c.id===window.editId)] = nuevo;
+    else window.creditos.push(nuevo);
+    
+    window.guardar(); window.cerrarModal(); window.renderAll();
+  };
+
+  window.eliminar = (id) => {
+    if (!confirm('¿Eliminar crédito?')) return;
+    window.creditos = window.creditos.filter(x=>x.id!==id); delete window.pagosEstado[id];
+    window.guardar(); window.renderAll();
+  };
+
+  window.showPane = (id, el) => {
+    document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById('pane-'+id).classList.add('active');
+    if(el) el.classList.add('active');
+    
+    const pNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', seguros:'Gestión de Seguros' };
+    document.getElementById('topbar-title').textContent = pNames[id]||id;
+    
+    if(id==='pagos') { window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual); }
+    if(id==='dashboard' && window.IS_ADMIN) window.renderDashboard();
+    if(id==='seguros') window.renderSeguros();
+  };
+
+  window.renderAll = () => {
+    window.renderTabla();
+    window.renderSeguros();
+    window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
+    if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
+  };
+</script>
 </body>
 </html>
