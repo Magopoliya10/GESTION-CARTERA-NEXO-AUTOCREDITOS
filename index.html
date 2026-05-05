@@ -226,6 +226,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 </head>
 <body>
 
+<!-- PANTALLA DE LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <div style="margin-bottom: 15px;">
@@ -245,6 +246,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 </div>
 
 <div class="layout" id="app-layout">
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-mark">
@@ -269,6 +271,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="nav-item" onclick="showPane('pagos',this)">
       <span class="icon">✓</span><span>Pagos</span>
     </div>
+    <div class="nav-item admin-only" onclick="showPane('gastos',this)">
+      <span class="icon">💸</span><span>Gastos Operativos</span>
+    </div>
     <div class="nav-label">Campus Nexo</div>
     <div class="nav-item" onclick="showPane('seguros',this)">
       <span class="icon">🛡️</span><span>Seguros</span>
@@ -288,7 +293,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </aside>
 
+<!-- MAIN -->
 <div class="main">
+  <!-- TOPBAR -->
   <header class="topbar">
     <span class="topbar-title" id="topbar-title">Dashboard</span>
     <div class="topbar-right">
@@ -302,14 +309,17 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div id="alertas-lista" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
   </div>
 
+  <!-- CONTENT -->
   <div class="content">
 
+    <!-- DASHBOARD -->
     <div class="pane active admin-only" id="pane-dashboard">
       <div class="page-header">
         <div><div class="page-title">Resumen general</div><div class="page-sub">Vista ejecutiva de la cartera</div></div>
       </div>
       <div class="metrics-grid" id="metrics-grid">
-        </div>
+        <!-- Relleno por JS -->
+      </div>
       <div class="dash-row">
         <div class="card">
           <div class="card-header"><span class="card-title">Capital por cliente</span></div>
@@ -332,6 +342,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
+    <!-- CARTERA -->
     <div class="pane" id="pane-cartera">
       <div class="page-header">
         <div><div class="page-title">Cartera de créditos</div><div class="page-sub" id="cartera-sub"></div></div>
@@ -377,6 +388,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
+    <!-- PAGOS -->
     <div class="pane" id="pane-pagos">
       <div class="page-header">
         <div><div class="page-title">Seguimiento de pagos</div><div class="page-sub">Marcá cada cuota al cobrarla o imprimí el recibo</div></div>
@@ -392,6 +404,32 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
+    <!-- GASTOS OPERATIVOS -->
+    <div class="pane" id="pane-gastos">
+      <div class="page-header">
+        <div><div class="page-title">Gastos Operativos</div><div class="page-sub">Control de salidas de dinero fijo y variable</div></div>
+        <button class="btn btn-primary" style="background:var(--red); border-color:var(--red)" onclick="abrirModalGasto()">+ Registrar Gasto</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Categoría</th>
+                <th>Concepto / Detalle</th>
+                <th>Monto</th>
+                <th>Notas</th>
+                <th style="text-align:right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-gastos-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEGUROS -->
     <div class="pane" id="pane-seguros">
       <div class="page-header">
         <div><div class="page-title">Gestión de Seguros</div><div class="page-sub">Control de pólizas, comisiones y vencimientos (Campus Nexo)</div></div>
@@ -417,7 +455,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
-  </div></div></div><div class="modal-overlay" id="modal-overlay" onclick="cerrarModalFuera(event)">
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- MODAL PRINCIPAL: NUEVO/EDITAR CRÉDITO -->
+<div class="modal-overlay" id="modal-overlay" onclick="cerrarModalFuera(event)">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-icon">📝</div>
@@ -478,6 +521,37 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
+<!-- MODAL GASTOS OPERATIVOS -->
+<div class="modal-overlay" id="modal-gasto-overlay" onclick="cerrarModalGastoFuera(event)">
+  <div class="modal" style="max-width: 450px;">
+    <div class="modal-header">
+      <div class="modal-icon" style="background:var(--red-bg); color:var(--red); border-color:var(--red-border);">💸</div>
+      <div><h2 id="mg-titulo">Registrar Gasto</h2><small>Control de salidas operativas</small></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Categoría</label>
+        <select id="fg-categoria">
+          <option value="Honorarios Contables">Honorarios Contables</option>
+          <option value="Mantenimiento Bancario">Mantenimiento Bancario</option>
+          <option value="Impuestos y Tasas">Impuestos y Tasas</option>
+          <option value="Sueldos y Cargas Sociales">Sueldos y Cargas Sociales</option>
+          <option value="Infraestructura / Campus">Infraestructura / Campus</option>
+          <option value="Otros Gastos">Otros Gastos</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Concepto / Detalle</label><input type="text" id="fg-concepto" placeholder="Ej: Sueldo Sofía, Monotributo..."></div>
+      <div class="form-group"><label>Monto ($)</label><input type="number" id="fg-monto"></div>
+      <div class="form-group"><label>Fecha del gasto</label><input type="date" id="fg-fecha"></div>
+      <div class="form-group full"><label>Notas adicionales</label><textarea id="fg-notas" rows="2" placeholder="Opcional..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrarModalGasto()">Cancelar</button>
+      <button class="btn btn-primary" style="background:var(--red); border-color:var(--red)" onclick="guardarGasto()">Guardar Gasto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SOLO SEGUROS -->
 <div class="modal-overlay" id="modal-seguro-overlay" onclick="cerrarModalSeguroFuera(event)">
   <div class="modal" style="max-width: 450px;">
     <div class="modal-header">
@@ -498,6 +572,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
+<!-- MODAL LEGAJO BÓVEDA DIGITAL -->
 <div class="modal-overlay" id="modal-legajo-overlay" onclick="cerrarModalLegajoFuera(event)">
   <div class="modal" style="max-width: 450px;">
     <div class="modal-header">
@@ -522,6 +597,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
+<!-- MODAL ACCION CUOTA -->
 <div class="modal-overlay" id="modal-cuota-overlay" onclick="cerrarModalCuotaFuera(event)">
   <div class="modal" style="max-width: 380px; padding: 28px;">
     <div class="modal-header" style="margin-bottom: 12px;"><div><h2 id="mc-titulo" style="font-size: 19px;">Cuota</h2></div></div>
@@ -535,6 +611,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
+<!-- CONEXIÓN A FIREBASE Y LÓGICA -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -561,9 +638,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.HOY = new Date();
   window.creditos = [];
   window.pagosEstado = {};
+  window.gastos = []; // Nueva variable global para gastos
   window.IS_ADMIN = false;
   
   window.sortCol = null; window.sortDir = 1; window.editId = null; window.editSeguroId = null;
+  window.editGastoId = null; // Para editar gastos
   window.pagoActual = null; window.legajoActualId = null;
   window.cuotaSelId = null; window.cuotaSelN = null;
 
@@ -583,14 +662,16 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         if (docSnap.exists()) {
           window.creditos = docSnap.data().creditos || [];
           window.pagosEstado = docSnap.data().pagosEstado || {};
+          window.gastos = docSnap.data().gastos || []; // Levantar gastos
           window.renderAll();
         } else if (window.IS_ADMIN) {
           // Si la nube está vacía, subir los datos locales de tu compu (MIGRACIÓN)
           console.log("Subiendo datos locales a la nube...");
           const locales = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
           const pagosLocales = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
+          const gastosLocales = JSON.parse(localStorage.getItem('nexo_gastos') || '[]');
           if (locales.length > 0) {
-            await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales });
+            await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales, gastos: gastosLocales });
           }
         }
       });
@@ -618,22 +699,23 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.guardar = async () => {
     localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
     localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
+    localStorage.setItem('nexo_gastos', JSON.stringify(window.gastos));
     
     if (auth.currentUser) {
       try {
         await setDoc(doc(db, "empresa", "datos_nexo"), {
           creditos: window.creditos,
-          pagosEstado: window.pagosEstado
+          pagosEstado: window.pagosEstado,
+          gastos: window.gastos // Guardar gastos en Firebase
         });
       } catch (e) {
-        alert("Error de conexión. Se guardó localmente.");
+        console.log("Error de conexión. Se guardó localmente.");
       }
     }
   };
 
   // ── LÓGICA DE ROLES Y NAVEGACIÓN ──
   function aplicarPermisos() {
-    // Ya no usamos clases de CSS conflictivas, manejamos el display directo con JS
     document.querySelectorAll('.admin-only').forEach(el => {
       el.style.display = window.IS_ADMIN ? '' : 'none';
     });
@@ -652,12 +734,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('pane-'+id).classList.add('active');
     if(el) el.classList.add('active');
     
-    const pNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', seguros:'Gestión de Seguros' };
+    const pNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', seguros:'Gestión de Seguros', gastos: 'Gastos Operativos' };
     document.getElementById('topbar-title').textContent = pNames[id]||id;
     
     if(id==='pagos') { window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual); }
     if(id==='dashboard' && window.IS_ADMIN) window.renderDashboard();
     if(id==='seguros') window.renderSeguros();
+    if(id==='gastos') window.renderGastos();
   };
 
   // ── UTILIDADES DE CÁLCULO ──
@@ -928,6 +1011,80 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.cerrarModalCuota = () => document.getElementById('modal-cuota-overlay').classList.remove('open');
   window.cerrarModalCuotaFuera = (e) => { if (e.target.id === 'modal-cuota-overlay') window.cerrarModalCuota(); };
 
+  // ── GASTOS OPERATIVOS ──
+  window.renderGastos = () => {
+    // Ordenar gastos del más nuevo al más viejo
+    const lista = [...window.gastos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    const tbody = document.getElementById('tabla-gastos-body');
+    
+    if(!lista.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">No hay gastos registrados</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(g => {
+      // Ajustar fecha para no tener error de zona horaria al mostrar
+      const d = g.fecha ? new Date(g.fecha + 'T12:00:00').toLocaleDateString('es-AR') : '-';
+      return `<tr>
+        <td style="color:var(--gray-500)">${d}</td>
+        <td><span class="badge badge-gray">${g.categoria}</span></td>
+        <td class="td-name">${g.concepto}</td>
+        <td style="color:var(--red); font-weight:600">-$${g.monto.toLocaleString('es-AR')}</td>
+        <td style="color:var(--gray-500); font-size:11px;">${g.notas || ''}</td>
+        <td style="text-align:right">
+          <button class="btn btn-sm btn-icon" onclick="abrirModalGasto(${g.id})">✎</button>
+          <button class="btn btn-sm btn-icon btn-danger" onclick="eliminarGasto(${g.id})">✕</button>
+        </td>
+      </tr>`;
+    }).join('');
+  };
+
+  window.abrirModalGasto = (id = null) => {
+    window.editGastoId = id;
+    const g = id ? window.gastos.find(x => x.id === id) : null;
+    
+    document.getElementById('mg-titulo').textContent = id ? 'Editar Gasto' : 'Registrar Gasto';
+    document.getElementById('fg-categoria').value = g?.categoria || 'Sueldos y Cargas Sociales';
+    document.getElementById('fg-concepto').value = g?.concepto || '';
+    document.getElementById('fg-monto').value = g?.monto || '';
+    document.getElementById('fg-fecha').value = g?.fecha || window.HOY.toISOString().split('T')[0];
+    document.getElementById('fg-notas').value = g?.notas || '';
+
+    document.getElementById('modal-gasto-overlay').classList.add('open');
+  };
+
+  window.guardarGasto = () => {
+    const categoria = document.getElementById('fg-categoria').value;
+    const concepto = document.getElementById('fg-concepto').value.trim();
+    const monto = parseFloat(document.getElementById('fg-monto').value);
+    const fecha = document.getElementById('fg-fecha').value;
+    const notas = document.getElementById('fg-notas').value.trim();
+
+    if(!concepto || !monto || !fecha) return alert('Completá concepto, monto y fecha.');
+
+    const nuevoGasto = {
+      id: window.editGastoId || Date.now(),
+      categoria, concepto, monto, fecha, notas
+    };
+
+    if (window.editGastoId) {
+      window.gastos = window.gastos.map(g => g.id === window.editGastoId ? nuevoGasto : g);
+    } else {
+      window.gastos.push(nuevoGasto);
+    }
+
+    window.guardar(); window.cerrarModalGasto(); window.renderAll();
+  };
+
+  window.eliminarGasto = (id) => {
+    if (!confirm('¿Eliminar este gasto definitivamente?')) return;
+    window.gastos = window.gastos.filter(x => x.id !== id);
+    window.guardar(); window.renderAll();
+  };
+
+  window.cerrarModalGasto = () => { document.getElementById('modal-gasto-overlay').classList.remove('open'); window.editGastoId = null; };
+  window.cerrarModalGastoFuera = (e) => { if (e.target.id === 'modal-gasto-overlay') window.cerrarModalGasto(); };
+
   // ── MODAL PRINCIPAL CREDITO ──
   window.abrirModal = (id=null) => {
     window.editId = id; const c = id ? window.creditos.find(x=>x.id===id) : null;
@@ -1044,12 +1201,24 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
     const tem = totCap ? (interesPonderado / totCap) : 0;
     const tna = tem * 12;
+
+    // Calcular gastos del mes actual
+    const hoy = window.HOY;
+    const mesActual = hoy.getMonth();
+    const anioActual = hoy.getFullYear();
+    const gastosMes = (window.gastos || []).filter(g => {
+      if(!g.fecha) return false;
+      const d = new Date(g.fecha + 'T12:00:00'); // Evitar desfase de zona horaria
+      return d.getMonth() === mesActual && d.getFullYear() === anioActual;
+    }).reduce((sum, g) => sum + Number(g.monto), 0);
+
     const f = n => '$'+n.toLocaleString('es-AR');
 
-    // Se le agrega la clase 'hero' a la primera tarjeta para que ocupe el doble
+    // Métrica de recaudación en la primera tarjeta, sumando la tarjeta de gastos en rojo
     document.getElementById('metrics-grid').innerHTML = `
       <div class="metric-card hero blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div><div class="metric-sub">Liquidez mensual esperada</div></div>
       <div class="metric-card green"><div class="metric-label">Total a Cobrar</div><div class="metric-value">${f(totalACobrar)}</div></div>
+      <div class="metric-card" style="border-color:var(--red-border);"><div class="metric-label" style="color:var(--red);">Gastos del Mes</div><div class="metric-value" style="color:var(--red);">${f(gastosMes)}</div><div class="metric-sub">Salidas de la recaudación</div></div>
       <div class="metric-card"><div class="metric-label">Capital en Calle</div><div class="metric-value">${f(totCap)}</div></div>
       <div class="metric-card"><div class="metric-label">Rendimiento Promedio</div><div class="metric-value">${tem.toFixed(1)}% <span style="font-size:12px;color:var(--gray-500);font-family:var(--sans);font-weight:600">TEM</span></div><div class="metric-sub">TNA: ${tna.toFixed(1)}%</div></div>
       <div class="metric-card"><div class="metric-label">Comisiones Seguros</div><div class="metric-value">${f(comSeg)}</div></div>
@@ -1114,7 +1283,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   };
 
   window.renderAll = () => {
-    window.renderTabla(); window.renderSeguros();
+    window.renderTabla(); window.renderSeguros(); window.renderGastos();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
     if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
   };
