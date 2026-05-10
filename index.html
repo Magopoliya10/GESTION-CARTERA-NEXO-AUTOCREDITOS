@@ -74,7 +74,9 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .btn-danger:hover { background: var(--red-bg); }
 .btn-icon { padding: 7px; border-radius: 8px; }
 
-/* ── ALERTAS ── */
+/* ── ALERTAS Y TAGS USD ── */
+.usd-val { display: block; font-size: 10px; color: var(--gray-400); font-weight: 500; margin-top: 2px; font-family: var(--sans); }
+.usd-val-inline { font-size: 10px; color: var(--gray-400); font-weight: 500; margin-left: 6px; font-family: var(--sans); }
 .alertas-bar { display: none; align-items: center; gap: 8px; padding: 10px 32px; background: var(--red-bg); border-bottom: 1px solid var(--red-border); flex-wrap: wrap; }
 .alertas-bar.visible { display: flex; }
 .alerta-tag { background: var(--white); border: 1px solid var(--red-border); color: var(--red); border-radius: 99px; padding: 3px 12px; font-size: 11px; cursor: pointer; font-weight: 500; transition: all .15s; }
@@ -88,20 +90,23 @@ body { background: var(--gray-50); color: var(--gray-800); font-family: var(--sa
 .metric-card.blue .metric-label { color: var(--blue-200); }
 .metric-card.blue .metric-value { color: var(--white); }
 .metric-card.blue .metric-sub { color: var(--blue-300); }
+.metric-card.blue .usd-val { color: var(--blue-300); }
 .metric-card.green { background: linear-gradient(135deg, var(--green) 0%, #14532d 100%); border-color: var(--green); }
 .metric-card.green .metric-label { color: var(--green-border); }
 .metric-card.green .metric-value { color: var(--white); }
 .metric-card.green .metric-sub { color: #86efac; }
+.metric-card.green .usd-val { color: #86efac; }
 .metric-label { font-size: 11px; color: var(--gray-500); font-weight: 500; margin-bottom: 6px; letter-spacing: .02em; }
 .metric-value { font-family: var(--serif); font-size: 24px; color: var(--blue-700); line-height: 1; }
 .metric-sub { font-size: 11px; color: var(--gray-400); margin-top: 5px; }
 
-/* RECUADRO HERO (Recaudación Mensual Más Grande) */
+/* RECUADRO HERO */
 @media(min-width: 768px) {
   .metric-card.hero { grid-column: span 2; padding: 24px 28px; }
   .metric-card.hero .metric-label { font-size: 13px; margin-bottom: 10px; }
   .metric-card.hero .metric-value { font-size: 38px; }
   .metric-card.hero .metric-sub { font-size: 12px; margin-top: 8px; }
+  .metric-card.hero .usd-val { font-size: 13px; margin-top: 5px; }
 }
 
 .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 16px; }
@@ -147,6 +152,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .venc-item:last-child { border: none; }
 .venc-name { font-size: 12px; color: var(--gray-700); font-weight: 500; }
 .venc-info { font-size: 12px; color: var(--blue-600); font-weight: 700; }
+
+/* ── SIMULADOR PANE ── */
+.sim-grid { display: grid; grid-template-columns: 350px 1fr; gap: 24px; align-items: start; }
+.sim-form { background: var(--white); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); }
+.sim-result { background: var(--white); padding: 32px; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); position: relative; overflow: hidden; }
+.sim-watermark { position: absolute; top: -20px; right: -20px; font-family: var(--serif); font-size: 120px; color: var(--gray-100); font-weight: bold; font-style: italic; opacity: 0.5; z-index: 0; pointer-events: none; }
+.sim-content { position: relative; z-index: 1; }
 
 /* ── PAGOS ── */
 .pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); min-height: 420px; }
@@ -216,6 +228,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .pagos-grid { grid-template-columns: 1fr; }
   .content { padding: 20px 16px; }
   .topbar { padding: 0 16px; }
+  .sim-grid { grid-template-columns: 1fr; }
 }
 @media(max-width: 600px) {
   .form-grid { grid-template-columns: 1fr; }
@@ -226,7 +239,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 </head>
 <body>
 
-<!-- PANTALLA DE LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <div style="margin-bottom: 15px;">
@@ -246,7 +258,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 </div>
 
 <div class="layout" id="app-layout">
-<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-mark">
@@ -271,6 +282,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="nav-item" onclick="showPane('pagos',this)">
       <span class="icon">✓</span><span>Pagos</span>
     </div>
+    <div class="nav-item" onclick="showPane('simulador',this)">
+      <span class="icon">🧮</span><span>Simulador</span>
+    </div>
     <div class="nav-item admin-only" onclick="showPane('gastos',this)">
       <span class="icon">💸</span><span>Gastos Operativos</span>
     </div>
@@ -293,12 +307,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </aside>
 
-<!-- MAIN -->
 <div class="main">
-  <!-- TOPBAR -->
   <header class="topbar">
     <span class="topbar-title" id="topbar-title">Dashboard</span>
     <div class="topbar-right">
+      <div id="topbar-dolar" class="badge badge-blue" style="font-size:11px; padding:6px 12px; margin-right:10px">USD Blue: Consultando...</div>
       <div id="topbar-alertas"></div>
       <button class="btn btn-primary" onclick="abrirModal()">+ Nuevo crédito</button>
     </div>
@@ -309,17 +322,14 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div id="alertas-lista" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
 
-    <!-- DASHBOARD -->
     <div class="pane active admin-only" id="pane-dashboard">
       <div class="page-header">
         <div><div class="page-title">Resumen general</div><div class="page-sub">Vista ejecutiva de la cartera</div></div>
       </div>
       <div class="metrics-grid" id="metrics-grid">
-        <!-- Relleno por JS -->
-      </div>
+        </div>
       <div class="dash-row">
         <div class="card">
           <div class="card-header"><span class="card-title">Capital por cliente</span></div>
@@ -342,7 +352,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
-    <!-- CARTERA -->
     <div class="pane" id="pane-cartera">
       <div class="page-header">
         <div><div class="page-title">Cartera de créditos</div><div class="page-sub" id="cartera-sub"></div></div>
@@ -376,7 +385,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
                 <th onclick="sortBy('garantia')">Garantía / Patente</th>
                 <th onclick="sortBy('plazo')">Plazo</th>
                 <th onclick="sortBy('cuota')">Cuota</th>
-                <th class="admin-only" onclick="sortBy('capital')">Capital</th>
+                <th class="admin-only" onclick="sortBy('capital')">Capital Base</th>
                 <th class="admin-only">Legajo</th>
                 <th>Estado</th>
                 <th style="text-align:right">Acciones</th>
@@ -388,7 +397,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
-    <!-- PAGOS -->
     <div class="pane" id="pane-pagos">
       <div class="page-header">
         <div><div class="page-title">Seguimiento de pagos</div><div class="page-sub">Marcá cada cuota al cobrarla o imprimí el recibo</div></div>
@@ -404,11 +412,62 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
-    <!-- GASTOS OPERATIVOS -->
+    <div class="pane" id="pane-simulador">
+      <div class="page-header">
+        <div><div class="page-title">Cotizador Inteligente</div><div class="page-sub">Simulador de cuotas con 3% de Gasto de Otorgamiento automático</div></div>
+      </div>
+      <div class="sim-grid">
+        <div class="sim-form">
+          <div class="form-group" style="margin-bottom:16px;">
+            <label style="font-size:12px; color:var(--blue-800)">Capital Solicitado ($)</label>
+            <input type="number" id="sim-capital" value="1000000" oninput="ejecutarSimulador()" style="font-size:16px; font-weight:600">
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label style="font-size:12px; color:var(--blue-800)">Plazo (Meses)</label>
+            <input type="number" id="sim-plazo" value="24" oninput="ejecutarSimulador()" style="font-size:16px">
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label style="font-size:12px; color:var(--blue-800)">Tasa Mensual (TEM %)</label>
+            <input type="number" id="sim-tasa" value="8" step="0.1" oninput="ejecutarSimulador()" style="font-size:16px">
+          </div>
+          <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:14px; margin-top:10px" onclick="imprimirCotizacion()">🖨️ Generar PDF / Imprimir</button>
+        </div>
+        
+        <div class="sim-result">
+          <div class="sim-watermark">NEXO</div>
+          <div class="sim-content">
+            <div style="border-bottom:2px solid var(--gray-200); padding-bottom:16px; margin-bottom:24px;">
+              <h3 style="font-family:var(--serif); font-size:24px; color:var(--blue-800); font-style:italic">Cotización de Crédito</h3>
+              <p style="font-size:12px; color:var(--gray-500)">NEXO AUTOCREDITOS — Monte Buey, Córdoba</p>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <span style="color:var(--gray-600); font-weight:500;">Capital Solicitado:</span>
+              <span id="prev-cap" style="font-weight:600; font-size:14px;">$0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <span style="color:var(--blue-500); font-weight:500;">Gasto de Otorgamiento (3%):</span>
+              <span id="prev-gasto" style="font-weight:600; font-size:14px; color:var(--blue-600)">$0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:12px 0; border-top:1px dashed var(--gray-300); border-bottom:1px dashed var(--gray-300); margin-bottom:24px;">
+              <span style="color:var(--gray-800); font-weight:700;">Total Financiado (Capital + Gasto):</span>
+              <span id="prev-total" style="font-weight:800; font-size:15px; color:var(--gray-800)">$0</span>
+            </div>
+            
+            <div style="background:var(--blue-50); border:1px solid var(--blue-200); border-radius:var(--radius); padding:20px; text-align:center;">
+              <span style="display:block; font-size:11px; color:var(--blue-600); font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Cuota Mensual Fija</span>
+              <span id="prev-cuota" style="display:block; font-family:var(--serif); font-size:42px; color:var(--blue-800); line-height:1;">$0</span>
+              <span style="display:block; font-size:13px; color:var(--gray-600); margin-top:8px;">Plan de <strong id="prev-plazo" style="color:var(--gray-800)">0</strong> meses</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="pane" id="pane-gastos">
       <div class="page-header">
         <div><div class="page-title">Gastos Operativos</div><div class="page-sub">Control de salidas de dinero fijo y variable</div></div>
-        <button class="btn btn-primary" style="background:var(--red); border-color:var(--red)" onclick="abrirModalGasto()">+ Registrar Gasto</button>
+        <button class="btn btn-primary" style="background:var(--red); border-color:var(--red)" onclick="abrirModalGasto()">+ Registar Gasto</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -429,7 +488,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
-    <!-- SEGUROS -->
     <div class="pane" id="pane-seguros">
       <div class="page-header">
         <div><div class="page-title">Gestión de Seguros</div><div class="page-sub">Control de pólizas, comisiones y vencimientos (Campus Nexo)</div></div>
@@ -455,11 +513,29 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
-</div><!-- /layout -->
+  </div></div></div><div class="modal-overlay" id="modal-wsp-overlay" onclick="cerrarModalWspFuera(event)">
+  <div class="modal" style="max-width: 400px; padding: 28px;">
+    <div class="modal-header" style="margin-bottom: 16px;">
+      <div class="modal-icon" style="background:#dcfce7; color:#16a34a; border-color:#bbf7d0;">📲</div>
+      <div><h2 id="mw-titulo" style="font-size:20px">Notificar a<br><span id="mw-cliente" style="font-family:var(--sans); font-size:16px; font-weight:600; color:var(--gray-800)"></span></h2></div>
+    </div>
+    <p style="font-size:12px; color:var(--gray-500); margin-bottom:20px">Elegí el tipo de mensaje a enviar por WhatsApp. Se incluirá automáticamente el monto de la cuota.</p>
+    
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn" onclick="enviarWsp('recordatorio')" style="justify-content:flex-start; padding:12px 16px; font-size:13px; font-weight:600">
+        <span style="font-size:16px; margin-right:8px">📅</span> Recordatorio Preventivo (Faltan días)
+      </button>
+      <button class="btn" onclick="enviarWsp('vencimiento')" style="justify-content:flex-start; padding:12px 16px; font-size:13px; font-weight:600; background:var(--amber-bg); border-color:var(--amber-border); color:var(--amber)">
+        <span style="font-size:16px; margin-right:8px">🔔</span> Aviso de Vencimiento (Día 10)
+      </button>
+      <button class="btn" onclick="enviarWsp('mora')" style="justify-content:flex-start; padding:12px 16px; font-size:13px; font-weight:600; background:var(--red-bg); border-color:var(--red-border); color:var(--red)">
+        <span style="font-size:16px; margin-right:8px">⚠</span> Reclamo de Mora (Vencida)
+      </button>
+      <button class="btn" onclick="cerrarModalWsp()" style="justify-content:center; padding:10px; border:none; background:transparent; font-size:12px; margin-top:5px; color:var(--gray-500)">Cancelar</button>
+    </div>
+  </div>
+</div>
 
-<!-- MODAL PRINCIPAL: NUEVO/EDITAR CRÉDITO -->
 <div class="modal-overlay" id="modal-overlay" onclick="cerrarModalFuera(event)">
   <div class="modal">
     <div class="modal-header">
@@ -471,14 +547,14 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="form-grid">
       <div class="form-group full"><label>Nombre completo *</label><input type="text" id="f-nombre" placeholder="Ej: Juan Carlos García"></div>
       <div class="form-group"><label>DNI</label><input type="text" id="f-dni" placeholder="Número sin puntos"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="f-tel" placeholder="Código área + número"></div>
+      <div class="form-group"><label>Teléfono (WhatsApp)</label><input type="text" id="f-tel" placeholder="Código área + número (Ej: 351...)"></div>
     </div>
 
     <div class="form-section">Datos del crédito</div>
     <div class="form-grid">
       <div class="form-group"><label>Tipo de crédito *</label><select id="f-tipo" onchange="togglePrendario()"><option value="prendario">Prendario (con garantía)</option><option value="personal">Personal (sin garantía)</option></select></div>
       <div class="form-group"><label>Estado</label><select id="f-estado"><option value="AL DIA">Al día</option><option value="MORA">En mora</option><option value="TERMINADA">Terminada</option></select></div>
-      <div class="form-group"><label>Capital otorgado ($) *</label><input type="number" id="f-capital" placeholder="Ej: 5000000" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500); font-weight: 500; margin-top: 2px;"></small></div>
+      <div class="form-group"><label>Capital otorgado/Base ($) *</label><input type="number" id="f-capital" placeholder="Ej: 5000000" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500); font-weight: 500; margin-top: 2px;"></small></div>
       <div class="form-group"><label>Tasa Mensual (TEM %) *</label><input type="number" id="f-tasa" value="8" step="0.1" oninput="calcularCuota()"></div>
       <div class="form-group"><label>Plazo (meses) *</label><input type="number" id="f-plazo" placeholder="Ej: 24" oninput="calcularCuota()"></div>
       <div class="form-group"><label>Cuota mensual ($) *</label><input type="number" id="f-cuota" placeholder="Calculada automáticamente"></div>
@@ -521,7 +597,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
-<!-- MODAL GASTOS OPERATIVOS -->
 <div class="modal-overlay" id="modal-gasto-overlay" onclick="cerrarModalGastoFuera(event)">
   <div class="modal" style="max-width: 450px;">
     <div class="modal-header">
@@ -551,7 +626,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
-<!-- MODAL SOLO SEGUROS -->
 <div class="modal-overlay" id="modal-seguro-overlay" onclick="cerrarModalSeguroFuera(event)">
   <div class="modal" style="max-width: 450px;">
     <div class="modal-header">
@@ -572,7 +646,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
-<!-- MODAL LEGAJO BÓVEDA DIGITAL -->
 <div class="modal-overlay" id="modal-legajo-overlay" onclick="cerrarModalLegajoFuera(event)">
   <div class="modal" style="max-width: 450px;">
     <div class="modal-header">
@@ -597,7 +670,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
-<!-- MODAL ACCION CUOTA -->
 <div class="modal-overlay" id="modal-cuota-overlay" onclick="cerrarModalCuotaFuera(event)">
   <div class="modal" style="max-width: 380px; padding: 28px;">
     <div class="modal-header" style="margin-bottom: 12px;"><div><h2 id="mc-titulo" style="font-size: 19px;">Cuota</h2></div></div>
@@ -611,13 +683,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
-<!-- CONEXIÓN A FIREBASE Y LÓGICA -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  // ACÁ ESTÁN TUS CREDENCIALES EXACTAS DE FIREBASE
+  // CREDENCIALES EXACTAS DE FIREBASE
   const firebaseConfig = {
     apiKey: "AIzaSyBWbWA2e2i6K7bQ3Jj3yOHP8BK03RbgQ4w",
     authDomain: "gestion-cartera-nexo.firebaseapp.com",
@@ -631,20 +702,34 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // === ¡IMPORTANTE! CORREOS CON ACCESO TOTAL (DUEÑOS) ===
+  // === CORREOS ADMIN (DUEÑOS) ===
   const CORREOS_ADMIN = ["facundo@nexo.com", "sofia@nexo.com"];
 
   // Variables Globales
   window.HOY = new Date();
   window.creditos = [];
   window.pagosEstado = {};
-  window.gastos = []; // Nueva variable global para gastos
+  window.gastos = []; 
   window.IS_ADMIN = false;
+  window.usdBlue = null;
   
   window.sortCol = null; window.sortDir = 1; window.editId = null; window.editSeguroId = null;
-  window.editGastoId = null; // Para editar gastos
-  window.pagoActual = null; window.legajoActualId = null;
-  window.cuotaSelId = null; window.cuotaSelN = null;
+  window.editGastoId = null; window.pagoActual = null; window.legajoActualId = null;
+  window.cuotaSelId = null; window.cuotaSelN = null; window.clienteWsp = null;
+
+  // FETCH USD BLUE API
+  async function fetchUsdBlue() {
+    try {
+      const res = await fetch('https://dolarapi.com/v1/dolares/blue');
+      const data = await res.json();
+      window.usdBlue = data.venta; // Usamos el precio de Venta como referencia estándar
+      document.getElementById('topbar-dolar').textContent = `USD Blue: $${window.usdBlue}`;
+      window.renderAll(); // Re-renderizar para mostrar los tags USD
+    } catch (e) {
+      document.getElementById('topbar-dolar').textContent = `USD Blue: N/A`;
+      console.error("Error cargando Dolar API", e);
+    }
+  }
 
   // ESCUCHAR INICIO DE SESIÓN
   onAuthStateChanged(auth, async (user) => {
@@ -653,20 +738,18 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       document.getElementById('app-layout').style.display = 'flex';
       document.getElementById('user-display').textContent = user.email;
 
-      // Verificar si es jefe o empleado
       window.IS_ADMIN = CORREOS_ADMIN.includes(user.email.toLowerCase());
       aplicarPermisos();
 
-      // Conectarse a la nube y escuchar cambios en tiempo real
+      fetchUsdBlue(); // Traer dolar al iniciar
+
       onSnapshot(doc(db, "empresa", "datos_nexo"), async (docSnap) => {
         if (docSnap.exists()) {
           window.creditos = docSnap.data().creditos || [];
           window.pagosEstado = docSnap.data().pagosEstado || {};
-          window.gastos = docSnap.data().gastos || []; // Levantar gastos
+          window.gastos = docSnap.data().gastos || [];
           window.renderAll();
         } else if (window.IS_ADMIN) {
-          // Si la nube está vacía, subir los datos locales de tu compu (MIGRACIÓN)
-          console.log("Subiendo datos locales a la nube...");
           const locales = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
           const pagosLocales = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
           const gastosLocales = JSON.parse(localStorage.getItem('nexo_gastos') || '[]');
@@ -681,21 +764,16 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     }
   });
 
-  // BOTÓN LOGIN Y LOGOUT
   document.getElementById('btn-login').addEventListener('click', async () => {
     const email = document.getElementById('login-email').value;
     const pass = document.getElementById('login-password').value;
     document.getElementById('login-error').style.display = 'none';
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-    } catch (e) {
-      document.getElementById('login-error').style.display = 'block';
-    }
+    try { await signInWithEmailAndPassword(auth, email, pass); } 
+    catch (e) { document.getElementById('login-error').style.display = 'block'; }
   });
 
   window.cerrarSesion = () => signOut(auth);
 
-  // FUNCIÓN PARA GUARDAR EN LA NUBE
   window.guardar = async () => {
     localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
     localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
@@ -704,22 +782,15 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if (auth.currentUser) {
       try {
         await setDoc(doc(db, "empresa", "datos_nexo"), {
-          creditos: window.creditos,
-          pagosEstado: window.pagosEstado,
-          gastos: window.gastos // Guardar gastos en Firebase
+          creditos: window.creditos, pagosEstado: window.pagosEstado, gastos: window.gastos 
         });
-      } catch (e) {
-        console.log("Error de conexión. Se guardó localmente.");
-      }
+      } catch (e) { console.log("Error guardando en la nube"); }
     }
   };
 
   // ── LÓGICA DE ROLES Y NAVEGACIÓN ──
   function aplicarPermisos() {
-    document.querySelectorAll('.admin-only').forEach(el => {
-      el.style.display = window.IS_ADMIN ? '' : 'none';
-    });
-
+    document.querySelectorAll('.admin-only').forEach(el => { el.style.display = window.IS_ADMIN ? '' : 'none'; });
     if (!window.IS_ADMIN) {
       document.getElementById('nav-dashboard').classList.remove('active');
       window.showPane('cartera', document.querySelector('.nav-item:nth-child(2)'));
@@ -734,13 +805,26 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('pane-'+id).classList.add('active');
     if(el) el.classList.add('active');
     
-    const pNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', seguros:'Gestión de Seguros', gastos: 'Gastos Operativos' };
+    const pNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', simulador: 'Simulador / Cotizador', seguros:'Gestión de Seguros', gastos: 'Gastos Operativos' };
     document.getElementById('topbar-title').textContent = pNames[id]||id;
     
     if(id==='pagos') { window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual); }
     if(id==='dashboard' && window.IS_ADMIN) window.renderDashboard();
     if(id==='seguros') window.renderSeguros();
     if(id==='gastos') window.renderGastos();
+    if(id==='simulador') window.ejecutarSimulador();
+  };
+
+  // ── HELPER FORMATO USD ──
+  const fmtUsd = (ars) => {
+    if (!window.usdBlue || window.usdBlue <= 0) return '';
+    const usd = Math.round(ars / window.usdBlue);
+    return `<span class="usd-val">US$ ${usd.toLocaleString('es-AR')}</span>`;
+  };
+  const fmtUsdInline = (ars) => {
+    if (!window.usdBlue || window.usdBlue <= 0) return '';
+    const usd = Math.round(ars / window.usdBlue);
+    return `<span class="usd-val-inline">(US$ ${usd.toLocaleString('es-AR')})</span>`;
   };
 
   // ── UTILIDADES DE CÁLCULO ──
@@ -750,9 +834,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const tasa = parseFloat(document.getElementById('f-tasa').value) || 0;
     
     if (cap > 0) {
+      // Retenemos el 3% de otorgamiento
       const retenido = cap * 0.03;
       const aEntregar = cap - retenido;
-      document.getElementById('resumen-otorgamiento').innerText = `Gasto otorg. (3%): $${retenido.toLocaleString('es-AR')} | Neto a transferir: $${aEntregar.toLocaleString('es-AR')}`;
+      document.getElementById('resumen-otorgamiento').innerText = `Gasto otorg. (3%): $${retenido.toLocaleString('es-AR')} | Neto a transferir al cliente: $${aEntregar.toLocaleString('es-AR')}`;
     } else {
       document.getElementById('resumen-otorgamiento').innerText = '';
     }
@@ -762,6 +847,76 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       const cuota = cap * (i / (1 - Math.pow(1 + i, -plaz)));
       document.getElementById('f-cuota').value = Math.round(cuota);
     }
+  };
+
+  // ── SIMULADOR / COTIZADOR PANE ──
+  window.ejecutarSimulador = () => {
+    const capSolicitado = parseFloat(document.getElementById('sim-capital').value) || 0;
+    const plaz = parseInt(document.getElementById('sim-plazo').value) || 0;
+    const tasa = parseFloat(document.getElementById('sim-tasa').value) || 0;
+
+    const gastoOtorgamiento = capSolicitado * 0.03;
+    const capitalTotal = capSolicitado + gastoOtorgamiento;
+
+    document.getElementById('prev-cap').textContent = `$${capSolicitado.toLocaleString('es-AR')}`;
+    document.getElementById('prev-gasto').textContent = `+$${gastoOtorgamiento.toLocaleString('es-AR')}`;
+    document.getElementById('prev-total').textContent = `$${capitalTotal.toLocaleString('es-AR')}`;
+    document.getElementById('prev-plazo').textContent = plaz;
+
+    if (capitalTotal > 0 && plaz > 0 && tasa > 0) {
+      const i = tasa / 100;
+      const cuota = capitalTotal * (i / (1 - Math.pow(1 + i, -plaz)));
+      document.getElementById('prev-cuota').textContent = `$${Math.round(cuota).toLocaleString('es-AR')}`;
+    } else {
+      document.getElementById('prev-cuota').textContent = `$0`;
+    }
+  };
+
+  window.imprimirCotizacion = () => {
+    const capSolicitado = parseFloat(document.getElementById('sim-capital').value) || 0;
+    const plaz = parseInt(document.getElementById('sim-plazo').value) || 0;
+    const tasa = parseFloat(document.getElementById('sim-tasa').value) || 0;
+    const gastoOtorgamiento = capSolicitado * 0.03;
+    const capitalTotal = capSolicitado + gastoOtorgamiento;
+    const i = tasa / 100;
+    const cuota = capitalTotal > 0 && plaz > 0 && tasa > 0 ? capitalTotal * (i / (1 - Math.pow(1 + i, -plaz))) : 0;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 40px;">
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1e5baa; padding-bottom: 20px;">
+          <h1 style="margin: 0; color: #1e5baa; font-size: 28px; font-style: italic;">NEXO AUTOCREDITOS</h1>
+          <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Cotización de Crédito - Monte Buey, Córdoba</p>
+          <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Fecha: ${window.HOY.toLocaleDateString('es-AR')} (Válida por 48hs)</p>
+        </div>
+        
+        <table style="width: 100%; font-size: 16px; margin-bottom: 30px; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee;">Capital Base Solicitado:</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;"><strong>$${capSolicitado.toLocaleString('es-AR')}</strong></td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1e5baa;">Gasto de Otorgamiento (3%):</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right; color: #1e5baa;"><strong>$${gastoOtorgamiento.toLocaleString('es-AR')}</strong></td>
+          </tr>
+          <tr>
+            <td style="padding: 15px 0; border-bottom: 2px solid #ccc; font-weight: bold;">Total a Financiar:</td>
+            <td style="padding: 15px 0; border-bottom: 2px solid #ccc; text-align: right; font-weight: bold; font-size: 18px;">$${capitalTotal.toLocaleString('es-AR')}</td>
+          </tr>
+        </table>
+
+        <div style="background-color: #f0f7ff; border: 1px solid #dceeff; padding: 30px; text-align: center; border-radius: 8px;">
+          <p style="margin: 0; font-size: 14px; color: #1e5baa; font-weight: bold; text-transform: uppercase;">Cuota Mensual Fija</p>
+          <p style="margin: 10px 0; font-size: 48px; color: #103058; font-weight: bold;">$${Math.round(cuota).toLocaleString('es-AR')}</p>
+          <p style="margin: 0; font-size: 16px; color: #444;">Plan de <strong>${plaz}</strong> meses</p>
+        </div>
+
+        <div style="margin-top: 40px; font-size: 11px; color: #777; text-align: justify;">
+          * Las cuotas vencen indefectiblemente el día 10 de cada mes. Simulación sujeta a aprobación crediticia y revisión de la documentación/garantía presentada por el solicitante.
+        </div>
+      </div>
+    `;
+    const win = window.open('', '_blank'); win.document.write(html); win.document.close();
+    setTimeout(() => win.print(), 250);
   };
 
   // ── IMPRESIÓN (CONTRATOS Y RECIBOS) ──
@@ -777,7 +932,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div style="background: #f8f9fa; padding: 15px 20px; border: 1px solid #ccc; margin: 25px 0;">
           <strong>Vehículo Garantía:</strong> ${c.garantia} (Año ${c.anio || '____'})<br>
           <strong>Dominio / Patente:</strong> ${c.patente}<br>
-          <strong>Capital Financiado:</strong> $${c.capital.toLocaleString('es-AR')}
+          <strong>Capital Base Financiado:</strong> $${c.capital.toLocaleString('es-AR')}
         </div>
         <ol style="text-align: justify; padding-left: 20px; margin-bottom: 40px;">
           <li style="margin-bottom: 15px;"><strong>OBLIGATORIEDAD DE MANTENIMIENTO:</strong> El Titular se compromete a realizar los servicios en Campus Nexo o talleres oficiales de Nexo Autocréditos.</li>
@@ -805,7 +960,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div style="font-family: Arial; padding: 30px; border: 1px solid #ddd; max-width: 600px; margin: 0 auto;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
           <div><div style="font-size: 16px;">RECIBO DE PAGO N° ${nro}</div><div>Fecha: <strong>${window.HOY.toLocaleDateString('es-AR')}</strong></div></div>
-          <div><strong style="font-size:20px">NEXO AUTOCREDITOS</strong></div>
+          <div><strong style="font-size:20px; font-style:italic; color:#1e5baa;">NEXO AUTOCREDITOS</strong></div>
         </div>
         <div style="font-size: 15px; line-height: 2;">
           <div>Recibí de: <strong>${c.nombre}</strong></div>
@@ -821,12 +976,44 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     setTimeout(() => win.print(), 250);
   };
 
-  window.enviarWA = (id) => {
-    const c = window.creditos.find(x => x.id === id);
-    if (!c.tel) return alert('El cliente no tiene teléfono.');
-    let num = c.tel.replace(/\D/g, ''); if (!num.startsWith('54')) num = '549' + num;
-    let msg = `Hola ${c.nombre.split(' ')[0]}, de Nexo Autocréditos. Te recordamos el vencimiento de tu próxima cuota por $${c.cuota.toLocaleString('es-AR')}.`;
+  // ── WSP INTELIGENTE ──
+  window.abrirModalWsp = (id) => {
+    window.clienteWsp = window.creditos.find(x => x.id === id);
+    document.getElementById('mw-cliente').textContent = window.clienteWsp.nombre;
+    document.getElementById('modal-wsp-overlay').classList.add('open');
+  };
+  
+  window.cerrarModalWsp = () => document.getElementById('modal-wsp-overlay').classList.remove('open');
+  window.cerrarModalWspFuera = (e) => { if(e.target.id === 'modal-wsp-overlay') window.cerrarModalWsp(); };
+
+  window.enviarWsp = (tipo) => {
+    const c = window.clienteWsp;
+    if (!c || !c.tel) {
+      alert("El cliente no tiene un teléfono registrado.");
+      return;
+    }
+    
+    let num = c.tel.replace(/\D/g, ''); 
+    if (!num.startsWith('54')) num = '549' + num; // Formato Argentina por defecto
+    
+    const primerNombre = c.nombre.split(' ')[0];
+    const monto = c.cuota.toLocaleString('es-AR');
+    let msg = "";
+
+    switch(tipo) {
+      case 'recordatorio':
+        msg = `Hola ${primerNombre}, te escribimos de *Nexo Autocréditos* 🚘.\n\nTe recordamos de manera preventiva que el próximo *día 10* opera el vencimiento de tu cuota por *$${monto}*.\n\n¡Que tengas una excelente semana!`;
+        break;
+      case 'vencimiento':
+        msg = `¡Hola ${primerNombre}! De *Nexo Autocréditos*.\n\nTe avisamos que *HOY (Día 10)* vence tu cuota mensual por *$${monto}*.\n\nPodés acercarte a abonar por la oficina o pasarnos el comprobante de transferencia por acá. ¡Saludos!`;
+        break;
+      case 'mora':
+        msg = `⚠️ *ATENCIÓN ${primerNombre.toUpperCase()}:*\n\nRegistramos en el sistema que tu cuota de *Nexo Autocréditos* por *$${monto}* se encuentra *VENCIDA*.\n\nPor favor, regularizá tu situación a la brevedad para evitar recargos e intereses moratorios diarios. Aguardamos tu respuesta.`;
+        break;
+    }
+
     window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+    window.cerrarModalWsp();
   };
 
   // ── TABLA CARTERA ──
@@ -867,12 +1054,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <td><span class="badge badge-blue">${c.tipo}</span></td>
         <td>${c.garantia||'—'}<br><span style="font-size:10px; color:var(--blue-500)">${c.patente||''}</span></td>
         <td style="color:var(--gray-700)">${c.plazo}m</td>
-        <td style="font-weight:500">$${c.cuota.toLocaleString('es-AR')}</td>
-        ${window.IS_ADMIN ? `<td class="admin-only">$${c.capital.toLocaleString('es-AR')}</td><td style="text-align:center" class="admin-only">${legTxt}</td>` : ''}
+        <td style="font-weight:500">$${c.cuota.toLocaleString('es-AR')}<br>${fmtUsd(c.cuota)}</td>
+        ${window.IS_ADMIN ? `<td class="admin-only">$${c.capital.toLocaleString('es-AR')}<br>${fmtUsd(c.capital)}</td><td style="text-align:center" class="admin-only">${legTxt}</td>` : ''}
         <td><span class="badge ${eBadge}">${c.estado}</span></td>
         <td style="text-align:right">
           ${c.tipo==='prendario' ? `<button class="btn btn-sm btn-icon" style="color:var(--gray-600)" onclick="imprimirContrato(${c.id})" title="Imprimir Contrato">📄</button>` : ''}
-          <button class="btn btn-sm btn-icon" style="color:#25D366" onclick="enviarWA(${c.id})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+          <button class="btn btn-sm btn-icon" style="color:#16a34a; background:#f0fdf4; border-color:#bbf7d0;" onclick="abrirModalWsp(${c.id})" title="WhatsApp Inteligente">📲</button>
           <button class="btn btn-sm btn-icon" onclick="abrirModal(${c.id})">✎</button>
           ${window.IS_ADMIN ? `<button class="btn btn-sm btn-icon btn-danger admin-only" onclick="eliminar(${c.id})">✕</button>` : ''}
         </td>
@@ -885,12 +1072,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     window.renderTabla();
   };
 
-  // ── SEGUROS Y MODAL EXCLUSIVO ──
+  // ── SEGUROS ──
   window.renderSeguros = () => {
     const prendas = window.creditos.filter(c => c.tipo === 'prendario' && c.estado !== 'TERMINADA');
     if (window.IS_ADMIN) {
       const tot = prendas.reduce((s,c)=>s+(c.seguroComision||0), 0);
-      document.getElementById('seguros-metrics-grid').innerHTML = `<div class="metric-card green"><div class="metric-label">Comisiones Limpias</div><div class="metric-value">$${tot.toLocaleString('es-AR')}</div></div>`;
+      document.getElementById('seguros-metrics-grid').innerHTML = `<div class="metric-card green"><div class="metric-label">Comisiones Limpias</div><div class="metric-value">$${tot.toLocaleString('es-AR')}</div>${fmtUsd(tot)}</div>`;
     }
     document.getElementById('tabla-seguros-body').innerHTML = prendas.map(c => {
       return `<tr>
@@ -948,13 +1135,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if (!window.pagosEstado[id]) window.pagosEstado[id]={};
     const inicio = new Date(c.fecha);
     
-    // Todas las cuotas se calculan para el día 10 del mes correspondiente
+    // Calcular vencimientos al 10 de cada mes
     const cuotas = Array.from({length:c.plazo},(_,i)=>{
       const n=i+1; 
       let m = inicio.getMonth() + n;
       let y = inicio.getFullYear();
       if (m > 11) { y += Math.floor(m/12); m = m % 12; }
-      const f = new Date(y, m, 10); // Fijar al día 10
+      const f = new Date(y, m, 10); 
       return {n, f, e: window.pagosEstado[id][n] || (f<window.HOY?'vencida':'pendiente')};
     });
 
@@ -966,7 +1153,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         let m = inicio.getMonth() + (n * frec);
         let y = inicio.getFullYear();
         if (m > 11) { y += Math.floor(m/12); m = m % 12; }
-        const f = new Date(y, m, 10); // Fijar al día 10
+        const f = new Date(y, m, 10); 
         return {n, f, e: window.pagosEstado[id]['R'+n] || (f<window.HOY?'vencida':'pendiente')};
       });
       refHtml = `<h4 style="margin-top:20px; font-size:12px; color:var(--amber)">Refuerzos Extraordinarios</h4><div class="cuotas-grid">` + 
@@ -974,7 +1161,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     }
     
     document.getElementById('pagos-detalle').innerHTML = `
-      <h3>${c.nombre}</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>${c.nombre}</h3>
+        <button class="btn btn-sm" style="color:#16a34a; border-color:#bbf7d0;" onclick="abrirModalWsp(${c.id})">📲 Enviar Aviso</button>
+      </div>
       <p style="font-size:11px;color:var(--gray-400);margin-bottom:12px">Click en cada cuota para cobrarla o imprimir recibo</p>
       <div class="cuotas-grid">
         ${cuotas.map(q=>`<div class="cuota-btn ${q.e}" onclick="abrirModalCuota(${id},'${q.n}')"><div class="cuota-num">N° ${q.n}</div><div class="cuota-mes">${q.f.toLocaleDateString('es-AR',{month:'short'})}</div></div>`).join('')}
@@ -1013,7 +1203,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
   // ── GASTOS OPERATIVOS ──
   window.renderGastos = () => {
-    // Ordenar gastos del más nuevo al más viejo
     const lista = [...window.gastos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
     const tbody = document.getElementById('tabla-gastos-body');
     
@@ -1023,13 +1212,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     }
 
     tbody.innerHTML = lista.map(g => {
-      // Ajustar fecha para no tener error de zona horaria al mostrar
       const d = g.fecha ? new Date(g.fecha + 'T12:00:00').toLocaleDateString('es-AR') : '-';
       return `<tr>
         <td style="color:var(--gray-500)">${d}</td>
         <td><span class="badge badge-gray">${g.categoria}</span></td>
         <td class="td-name">${g.concepto}</td>
-        <td style="color:var(--red); font-weight:600">-$${g.monto.toLocaleString('es-AR')}</td>
+        <td style="color:var(--red); font-weight:600">-$${g.monto.toLocaleString('es-AR')}<br>${fmtUsd(g.monto)}</td>
         <td style="color:var(--gray-500); font-size:11px;">${g.notas || ''}</td>
         <td style="text-align:right">
           <button class="btn btn-sm btn-icon" onclick="abrirModalGasto(${g.id})">✎</button>
@@ -1067,11 +1255,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       categoria, concepto, monto, fecha, notas
     };
 
-    if (window.editGastoId) {
-      window.gastos = window.gastos.map(g => g.id === window.editGastoId ? nuevoGasto : g);
-    } else {
-      window.gastos.push(nuevoGasto);
-    }
+    if (window.editGastoId) window.gastos = window.gastos.map(g => g.id === window.editGastoId ? nuevoGasto : g);
+    else window.gastos.push(nuevoGasto);
 
     window.guardar(); window.cerrarModalGasto(); window.renderAll();
   };
@@ -1085,7 +1270,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.cerrarModalGasto = () => { document.getElementById('modal-gasto-overlay').classList.remove('open'); window.editGastoId = null; };
   window.cerrarModalGastoFuera = (e) => { if (e.target.id === 'modal-gasto-overlay') window.cerrarModalGasto(); };
 
-  // ── MODAL PRINCIPAL CREDITO ──
+  // ── MODAL PRINCIPAL CREDITO (ABRIR, CERRAR, GUARDAR, ELIMINAR) ──
   window.abrirModal = (id=null) => {
     window.editId = id; const c = id ? window.creditos.find(x=>x.id===id) : null;
     document.getElementById('modal-titulo').childNodes[0].textContent = id ? 'Editar crédito' : 'Nuevo crédito';
@@ -1202,26 +1387,24 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const tem = totCap ? (interesPonderado / totCap) : 0;
     const tna = tem * 12;
 
-    // Calcular gastos del mes actual
     const hoy = window.HOY;
     const mesActual = hoy.getMonth();
     const anioActual = hoy.getFullYear();
     const gastosMes = (window.gastos || []).filter(g => {
       if(!g.fecha) return false;
-      const d = new Date(g.fecha + 'T12:00:00'); // Evitar desfase de zona horaria
+      const d = new Date(g.fecha + 'T12:00:00');
       return d.getMonth() === mesActual && d.getFullYear() === anioActual;
     }).reduce((sum, g) => sum + Number(g.monto), 0);
 
     const f = n => '$'+n.toLocaleString('es-AR');
 
-    // Métrica de recaudación en la primera tarjeta, sumando la tarjeta de gastos en rojo
     document.getElementById('metrics-grid').innerHTML = `
-      <div class="metric-card hero blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div><div class="metric-sub">Liquidez mensual esperada</div></div>
-      <div class="metric-card green"><div class="metric-label">Total a Cobrar</div><div class="metric-value">${f(totalACobrar)}</div></div>
-      <div class="metric-card" style="border-color:var(--red-border);"><div class="metric-label" style="color:var(--red);">Gastos del Mes</div><div class="metric-value" style="color:var(--red);">${f(gastosMes)}</div><div class="metric-sub">Salidas de la recaudación</div></div>
-      <div class="metric-card"><div class="metric-label">Capital en Calle</div><div class="metric-value">${f(totCap)}</div></div>
+      <div class="metric-card hero blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div>${fmtUsd(recMens)}<div class="metric-sub">Liquidez mensual esperada</div></div>
+      <div class="metric-card green"><div class="metric-label">Total a Cobrar</div><div class="metric-value">${f(totalACobrar)}</div>${fmtUsd(totalACobrar)}</div>
+      <div class="metric-card" style="border-color:var(--red-border);"><div class="metric-label" style="color:var(--red);">Gastos del Mes</div><div class="metric-value" style="color:var(--red);">${f(gastosMes)}</div>${fmtUsd(gastosMes)}<div class="metric-sub">Salidas de la recaudación</div></div>
+      <div class="metric-card"><div class="metric-label">Capital en Calle</div><div class="metric-value">${f(totCap)}</div>${fmtUsd(totCap)}</div>
       <div class="metric-card"><div class="metric-label">Rendimiento Promedio</div><div class="metric-value">${tem.toFixed(1)}% <span style="font-size:12px;color:var(--gray-500);font-family:var(--sans);font-weight:600">TEM</span></div><div class="metric-sub">TNA: ${tna.toFixed(1)}%</div></div>
-      <div class="metric-card"><div class="metric-label">Comisiones Seguros</div><div class="metric-value">${f(comSeg)}</div></div>
+      <div class="metric-card"><div class="metric-label">Comisiones Seguros</div><div class="metric-value">${f(comSeg)}</div>${fmtUsd(comSeg)}</div>
     `;
   };
 
@@ -1257,7 +1440,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     let mesRef = hoy.getMonth();
     let anioRef = hoy.getFullYear();
     
-    // Si ya pasamos el día 10, proyectamos al mes que viene
     if (hoy.getDate() > 10) {
       mesRef++;
       if(mesRef > 11) { mesRef = 0; anioRef++; }
@@ -1270,7 +1452,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const vencen = acts.filter(c => {
       const inicio = new Date(c.fecha);
       const mesesTranscurridos = (anioRef - inicio.getFullYear()) * 12 + (mesRef - inicio.getMonth());
-      // Chequear si el crédito ya empezó y si la cuota correspondiente NO está pagada
       return mesesTranscurridos > 0 && mesesTranscurridos <= c.plazo && (!window.pagosEstado[c.id] || window.pagosEstado[c.id][mesesTranscurridos] !== 'pagada');
     });
 
@@ -1286,6 +1467,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     window.renderTabla(); window.renderSeguros(); window.renderGastos();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
     if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
+    if(document.getElementById('pane-simulador').classList.contains('active')) window.ejecutarSimulador();
   };
 </script>
 </body>
