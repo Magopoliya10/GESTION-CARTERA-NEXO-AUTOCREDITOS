@@ -372,6 +372,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
             <select class="flt" id="filter-tipo" onchange="renderTabla()">
               <option value="">Todos los tipos</option>
               <option value="prendario">Prendario</option>
+              <option value="hipotecario">Hipotecario</option>
               <option value="personal">Personal</option>
             </select>
           </div>
@@ -552,7 +553,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
     <div class="form-section">Datos del crédito</div>
     <div class="form-grid">
-      <div class="form-group"><label>Tipo de crédito *</label><select id="f-tipo" onchange="togglePrendario()"><option value="prendario">Prendario (con garantía)</option><option value="personal">Personal (sin garantía)</option></select></div>
+      <div class="form-group"><label>Tipo de crédito *</label>
+        <select id="f-tipo" onchange="toggleTipoCredito()">
+          <option value="prendario">Prendario (Automotor)</option>
+          <option value="hipotecario">Hipotecario / Otra Garantía</option>
+          <option value="personal">Personal (sin garantía)</option>
+        </select>
+      </div>
       <div class="form-group"><label>Estado</label><select id="f-estado"><option value="AL DIA">Al día</option><option value="MORA">En mora</option><option value="TERMINADA">Terminada</option></select></div>
       <div class="form-group"><label>Capital otorgado/Base ($) *</label><input type="number" id="f-capital" placeholder="Ej: 5000000" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500); font-weight: 500; margin-top: 2px;"></small></div>
       <div class="form-group"><label>Tasa Mensual (TEM %) *</label><input type="number" id="f-tasa" value="8" step="0.1" oninput="calcularCuota()"></div>
@@ -585,6 +592,14 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div class="form-group"><label>Costo de la cuota mensual ($)</label><input type="number" id="f-seguro-costo" placeholder="Lo que paga el cliente"></div>
         <div class="form-group admin-only"><label style="color:var(--green)">Tu comisión mensual pactada ($)</label><input type="number" id="f-seguro-comision" placeholder="Ej: 15000"></div>
         <div class="form-group full"><label style="color:var(--red)">Día de vencimiento (Recordatorio)</label><input type="date" id="f-seguro-vencimiento"></div>
+      </div>
+    </div>
+
+    <div id="hipotecario-section" style="display:none;">
+      <div class="form-section">Datos de la Hipoteca / Garantía</div>
+      <div class="form-grid">
+        <div class="form-group full"><label>Detalle de la garantía</label><input type="text" id="f-hipo-detalle" placeholder="Ej: Terreno en Monte Buey 12,5 x 20mts"></div>
+        <div class="form-group full"><label>Valor estimado de la propiedad ($)</label><input type="number" id="f-hipo-valor" placeholder="Ej: 15000000"></div>
       </div>
     </div>
 
@@ -661,7 +676,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="form-section">Checklist de Documentación Física/Digital</div>
     <div class="checklist">
       <label class="check-item"><input type="checkbox" id="chk-dni"><span>DNI (Frente y Dorso)</span></label>
-      <label class="check-item"><input type="checkbox" id="chk-titulo"><span>Título Automotor / 08 Firmado</span></label>
+      <label class="check-item"><input type="checkbox" id="chk-titulo"><span>Título / Escritura Automotor</span></label>
       <label class="check-item"><input type="checkbox" id="chk-contrato"><span>Contrato de Prenda firmado</span></label>
       <label class="check-item"><input type="checkbox" id="chk-pagare"><span>Pagarés firmados</span></label>
       <label class="check-item"><input type="checkbox" id="chk-poliza"><span>Póliza de Seguro vigente</span></label>
@@ -834,7 +849,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const tasa = parseFloat(document.getElementById('f-tasa').value) || 0;
     
     if (cap > 0) {
-      // Retenemos el 3% de otorgamiento
       const retenido = cap * 0.03;
       const aEntregar = cap - retenido;
       document.getElementById('resumen-otorgamiento').innerText = `Gasto otorg. (3%): $${retenido.toLocaleString('es-AR')} | Neto a transferir al cliente: $${aEntregar.toLocaleString('es-AR')}`;
@@ -965,7 +979,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div style="font-size: 15px; line-height: 2;">
           <div>Recibí de: <strong>${c.nombre}</strong></div>
           <div>La cantidad de PESOS: <strong style="font-size: 18px;">$ ${monto.toLocaleString('es-AR')}</strong></div>
-          <div>Concepto: ${isRef ? 'Refuerzo Extraordinario N° '+num : 'Cuota N° '+num} - Crédito ${c.tipo}. ${c.garantia ? 'Vehículo: '+c.garantia : ''}</div>
+          <div>Concepto: ${isRef ? 'Refuerzo Extraordinario N° '+num : 'Cuota N° '+num} - Crédito ${c.tipo}.</div>
         </div>
         <div style="margin-top: 60px; text-align: center; width: 250px;">
           <div style="border-top: 1px solid #000; padding-top: 8px;">Firma y Aclaración (Nexo)</div>
@@ -994,7 +1008,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     }
     
     let num = c.tel.replace(/\D/g, ''); 
-    if (!num.startsWith('54')) num = '549' + num; // Formato Argentina por defecto
+    if (!num.startsWith('54')) num = '549' + num; 
     
     const primerNombre = c.nombre.split(' ')[0];
     const monto = c.cuota.toLocaleString('es-AR');
@@ -1022,7 +1036,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const fe = document.getElementById('filter-estado').value;
     const ft = document.getElementById('filter-tipo').value;
     let lista = window.creditos.filter(c => {
-      const m = !q || c.nombre.toLowerCase().includes(q) || c.patente.toLowerCase().includes(q);
+      const m = !q || c.nombre.toLowerCase().includes(q) || c.patente.toLowerCase().includes(q) || (c.hipoDetalle && c.hipoDetalle.toLowerCase().includes(q));
       return m && (!fe||c.estado===fe) && (!ft||c.tipo===ft);
     });
     
@@ -1041,18 +1055,25 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       let legTxt = `<span class="badge badge-gray" onclick="abrirLegajo(${c.id})" style="cursor:pointer">Vacío</span>`;
       if (window.IS_ADMIN) {
         const leg = c.legajo || {};
-        const max = c.tipo === 'prendario' ? 5 : 2;
+        const max = c.tipo === 'prendario' ? 5 : (c.tipo === 'hipotecario' ? 3 : 2);
         let cnt = 0;
         if(leg.dni) cnt++; if(leg.contrato) cnt++; 
-        if(c.tipo==='prendario'){ if(leg.titulo) cnt++; if(leg.poliza) cnt++; if(leg.pagare) cnt++; } else { if(leg.pagare) cnt++; }
+        if(c.tipo==='prendario'){ if(leg.titulo) cnt++; if(leg.poliza) cnt++; if(leg.pagare) cnt++; }
+        else if(c.tipo==='hipotecario') { if(leg.titulo) cnt++; if(leg.pagare) cnt++; }
+        else { if(leg.pagare) cnt++; }
+
         if(cnt===max) legTxt = `<span class="badge badge-green" onclick="abrirLegajo(${c.id})" style="cursor:pointer">Comp. ✓</span>`;
         else if(cnt>0) legTxt = `<span class="badge badge-amber" onclick="abrirLegajo(${c.id})" style="cursor:pointer">Inc (${cnt}/${max})</span>`;
       }
 
+      let garTxt = '—';
+      if (c.tipo === 'prendario') garTxt = `${c.garantia||'—'}<br><span style="font-size:10px; color:var(--blue-500)">${c.patente||''}</span>`;
+      else if (c.tipo === 'hipotecario') garTxt = `${c.hipoDetalle||'—'}<br><span style="font-size:10px; color:var(--amber)">Inmueble / Hipoteca</span>`;
+
       return `<tr>
         <td class="td-name">${c.nombre}</td>
         <td><span class="badge badge-blue">${c.tipo}</span></td>
-        <td>${c.garantia||'—'}<br><span style="font-size:10px; color:var(--blue-500)">${c.patente||''}</span></td>
+        <td>${garTxt}</td>
         <td style="color:var(--gray-700)">${c.plazo}m</td>
         <td style="font-weight:500">$${c.cuota.toLocaleString('es-AR')}<br>${fmtUsd(c.cuota)}</td>
         ${window.IS_ADMIN ? `<td class="admin-only">$${c.capital.toLocaleString('es-AR')}<br>${fmtUsd(c.capital)}</td><td style="text-align:center" class="admin-only">${legTxt}</td>` : ''}
@@ -1291,12 +1312,20 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('f-seguro-costo').value = c?.seguroCosto||'';
     document.getElementById('f-seguro-comision').value = c?.seguroComision||'';
     document.getElementById('f-seguro-vencimiento').value = c?.seguroVencimiento||'';
+
+    document.getElementById('f-hipo-detalle').value = c?.hipoDetalle||'';
+    document.getElementById('f-hipo-valor').value = c?.hipoValor||'';
     
-    window.togglePrendario(); window.calcularCuota();
+    window.toggleTipoCredito(); window.calcularCuota();
     document.getElementById('modal-overlay').classList.add('open');
   };
 
-  window.togglePrendario = () => { document.getElementById('prendario-section').style.display = document.getElementById('f-tipo').value==='prendario' ? '' : 'none'; };
+  window.toggleTipoCredito = () => { 
+    const t = document.getElementById('f-tipo').value;
+    document.getElementById('prendario-section').style.display = t==='prendario' ? '' : 'none'; 
+    document.getElementById('hipotecario-section').style.display = t==='hipotecario' ? '' : 'none'; 
+  };
+  
   window.cerrarModal = () => { document.getElementById('modal-overlay').classList.remove('open'); window.editId=null; };
   window.cerrarModalFuera = (e) => { if(e.target.id==='modal-overlay') window.cerrarModal(); };
 
@@ -1331,6 +1360,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       seguroCosto: parseFloat(document.getElementById('f-seguro-costo').value)||0,
       seguroComision: parseFloat(document.getElementById('f-seguro-comision').value)||0,
       seguroVencimiento: document.getElementById('f-seguro-vencimiento').value,
+      hipoDetalle: document.getElementById('f-hipo-detalle').value,
+      hipoValor: parseFloat(document.getElementById('f-hipo-valor').value)||0,
       legajo: legajoExist
     };
     
@@ -1423,9 +1454,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     // Gráfico de tipos
     const pr = acts.filter(c=>c.tipo==='prendario').length;
     const pe = acts.filter(c=>c.tipo==='personal').length;
+    const hi = acts.filter(c=>c.tipo==='hipotecario').length;
     const tot = acts.length || 1;
     document.getElementById('dash-tipo').innerHTML = `
       <div class="bar-row"><span class="bar-label">Prendarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pr/tot*100)}%"></div></div><span class="bar-val-h">${pr}</span></div>
+      <div class="bar-row"><span class="bar-label">Hipotecarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(hi/tot*100)}%;background:var(--green)"></div></div><span class="bar-val-h">${hi}</span></div>
       <div class="bar-row"><span class="bar-label">Personales</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pe/tot*100)}%;background:var(--amber)"></div></div><span class="bar-val-h">${pe}</span></div>`;
 
     // Gráfico de estado
