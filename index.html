@@ -136,10 +136,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
 .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 9px; border-radius: 99px; font-weight: 600; letter-spacing: .02em; }
 .badge-green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
-.badge-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
-.badge-amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
 .badge-gray   { background: var(--gray-100);  color: var(--gray-500); border: 1px solid var(--gray-200); }
 .badge-blue   { background: var(--blue-50);   color: var(--blue-600); border: 1px solid var(--blue-200); }
+.badge-amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
+.badge-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
 
 /* ── GRAFICOS DASHBOARD ── */
 .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
@@ -284,6 +284,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     </div>
     <div class="nav-item" onclick="showPane('simulador',this)">
       <span class="icon">🧮</span><span>Simulador</span>
+    </div>
+    <div class="nav-item" onclick="showPane('stock',this)">
+      <span class="icon">📦</span><span>Stock</span>
     </div>
     <div class="nav-item admin-only" onclick="showPane('gastos',this)">
       <span class="icon">💸</span><span>Gastos Operativos</span>
@@ -465,6 +468,30 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
+    <div class="pane" id="pane-stock">
+      <div class="page-header">
+        <div><div class="page-title">Stock de Unidades</div><div class="page-sub">Inventario de vehículos y motos para venta directa o consignación</div></div>
+        <button class="btn btn-primary" onclick="abrirModalStock()">+ Registrar Vehículo</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Vehículo / Modelo</th>
+                <th>Año</th>
+                <th>Precio Requerido</th>
+                <th>Estado</th>
+                <th style="text-align:right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-stock-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div class="pane" id="pane-gastos">
       <div class="page-header">
         <div><div class="page-title">Gastos Operativos</div><div class="page-sub">Control de salidas de dinero fijo y variable</div></div>
@@ -533,6 +560,51 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <span style="font-size:16px; margin-right:8px">⚠</span> Reclamo de Mora (Vencida)
       </button>
       <button class="btn" onclick="cerrarModalWsp()" style="justify-content:center; padding:10px; border:none; background:transparent; font-size:12px; margin-top:5px; color:var(--gray-500)">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-stock-overlay" onclick="cerrarModalStockFuera(event)">
+  <div class="modal" style="max-width: 450px;">
+    <div class="modal-header">
+      <div class="modal-icon" style="background:var(--blue-50); color:var(--blue-500); border-color:var(--blue-200);">📦</div>
+      <div><h2 id="mstock-titulo">Registrar Unidad</h2><small>Carga de vehículos al stock de venta</small></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tipo de Unidad *</label>
+        <select id="fs-tipo-v">
+          <option value="Auto">Auto</option>
+          <option value="Moto">Moto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Estado comercial *</label>
+        <select id="fs-estado-v">
+          <option value="Disponible">Disponible</option>
+          <option value="Vendido">Vendido</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Marca y Modelo *</label>
+        <input type="text" id="fs-modelo-v" placeholder="Ej: Peugeot 207 Compact 1.4">
+      </div>
+      <div class="form-group">
+        <label>Año *</label>
+        <input type="number" id="fs-anio-v" placeholder="Ej: 2011">
+      </div>
+      <div class="form-group">
+        <label>Precio de Venta ($) *</label>
+        <input type="number" id="fs-precio-v" placeholder="Ej: 7500000">
+      </div>
+      <div class="form-group full">
+        <label>Kilometraje / Notas adicionales</label>
+        <textarea id="fs-notas-v" rows="2" placeholder="Ej: 120.000 km, segunda mano, impecable..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrarModalStock()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarStock()">Guardar Unidad</button>
     </div>
   </div>
 </div>
@@ -725,11 +797,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.creditos = [];
   window.pagosEstado = {};
   window.gastos = []; 
+  window.stock = []; // NUEVA VARIABLE GLOBAL DE STOCK
   window.IS_ADMIN = false;
   window.usdBlue = null;
   
   window.sortCol = null; window.sortDir = 1; window.editId = null; window.editSeguroId = null;
-  window.editGastoId = null; window.pagoActual = null; window.legajoActualId = null;
+  window.editGastoId = null; window.editStockId = null; window.pagoActual = null; window.legajoActualId = null;
   window.cuotaSelId = null; window.cuotaSelN = null; window.clienteWsp = null;
 
   // FETCH USD BLUE API
@@ -737,9 +810,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     try {
       const res = await fetch('https://dolarapi.com/v1/dolares/blue');
       const data = await res.json();
-      window.usdBlue = data.venta; // Usamos el precio de Venta como referencia estándar
+      window.usdBlue = data.venta; 
       document.getElementById('topbar-dolar').textContent = `USD Blue: $${window.usdBlue}`;
-      window.renderAll(); // Re-renderizar para mostrar los tags USD
+      window.renderAll(); 
     } catch (e) {
       document.getElementById('topbar-dolar').textContent = `USD Blue: N/A`;
       console.error("Error cargando Dolar API", e);
@@ -756,20 +829,22 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       window.IS_ADMIN = CORREOS_ADMIN.includes(user.email.toLowerCase());
       aplicarPermisos();
 
-      fetchUsdBlue(); // Traer dolar al iniciar
+      fetchUsdBlue(); 
 
       onSnapshot(doc(db, "empresa", "datos_nexo"), async (docSnap) => {
         if (docSnap.exists()) {
           window.creditos = docSnap.data().creditos || [];
           window.pagosEstado = docSnap.data().pagosEstado || {};
           window.gastos = docSnap.data().gastos || [];
+          window.stock = docSnap.data().stock || []; // Escuchar stock en la nube
           window.renderAll();
         } else if (window.IS_ADMIN) {
           const locales = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
           const pagosLocales = JSON.parse(localStorage.getItem('nexo_pagos') || '{}');
           const gastosLocales = JSON.parse(localStorage.getItem('nexo_gastos') || '[]');
+          const stockLocales = JSON.parse(localStorage.getItem('nexo_stock') || '[]');
           if (locales.length > 0) {
-            await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales, gastos: gastosLocales });
+            await setDoc(doc(db, "empresa", "datos_nexo"), { creditos: locales, pagosEstado: pagosLocales, gastos: gastosLocales, stock: stockLocales });
           }
         }
       });
@@ -793,11 +868,12 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
     localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
     localStorage.setItem('nexo_gastos', JSON.stringify(window.gastos));
+    localStorage.setItem('nexo_stock', JSON.stringify(window.stock));
     
     if (auth.currentUser) {
       try {
         await setDoc(doc(db, "empresa", "datos_nexo"), {
-          creditos: window.creditos, pagosEstado: window.pagosEstado, gastos: window.gastos 
+          creditos: window.creditos, pagosEstado: window.pagosEstado, gastos: window.gastos, stock: window.stock
         });
       } catch (e) { console.log("Error guardando en la nube"); }
     }
@@ -820,7 +896,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('pane-'+id).classList.add('active');
     if(el) el.classList.add('active');
     
-    const pNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', simulador: 'Simulador / Cotizador', seguros:'Gestión de Seguros', gastos: 'Gastos Operativos' };
+    const pNames = { dashboard:'Dashboard', cartera:'Cartera de créditos', pagos:'Seguimiento de pagos', simulador: 'Simulador / Cotizador', stock: 'Stock de Unidades', seguros:'Gestión de Seguros', gastos: 'Gastos Operativos' };
     document.getElementById('topbar-title').textContent = pNames[id]||id;
     
     if(id==='pagos') { window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual); }
@@ -828,6 +904,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(id==='seguros') window.renderSeguros();
     if(id==='gastos') window.renderGastos();
     if(id==='simulador') window.ejecutarSimulador();
+    if(id==='stock') window.renderStock();
   };
 
   // ── HELPER FORMATO USD ──
@@ -835,11 +912,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if (!window.usdBlue || window.usdBlue <= 0) return '';
     const usd = Math.round(ars / window.usdBlue);
     return `<span class="usd-val">US$ ${usd.toLocaleString('es-AR')}</span>`;
-  };
-  const fmtUsdInline = (ars) => {
-    if (!window.usdBlue || window.usdBlue <= 0) return '';
-    const usd = Math.round(ars / window.usdBlue);
-    return `<span class="usd-val-inline">(US$ ${usd.toLocaleString('es-AR')})</span>`;
   };
 
   // ── UTILIDADES DE CÁLCULO ──
@@ -902,7 +974,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
           <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Cotización de Crédito - Monte Buey, Córdoba</p>
           <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Fecha: ${window.HOY.toLocaleDateString('es-AR')} (Válida por 48hs)</p>
         </div>
-        
         <table style="width: 100%; font-size: 16px; margin-bottom: 30px; border-collapse: collapse;">
           <tr>
             <td style="padding: 10px 0; border-bottom: 1px solid #eee;">Capital Base Solicitado:</td>
@@ -917,13 +988,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
             <td style="padding: 15px 0; border-bottom: 2px solid #ccc; text-align: right; font-weight: bold; font-size: 18px;">$${capitalTotal.toLocaleString('es-AR')}</td>
           </tr>
         </table>
-
         <div style="background-color: #f0f7ff; border: 1px solid #dceeff; padding: 30px; text-align: center; border-radius: 8px;">
           <p style="margin: 0; font-size: 14px; color: #1e5baa; font-weight: bold; text-transform: uppercase;">Cuota Mensual Fija</p>
           <p style="margin: 10px 0; font-size: 48px; color: #103058; font-weight: bold;">$${Math.round(cuota).toLocaleString('es-AR')}</p>
           <p style="margin: 0; font-size: 16px; color: #444;">Plan de <strong>${plaz}</strong> meses</p>
         </div>
-
         <div style="margin-top: 40px; font-size: 11px; color: #777; text-align: justify;">
           * Las cuotas vencen indefectiblemente el día 10 de cada mes. Simulación sujeta a aprobación crediticia y revisión de la documentación/garantía presentada por el solicitante.
         </div>
@@ -932,6 +1001,77 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const win = window.open('', '_blank'); win.document.write(html); win.document.close();
     setTimeout(() => win.print(), 250);
   };
+
+  // ── CONTROL DE INVENTARIO / STOCK ──
+  window.renderStock = () => {
+    const tbody = document.getElementById('tabla-stock-body');
+    if (!window.stock || !window.stock.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">No hay unidades cargadas en el stock.</td></tr>`;
+      return;
+    }
+    
+    // Mostrar del más nuevo al más viejo
+    const lista = [...window.stock].sort((a,b) => b.id - a.id);
+    tbody.innerHTML = lista.map(s => {
+      const statusBadge = s.estado === 'Disponible' ? 'badge-green' : 'badge-gray';
+      return `<tr>
+        <td><span class="badge badge-blue">${s.tipo}</span></td>
+        <td class="td-name"><strong>${s.modelo}</strong><br><span style="font-size:11px; color:var(--gray-500)">${s.notas||''}</span></td>
+        <td>${s.anio || '—'}</td>
+        <td style="font-weight:600; color:var(--blue-800)">$${s.precio.toLocaleString('es-AR')}<br>${fmtUsd(s.precio)}</td>
+        <td><span class="badge ${statusBadge}">${s.estado}</span></td>
+        <td style="text-align:right">
+          <button class="btn btn-sm btn-icon" onclick="abrirModalStock(${s.id})">✎</button>
+          <button class="btn btn-sm btn-icon btn-danger" onclick="eliminarStock(${s.id})">✕</button>
+        </td>
+      </tr>`;
+    }).join('');
+  };
+
+  window.abrirModalStock = (id = null) => {
+    window.editStockId = id;
+    const s = id ? window.stock.find(x => x.id === id) : null;
+    
+    document.getElementById('mstock-titulo').textContent = id ? 'Editar Unidad' : 'Registrar Unidad';
+    document.getElementById('fs-tipo-v').value = s?.tipo || 'Auto';
+    document.getElementById('fs-estado-v').value = s?.estado || 'Disponible';
+    document.getElementById('fs-modelo-v').value = s?.modelo || '';
+    document.getElementById('fs-anio-v').value = s?.anio || '';
+    document.getElementById('fs-precio-v').value = s?.precio || '';
+    document.getElementById('fs-notas-v').value = s?.notas || '';
+
+    document.getElementById('modal-stock-overlay').classList.add('open');
+  };
+
+  window.guardarStock = () => {
+    const tipo = document.getElementById('fs-tipo-v').value;
+    const estado = document.getElementById('fs-estado-v').value;
+    const modelo = document.getElementById('fs-modelo-v').value.trim();
+    const anio = parseInt(document.getElementById('fs-anio-v').value) || null;
+    const precio = parseFloat(document.getElementById('fs-precio-v').value) || 0;
+    const notas = document.getElementById('fs-notas-v').value.trim();
+
+    if(!modelo || !precio) return alert('Completá marca/modelo y precio de la unidad.');
+
+    const nuevaUnidad = {
+      id: window.editStockId || Date.now(),
+      tipo, estado, modelo, anio, precio, notas
+    };
+
+    if (window.editStockId) window.stock = window.stock.map(x => x.id === window.editStockId ? nuevaUnidad : x);
+    else window.stock.push(nuevaUnidad);
+
+    window.guardar(); window.cerrarModalStock(); window.renderAll();
+  };
+
+  window.eliminarStock = (id) => {
+    if(!confirm('¿Eliminar definitivamente esta unidad del stock?')) return;
+    window.stock = window.stock.filter(x => x.id !== id);
+    window.guardar(); window.renderAll();
+  };
+
+  window.cerrarModalStock = () => { document.getElementById('modal-stock-overlay').classList.remove('open'); window.editStockId = null; };
+  window.cerrarModalStockFuera = (e) => { if (e.target.id === 'modal-stock-overlay') window.cerrarModalStock(); };
 
   // ── IMPRESIÓN (CONTRATOS Y RECIBOS) ──
   window.imprimirContrato = (id) => {
@@ -1156,7 +1296,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if (!window.pagosEstado[id]) window.pagosEstado[id]={};
     const inicio = new Date(c.fecha);
     
-    // Calcular vencimientos al 10 de cada mes
     const cuotas = Array.from({length:c.plazo},(_,i)=>{
       const n=i+1; 
       let m = inicio.getMonth() + n;
@@ -1291,7 +1430,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.cerrarModalGasto = () => { document.getElementById('modal-gasto-overlay').classList.remove('open'); window.editGastoId = null; };
   window.cerrarModalGastoFuera = (e) => { if (e.target.id === 'modal-gasto-overlay') window.cerrarModalGasto(); };
 
-  // ── MODAL PRINCIPAL CREDITO (ABRIR, CERRAR, GUARDAR, ELIMINAR) ──
+  // ── MODAL PRINCIPAL CREDITO ──
   window.abrirModal = (id=null) => {
     window.editId = id; const c = id ? window.creditos.find(x=>x.id===id) : null;
     document.getElementById('modal-titulo').childNodes[0].textContent = id ? 'Editar crédito' : 'Nuevo crédito';
@@ -1427,11 +1566,15 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       return d.getMonth() === mesActual && d.getFullYear() === anioActual;
     }).reduce((sum, g) => sum + Number(g.monto), 0);
 
+    // CÁLCULO DE PLATA EN STOCK (Solo unidades disponibles)
+    const totStock = (window.stock || []).filter(s => s.estado === 'Disponible').reduce((sum, s) => sum + s.precio, 0);
+
     const f = n => '$'+n.toLocaleString('es-AR');
 
     document.getElementById('metrics-grid').innerHTML = `
       <div class="metric-card hero blue"><div class="metric-label">Recaudación Mensual</div><div class="metric-value">${f(recMens)}</div>${fmtUsd(recMens)}<div class="metric-sub">Liquidez mensual esperada</div></div>
       <div class="metric-card green"><div class="metric-label">Total a Cobrar</div><div class="metric-value">${f(totalACobrar)}</div>${fmtUsd(totalACobrar)}</div>
+      <div class="metric-card" style="border-color:var(--amber-border);"><div class="metric-label" style="color:var(--amber);">Plata en Stock</div><div class="metric-value" style="color:var(--amber);">${f(totStock)}</div>${fmtUsd(totStock)}<div class="metric-sub">Capital parado en unidades</div></div>
       <div class="metric-card" style="border-color:var(--red-border);"><div class="metric-label" style="color:var(--red);">Gastos del Mes</div><div class="metric-value" style="color:var(--red);">${f(gastosMes)}</div>${fmtUsd(gastosMes)}<div class="metric-sub">Salidas de la recaudación</div></div>
       <div class="metric-card"><div class="metric-label">Capital en Calle</div><div class="metric-value">${f(totCap)}</div>${fmtUsd(totCap)}</div>
       <div class="metric-card"><div class="metric-label">Rendimiento Promedio</div><div class="metric-value">${tem.toFixed(1)}% <span style="font-size:12px;color:var(--gray-500);font-family:var(--sans);font-weight:600">TEM</span></div><div class="metric-sub">TNA: ${tna.toFixed(1)}%</div></div>
@@ -1497,7 +1640,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   };
 
   window.renderAll = () => {
-    window.renderTabla(); window.renderSeguros(); window.renderGastos();
+    window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
     if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
     if(document.getElementById('pane-simulador').classList.contains('active')) window.ejecutarSimulador();
