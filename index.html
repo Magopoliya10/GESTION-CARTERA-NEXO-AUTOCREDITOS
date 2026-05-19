@@ -547,7 +547,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div class="modal-icon" style="background:#dcfce7; color:#16a34a; border-color:#bbf7d0;">📲</div>
       <div><h2 id="mw-titulo" style="font-size:20px">Notificar a<br><span id="mw-cliente" style="font-family:var(--sans); font-size:16px; font-weight:600; color:var(--gray-800)"></span></h2></div>
     </div>
-    <p style="font-size:12px; color:var(--gray-500); margin-bottom:20px">Elegí el tipo de mensaje a enviar por WhatsApp. Se incluirá automáticamente el monto de la cuota.</p>
+    <p style="font-size:12px; color:var(--gray-500); margin-bottom:20px">Elegí el tipo de mensaje a enviar por WhatsApp. Se incluirá automáticamente el monto de la cuota en la moneda correspondiente.</p>
     
     <div style="display:flex; flex-direction:column; gap:10px;">
       <button class="btn" onclick="enviarWsp('recordatorio')" style="justify-content:flex-start; padding:12px 16px; font-size:13px; font-weight:600">
@@ -594,7 +594,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <input type="number" id="fs-anio-v" placeholder="Ej: 2011">
       </div>
       <div class="form-group">
-        <label>Precio de Venta ($) *</label>
+        <label>Precio de Venta ($ ARS) *</label>
         <input type="number" id="fs-precio-v" placeholder="Ej: 7500000">
       </div>
       <div class="form-group full">
@@ -632,17 +632,30 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
           <option value="personal">Personal (sin garantía)</option>
         </select>
       </div>
-      <div class="form-group"><label>Estado</label><select id="f-estado"><option value="AL DIA">Al día</option><option value="MORA">En mora</option><option value="TERMINADA">Terminada</option></select></div>
-      <div class="form-group"><label>Capital otorgado/Base ($) *</label><input type="number" id="f-capital" placeholder="Ej: 5000000" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500); font-weight: 500; margin-top: 2px;"></small></div>
+      <div class="form-group"><label>Estado</label>
+        <select id="f-estado">
+          <option value="AL DIA">Al día</option>
+          <option value="MORA">En mora</option>
+          <option value="TERMINADA">Terminada</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Moneda *</label>
+        <select id="f-moneda">
+          <option value="ARS">Pesos (ARS)</option>
+          <option value="USD">Dólares (USD)</option>
+          <option value="UVA">UVAs</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Capital Base *</label><input type="number" id="f-capital" placeholder="Ej: 5000000" oninput="calcularCuota()"><small id="resumen-otorgamiento" style="font-size: 11px; color: var(--blue-500); font-weight: 500; margin-top: 2px;"></small></div>
       <div class="form-group"><label>Tasa Mensual (TEM %) *</label><input type="number" id="f-tasa" value="8" step="0.1" oninput="calcularCuota()"></div>
       <div class="form-group"><label>Plazo (meses) *</label><input type="number" id="f-plazo" placeholder="Ej: 24" oninput="calcularCuota()"></div>
-      <div class="form-group"><label>Cuota mensual ($) *</label><input type="number" id="f-cuota" placeholder="Calculada automáticamente"></div>
+      <div class="form-group"><label>Cuota mensual *</label><input type="number" id="f-cuota" placeholder="Calculada automáticamente"></div>
       <div class="form-group full"><label>Fecha de inicio</label><input type="date" id="f-fecha"></div>
     </div>
     
     <div class="form-section">Refuerzos / Extraordinarias</div>
     <div class="form-grid">
-      <div class="form-group"><label>Monto del Refuerzo ($)</label><input type="number" id="f-ref-monto" placeholder="Ej: 1000000"></div>
+      <div class="form-group"><label>Monto del Refuerzo</label><input type="number" id="f-ref-monto" placeholder="Ej: 1000000"></div>
       <div class="form-group"><label>Cantidad de Refuerzos</label><input type="number" id="f-ref-cant" placeholder="Ej: 4"></div>
       <div class="form-group full"><label>Frecuencia de Refuerzos</label><select id="f-ref-frec"><option value="6">Semestral (cada 6 meses)</option><option value="12">Anual (cada 12 meses)</option><option value="3">Trimestral (cada 3 meses)</option></select></div>
     </div>
@@ -653,7 +666,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div class="form-group"><label>Marca y modelo</label><input type="text" id="f-garantia" placeholder="Ej: Toyota Corolla"></div>
         <div class="form-group"><label>Año</label><input type="number" id="f-anio" placeholder="Ej: 2018"></div>
         <div class="form-group"><label>Patente</label><input type="text" id="f-patente" placeholder="Ej: AB123CD"></div>
-        <div class="form-group"><label>Valor del vehículo ($)</label><input type="number" id="f-valor-vehiculo" placeholder="Para calcular aforo"></div>
+        <div class="form-group"><label>Valor del vehículo (ARS)</label><input type="number" id="f-valor-vehiculo" placeholder="Para calcular aforo"></div>
       </div>
       
       <div class="form-section">Seguros Inicial</div>
@@ -661,9 +674,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div class="form-grid">
         <div class="form-group"><label>Aseguradora</label><input type="text" id="f-seguro-cia" placeholder="Ej: San Cristóbal..."></div>
         <div class="form-group"><label>N° de Póliza</label><input type="text" id="f-seguro-poliza" placeholder="Ej: 12345678"></div>
-        <div class="form-group"><label>Costo de la cuota mensual ($)</label><input type="number" id="f-seguro-costo" placeholder="Lo que paga el cliente"></div>
-        <div class="form-group admin-only"><label style="color:var(--green)">Tu comisión mensual pactada ($)</label><input type="number" id="f-seguro-comision" placeholder="Ej: 15000"></div>
-        <div class="form-group full"><label style="color:var(--red)">Día de vencimiento (Recordatorio)</label><input type="date" id="f-seguro-vencimiento"></div>
+        <div class="form-group"><label>Costo mensual (ARS)</label><input type="number" id="f-seguro-costo" placeholder="Lo que paga el cliente"></div>
+        <div class="form-group admin-only"><label style="color:var(--green)">Tu comisión pactada (ARS)</label><input type="number" id="f-seguro-comision" placeholder="Ej: 15000"></div>
+        <div class="form-group full"><label style="color:var(--red)">Día de vencimiento</label><input type="date" id="f-seguro-vencimiento"></div>
       </div>
     </div>
 
@@ -671,7 +684,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div class="form-section">Datos de la Hipoteca / Garantía</div>
       <div class="form-grid">
         <div class="form-group full"><label>Detalle de la garantía</label><input type="text" id="f-hipo-detalle" placeholder="Ej: Terreno en Monte Buey 12,5 x 20mts"></div>
-        <div class="form-group full"><label>Valor estimado de la propiedad ($)</label><input type="number" id="f-hipo-valor" placeholder="Ej: 15000000"></div>
+        <div class="form-group full"><label>Valor estimado de la propiedad (ARS/USD)</label><input type="number" id="f-hipo-valor" placeholder="Ej: 15000000"></div>
       </div>
     </div>
 
@@ -797,9 +810,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.creditos = [];
   window.pagosEstado = {};
   window.gastos = []; 
-  window.stock = []; // NUEVA VARIABLE GLOBAL DE STOCK
+  window.stock = []; 
   window.IS_ADMIN = false;
   window.usdBlue = null;
+  window.uvaValor = 1000; // Valor UVA base de referencia
   
   window.sortCol = null; window.sortDir = 1; window.editId = null; window.editSeguroId = null;
   window.editGastoId = null; window.editStockId = null; window.pagoActual = null; window.legajoActualId = null;
@@ -836,7 +850,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
           window.creditos = docSnap.data().creditos || [];
           window.pagosEstado = docSnap.data().pagosEstado || {};
           window.gastos = docSnap.data().gastos || [];
-          window.stock = docSnap.data().stock || []; // Escuchar stock en la nube
+          window.stock = docSnap.data().stock || []; 
           window.renderAll();
         } else if (window.IS_ADMIN) {
           const locales = JSON.parse(localStorage.getItem('nexo_creditos') || '[]');
@@ -907,11 +921,19 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(id==='stock') window.renderStock();
   };
 
-  // ── HELPER FORMATO USD ──
+  // ── HELPER FORMATO USD Y CONVERSIÓN A PESOS ──
   const fmtUsd = (ars) => {
     if (!window.usdBlue || window.usdBlue <= 0) return '';
     const usd = Math.round(ars / window.usdBlue);
-    return `<span class="usd-val">US$ ${usd.toLocaleString('es-AR')}</span>`;
+    return `<span class="usd-val">US$ ${usd.toLocaleString('en-US')}</span>`;
+  };
+  
+  // Función central para convertir todo valor a ARS para sumar en el Dashboard
+  window.valToArs = (monto, moneda) => {
+    if (!monto) return 0;
+    if (moneda === 'USD') return monto * (window.usdBlue || 1);
+    if (moneda === 'UVA') return 0; // Excluimos UVA del total en pesos temporalmente
+    return monto; // ARS por defecto
   };
 
   // ── UTILIDADES DE CÁLCULO ──
@@ -919,11 +941,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const cap = parseFloat(document.getElementById('f-capital').value) || 0;
     const plaz = parseInt(document.getElementById('f-plazo').value) || 0;
     const tasa = parseFloat(document.getElementById('f-tasa').value) || 0;
+    const moneda = document.getElementById('f-moneda').value;
     
     if (cap > 0) {
       const retenido = cap * 0.03;
       const aEntregar = cap - retenido;
-      document.getElementById('resumen-otorgamiento').innerText = `Gasto otorg. (3%): $${retenido.toLocaleString('es-AR')} | Neto a transferir al cliente: $${aEntregar.toLocaleString('es-AR')}`;
+      const sym = moneda === 'USD' ? 'US$' : (moneda === 'UVA' ? 'UVAs' : '$');
+      document.getElementById('resumen-otorgamiento').innerText = `Gasto otorg. (3%): ${sym}${retenido.toLocaleString('es-AR')} | Neto a transferir al cliente: ${sym}${aEntregar.toLocaleString('es-AR')}`;
     } else {
       document.getElementById('resumen-otorgamiento').innerText = '';
     }
@@ -1010,7 +1034,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       return;
     }
     
-    // Mostrar del más nuevo al más viejo
     const lista = [...window.stock].sort((a,b) => b.id - a.id);
     tbody.innerHTML = lista.map(s => {
       const statusBadge = s.estado === 'Disponible' ? 'badge-green' : 'badge-gray';
@@ -1077,6 +1100,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.imprimirContrato = (id) => {
     const c = window.creditos.find(x => x.id === id);
     if (c.tipo !== 'prendario') { alert('El contrato de servicio es solo para créditos prendarios.'); return; }
+    
+    const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs ' : '$');
+    
     const html = `
       <div style="font-family: Arial, sans-serif; color: #000; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px;">
         <h2 style="text-align:center; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 10px;">Contrato de Mantenimiento Obligatorio</h2>
@@ -1086,7 +1112,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div style="background: #f8f9fa; padding: 15px 20px; border: 1px solid #ccc; margin: 25px 0;">
           <strong>Vehículo Garantía:</strong> ${c.garantia} (Año ${c.anio || '____'})<br>
           <strong>Dominio / Patente:</strong> ${c.patente}<br>
-          <strong>Capital Base Financiado:</strong> $${c.capital.toLocaleString('es-AR')}
+          <strong>Capital Base Financiado:</strong> ${sym}${c.capital.toLocaleString('es-AR')}
         </div>
         <ol style="text-align: justify; padding-left: 20px; margin-bottom: 40px;">
           <li style="margin-bottom: 15px;"><strong>OBLIGATORIEDAD DE MANTENIMIENTO:</strong> El Titular se compromete a realizar los servicios en Campus Nexo o talleres oficiales de Nexo Autocréditos.</li>
@@ -1109,6 +1135,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const num = isRef ? n.substring(1) : n;
     const monto = isRef ? c.refuerzoMonto : c.cuota;
     const nro = `0001-${String(c.id).padStart(4,'0')}${String(num).padStart(4,'0')}`;
+    
+    const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs' : '$');
+    const txtMoneda = c.moneda === 'USD' ? 'DÓLARES ESTADOUNIDENSES' : (c.moneda === 'UVA' ? 'UNIDADES DE VALOR ADQUISITIVO (UVA)' : 'PESOS');
 
     const html = `
       <div style="font-family: Arial; padding: 30px; border: 1px solid #ddd; max-width: 600px; margin: 0 auto;">
@@ -1118,7 +1147,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         </div>
         <div style="font-size: 15px; line-height: 2;">
           <div>Recibí de: <strong>${c.nombre}</strong></div>
-          <div>La cantidad de PESOS: <strong style="font-size: 18px;">$ ${monto.toLocaleString('es-AR')}</strong></div>
+          <div>La cantidad de ${txtMoneda}: <strong style="font-size: 18px;">${sym} ${monto.toLocaleString('es-AR')}</strong></div>
           <div>Concepto: ${isRef ? 'Refuerzo Extraordinario N° '+num : 'Cuota N° '+num} - Crédito ${c.tipo}.</div>
         </div>
         <div style="margin-top: 60px; text-align: center; width: 250px;">
@@ -1152,17 +1181,19 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     
     const primerNombre = c.nombre.split(' ')[0];
     const monto = c.cuota.toLocaleString('es-AR');
+    const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs ' : '$');
+    
     let msg = "";
 
     switch(tipo) {
       case 'recordatorio':
-        msg = `Hola ${primerNombre}, te escribimos de *Nexo Autocréditos* 🚘.\n\nTe recordamos de manera preventiva que el próximo *día 10* opera el vencimiento de tu cuota por *$${monto}*.\n\n¡Que tengas una excelente semana!`;
+        msg = `Hola ${primerNombre}, te escribimos de *Nexo Autocréditos* 🚘.\n\nTe recordamos de manera preventiva que el próximo *día 10* opera el vencimiento de tu cuota por *${sym}${monto}*.\n\n¡Que tengas una excelente semana!`;
         break;
       case 'vencimiento':
-        msg = `¡Hola ${primerNombre}! De *Nexo Autocréditos*.\n\nTe avisamos que *HOY (Día 10)* vence tu cuota mensual por *$${monto}*.\n\nPodés acercarte a abonar por la oficina o pasarnos el comprobante de transferencia por acá. ¡Saludos!`;
+        msg = `¡Hola ${primerNombre}! De *Nexo Autocréditos*.\n\nTe avisamos que *HOY (Día 10)* vence tu cuota mensual por *${sym}${monto}*.\n\nPodés acercarte a abonar por la oficina o pasarnos el comprobante de transferencia por acá. ¡Saludos!`;
         break;
       case 'mora':
-        msg = `⚠️ *ATENCIÓN ${primerNombre.toUpperCase()}:*\n\nRegistramos en el sistema que tu cuota de *Nexo Autocréditos* por *$${monto}* se encuentra *VENCIDA*.\n\nPor favor, regularizá tu situación a la brevedad para evitar recargos e intereses moratorios diarios. Aguardamos tu respuesta.`;
+        msg = `⚠️ *ATENCIÓN ${primerNombre.toUpperCase()}:*\n\nRegistramos en el sistema que tu cuota de *Nexo Autocréditos* por *${sym}${monto}* se encuentra *VENCIDA*.\n\nPor favor, regularizá tu situación a la brevedad para evitar recargos e intereses moratorios diarios. Aguardamos tu respuesta.`;
         break;
     }
 
@@ -1210,13 +1241,26 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       if (c.tipo === 'prendario') garTxt = `${c.garantia||'—'}<br><span style="font-size:10px; color:var(--blue-500)">${c.patente||''}</span>`;
       else if (c.tipo === 'hipotecario') garTxt = `${c.hipoDetalle||'—'}<br><span style="font-size:10px; color:var(--amber)">Inmueble / Hipoteca</span>`;
 
+      // Renderizado dinámico según la Moneda elegida
+      let cuotaTxt, capTxt;
+      if (c.moneda === 'USD') {
+        cuotaTxt = `US$${c.cuota.toLocaleString('en-US')}<br><span class="usd-val-inline" style="color:var(--gray-500)">($${Math.round(c.cuota * (window.usdBlue || 1)).toLocaleString('es-AR')})</span>`;
+        capTxt = `US$${c.capital.toLocaleString('en-US')}<br><span class="usd-val-inline" style="color:var(--gray-500)">($${Math.round(c.capital * (window.usdBlue || 1)).toLocaleString('es-AR')})</span>`;
+      } else if (c.moneda === 'UVA') {
+        cuotaTxt = `${c.cuota.toLocaleString('es-AR')} UVAs`;
+        capTxt = `${c.capital.toLocaleString('es-AR')} UVAs`;
+      } else {
+        cuotaTxt = `$${c.cuota.toLocaleString('es-AR')}<br>${fmtUsd(c.cuota)}`;
+        capTxt = `$${c.capital.toLocaleString('es-AR')}<br>${fmtUsd(c.capital)}`;
+      }
+
       return `<tr>
         <td class="td-name">${c.nombre}</td>
         <td><span class="badge badge-blue">${c.tipo}</span></td>
         <td>${garTxt}</td>
         <td style="color:var(--gray-700)">${c.plazo}m</td>
-        <td style="font-weight:500">$${c.cuota.toLocaleString('es-AR')}<br>${fmtUsd(c.cuota)}</td>
-        ${window.IS_ADMIN ? `<td class="admin-only">$${c.capital.toLocaleString('es-AR')}<br>${fmtUsd(c.capital)}</td><td style="text-align:center" class="admin-only">${legTxt}</td>` : ''}
+        <td style="font-weight:500">${cuotaTxt}</td>
+        ${window.IS_ADMIN ? `<td class="admin-only">${capTxt}</td><td style="text-align:center" class="admin-only">${legTxt}</td>` : ''}
         <td><span class="badge ${eBadge}">${c.estado}</span></td>
         <td style="text-align:right">
           ${c.tipo==='prendario' ? `<button class="btn btn-sm btn-icon" style="color:var(--gray-600)" onclick="imprimirContrato(${c.id})" title="Imprimir Contrato">📄</button>` : ''}
@@ -1361,75 +1405,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.cerrarModalCuota = () => document.getElementById('modal-cuota-overlay').classList.remove('open');
   window.cerrarModalCuotaFuera = (e) => { if (e.target.id === 'modal-cuota-overlay') window.cerrarModalCuota(); };
 
-  // ── GASTOS OPERATIVOS ──
-  window.renderGastos = () => {
-    const lista = [...window.gastos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-    const tbody = document.getElementById('tabla-gastos-body');
-    
-    if(!lista.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty">No hay gastos registrados</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = lista.map(g => {
-      const d = g.fecha ? new Date(g.fecha + 'T12:00:00').toLocaleDateString('es-AR') : '-';
-      return `<tr>
-        <td style="color:var(--gray-500)">${d}</td>
-        <td><span class="badge badge-gray">${g.categoria}</span></td>
-        <td class="td-name">${g.concepto}</td>
-        <td style="color:var(--red); font-weight:600">-$${g.monto.toLocaleString('es-AR')}<br>${fmtUsd(g.monto)}</td>
-        <td style="color:var(--gray-500); font-size:11px;">${g.notas || ''}</td>
-        <td style="text-align:right">
-          <button class="btn btn-sm btn-icon" onclick="abrirModalGasto(${g.id})">✎</button>
-          <button class="btn btn-sm btn-icon btn-danger" onclick="eliminarGasto(${g.id})">✕</button>
-        </td>
-      </tr>`;
-    }).join('');
-  };
-
-  window.abrirModalGasto = (id = null) => {
-    window.editGastoId = id;
-    const g = id ? window.gastos.find(x => x.id === id) : null;
-    
-    document.getElementById('mg-titulo').textContent = id ? 'Editar Gasto' : 'Registrar Gasto';
-    document.getElementById('fg-categoria').value = g?.categoria || 'Sueldos y Cargas Sociales';
-    document.getElementById('fg-concepto').value = g?.concepto || '';
-    document.getElementById('fg-monto').value = g?.monto || '';
-    document.getElementById('fg-fecha').value = g?.fecha || window.HOY.toISOString().split('T')[0];
-    document.getElementById('fg-notas').value = g?.notas || '';
-
-    document.getElementById('modal-gasto-overlay').classList.add('open');
-  };
-
-  window.guardarGasto = () => {
-    const categoria = document.getElementById('fg-categoria').value;
-    const concepto = document.getElementById('fg-concepto').value.trim();
-    const monto = parseFloat(document.getElementById('fg-monto').value);
-    const fecha = document.getElementById('fg-fecha').value;
-    const notas = document.getElementById('fg-notas').value.trim();
-
-    if(!concepto || !monto || !fecha) return alert('Completá concepto, monto y fecha.');
-
-    const nuevoGasto = {
-      id: window.editGastoId || Date.now(),
-      categoria, concepto, monto, fecha, notas
-    };
-
-    if (window.editGastoId) window.gastos = window.gastos.map(g => g.id === window.editGastoId ? nuevoGasto : g);
-    else window.gastos.push(nuevoGasto);
-
-    window.guardar(); window.cerrarModalGasto(); window.renderAll();
-  };
-
-  window.eliminarGasto = (id) => {
-    if (!confirm('¿Eliminar este gasto definitivamente?')) return;
-    window.gastos = window.gastos.filter(x => x.id !== id);
-    window.guardar(); window.renderAll();
-  };
-
-  window.cerrarModalGasto = () => { document.getElementById('modal-gasto-overlay').classList.remove('open'); window.editGastoId = null; };
-  window.cerrarModalGastoFuera = (e) => { if (e.target.id === 'modal-gasto-overlay') window.cerrarModalGasto(); };
-
   // ── MODAL PRINCIPAL CREDITO ──
   window.abrirModal = (id=null) => {
     window.editId = id; const c = id ? window.creditos.find(x=>x.id===id) : null;
@@ -1437,6 +1412,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     ['nombre','dni','tel','garantia','patente','notas','anio','valor-vehiculo'].forEach(k => document.getElementById('f-'+k).value = c?.[k]||'');
     document.getElementById('f-tipo').value = c?.tipo||'prendario';
     document.getElementById('f-estado').value = c?.estado||'AL DIA';
+    document.getElementById('f-moneda').value = c?.moneda||'ARS';
     document.getElementById('f-capital').value = c?.capital||'';
     document.getElementById('f-tasa').value = c?.tasa||8; 
     document.getElementById('f-plazo').value = c?.plazo||'';
@@ -1481,6 +1457,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       id: window.editId || Date.now(),
       nombre, capital, cuota, plazo,
       tasa: parseFloat(document.getElementById('f-tasa').value) || 8,
+      moneda: document.getElementById('f-moneda').value || 'ARS',
       dni: document.getElementById('f-dni').value,
       tel: document.getElementById('f-tel').value,
       tipo: document.getElementById('f-tipo').value,
@@ -1516,42 +1493,25 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     window.guardar(); window.renderAll();
   };
 
-  // ── LEGAJOS ──
-  window.abrirLegajo = (id) => {
-    window.legajoActualId = id; const c = window.creditos.find(x => x.id === id);
-    document.getElementById('ml-titulo').textContent = `Legajo de ${c.nombre.split(' ')[0]}`;
-    if (!c.legajo) c.legajo = { url:'', dni:false, titulo:false, contrato:false, pagare:false, poliza:false };
-    document.getElementById('fl-url').value = c.legajo.url || '';
-    ['dni','titulo','contrato','pagare','poliza'].forEach(k => document.getElementById('chk-'+k).checked = c.legajo[k]);
-    const b = document.getElementById('btn-abrir-drive');
-    if (c.legajo.url && c.legajo.url.includes('http')) { b.href = c.legajo.url; b.style.display = 'inline-flex'; } else { b.style.display = 'none'; }
-    document.getElementById('modal-legajo-overlay').classList.add('open');
-  };
-  window.guardarLegajo = () => {
-    const c = window.creditos.find(x => x.id === window.legajoActualId);
-    c.legajo = { url: document.getElementById('fl-url').value.trim() };
-    ['dni','titulo','contrato','pagare','poliza'].forEach(k => c.legajo[k] = document.getElementById('chk-'+k).checked);
-    window.guardar(); window.renderTabla(); window.cerrarModalLegajo();
-  };
-  window.cerrarModalLegajo = () => document.getElementById('modal-legajo-overlay').classList.remove('open');
-  window.cerrarModalLegajoFuera = (e) => { if(e.target.id==='modal-legajo-overlay') window.cerrarModalLegajo(); };
-
   // ── DASHBOARD Y METRICAS ──
   window.renderMetricas = () => {
     if(!window.IS_ADMIN) return;
     const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
     
-    const totCap = acts.reduce((s,c)=>s+c.capital, 0); 
-    const recMens = acts.reduce((s,c)=>s+c.cuota, 0); 
-    const comSeg = acts.reduce((s,c)=>s+(c.seguroComision||0), 0);
+    // Acá convertimos todo a ARS antes de sumar para tener una foto general
+    const totCap = acts.reduce((s,c)=>s + window.valToArs(c.capital, c.moneda), 0); 
+    const recMens = acts.reduce((s,c)=>s + window.valToArs(c.cuota, c.moneda), 0); 
+    const comSeg = acts.reduce((s,c)=>s + (c.seguroComision||0), 0); // Asumimos seguros en ARS
     
     let totalACobrar = 0;
     let interesPonderado = 0;
 
     acts.forEach(c => {
-      totalACobrar += (c.cuota * c.plazo) + ((c.refuerzoMonto || 0) * (c.refuerzoCantidad || 0));
+      let aCobrar = (c.cuota * c.plazo) + ((c.refuerzoMonto || 0) * (c.refuerzoCantidad || 0));
+      totalACobrar += window.valToArs(aCobrar, c.moneda);
+      
       let tasaReal = c.tasa || 8;
-      interesPonderado += (c.capital * tasaReal);
+      interesPonderado += (window.valToArs(c.capital, c.moneda) * tasaReal);
     });
 
     const tem = totCap ? (interesPonderado / totCap) : 0;
@@ -1566,7 +1526,6 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       return d.getMonth() === mesActual && d.getFullYear() === anioActual;
     }).reduce((sum, g) => sum + Number(g.monto), 0);
 
-    // CÁLCULO DE PLATA EN STOCK (Solo unidades disponibles)
     const totStock = (window.stock || []).filter(s => s.estado === 'Disponible').reduce((sum, s) => sum + s.precio, 0);
 
     const f = n => '$'+n.toLocaleString('es-AR');
@@ -1586,15 +1545,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(!window.IS_ADMIN) return;
     const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
     
-    // Gráfico de barras de capital
-    const totalCap = acts.reduce((s,c)=>s+c.capital,0);
-    const sorted = [...acts].sort((a,b)=>b.capital-a.capital).slice(0,5);
+    const totalCap = acts.reduce((s,c)=>s+window.valToArs(c.capital, c.moneda),0);
+    const sorted = [...acts].sort((a,b)=>window.valToArs(b.capital, b.moneda)-window.valToArs(a.capital, a.moneda)).slice(0,5);
     document.getElementById('dash-barras').innerHTML = sorted.map(c => {
-      const pct = totalCap ? Math.round(c.capital/totalCap*100) : 0;
-      return `<div class="bar-row"><span class="bar-label">${c.nombre.split(' ').slice(0,2).join(' ')}</span><div class="bar-track"><div class="bar-fill-h" style="width:${pct}%"></div></div><span class="bar-val-h">$${(c.capital/1e6).toFixed(1)}M</span></div>`;
+      const pct = totalCap ? Math.round(window.valToArs(c.capital, c.moneda)/totalCap*100) : 0;
+      return `<div class="bar-row"><span class="bar-label">${c.nombre.split(' ').slice(0,2).join(' ')}</span><div class="bar-track"><div class="bar-fill-h" style="width:${pct}%"></div></div><span class="bar-val-h">$${(window.valToArs(c.capital, c.moneda)/1e6).toFixed(1)}M</span></div>`;
     }).join('');
 
-    // Gráfico de tipos
     const pr = acts.filter(c=>c.tipo==='prendario').length;
     const pe = acts.filter(c=>c.tipo==='personal').length;
     const hi = acts.filter(c=>c.tipo==='hipotecario').length;
@@ -1604,22 +1561,16 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       <div class="bar-row"><span class="bar-label">Hipotecarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(hi/tot*100)}%;background:var(--green)"></div></div><span class="bar-val-h">${hi}</span></div>
       <div class="bar-row"><span class="bar-label">Personales</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pe/tot*100)}%;background:var(--amber)"></div></div><span class="bar-val-h">${pe}</span></div>`;
 
-    // Gráfico de estado
     const alDia = window.creditos.filter(c=>c.estado==='AL DIA').length;
     const mora = window.creditos.filter(c=>c.estado==='MORA').length;
     document.getElementById('dash-estado').innerHTML = `
       <div class="venc-item"><div><div class="venc-name">Al día</div></div><span class="badge badge-green">${alDia}</span></div>
       <div class="venc-item"><div><div class="venc-name">En mora</div></div><span class="badge ${mora?'badge-red':'badge-gray'}">${mora||'—'}</span></div>`;
 
-    // LÓGICA VENCIMIENTOS DÍA 10
     const hoy = window.HOY;
     let mesRef = hoy.getMonth();
     let anioRef = hoy.getFullYear();
-    
-    if (hoy.getDate() > 10) {
-      mesRef++;
-      if(mesRef > 11) { mesRef = 0; anioRef++; }
-    }
+    if (hoy.getDate() > 10) { mesRef++; if(mesRef > 11) { mesRef = 0; anioRef++; } }
     
     const fechaVenc = new Date(anioRef, mesRef, 10);
     const mesTxt = fechaVenc.toLocaleString('es-AR', { month: 'long' });
@@ -1631,12 +1582,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       return mesesTranscurridos > 0 && mesesTranscurridos <= c.plazo && (!window.pagosEstado[c.id] || window.pagosEstado[c.id][mesesTranscurridos] !== 'pagada');
     });
 
-    document.getElementById('dash-venc').innerHTML = vencen.length ? vencen.map(c => `
-      <div class="venc-item">
+    document.getElementById('dash-venc').innerHTML = vencen.length ? vencen.map(c => {
+      const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs' : '$');
+      return `<div class="venc-item">
         <span class="venc-name">${c.nombre.split(' ').slice(0,2).join(' ')}</span>
-        <span class="venc-info">$${c.cuota.toLocaleString('es-AR')}</span>
-      </div>
-    `).join('') : '<div class="empty" style="padding:15px">No hay cobros pendientes para esta fecha</div>';
+        <span class="venc-info">${sym}${c.cuota.toLocaleString('es-AR')}</span>
+      </div>`;
+    }).join('') : '<div class="empty" style="padding:15px">No hay cobros pendientes para esta fecha</div>';
   };
 
   window.renderAll = () => {
