@@ -819,17 +819,19 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.editGastoId = null; window.editStockId = null; window.pagoActual = null; window.legajoActualId = null;
   window.cuotaSelId = null; window.cuotaSelN = null; window.clienteWsp = null;
 
-  // FETCH USD BLUE API
+  // FETCH USD BLUE API (CAMBIADA A BLUELYTICS POR ESTABILIDAD)
   async function fetchUsdBlue() {
     try {
-      const res = await fetch('https://dolarapi.com/v1/dolares/blue');
+      const res = await fetch('https://api.bluelytics.com.ar/v2/latest');
       const data = await res.json();
-      window.usdBlue = data.venta; 
+      window.usdBlue = data.blue.value_sell; 
       document.getElementById('topbar-dolar').textContent = `USD Blue: $${window.usdBlue}`;
       window.renderAll(); 
     } catch (e) {
-      document.getElementById('topbar-dolar').textContent = `USD Blue: N/A`;
+      document.getElementById('topbar-dolar').textContent = `USD Blue: Fallo API`;
+      window.usdBlue = 1200; // Salvavidas de contingencia
       console.error("Error cargando Dolar API", e);
+      window.renderAll();
     }
   }
 
@@ -921,19 +923,20 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(id==='stock') window.renderStock();
   };
 
-  // ── HELPER FORMATO USD Y CONVERSIÓN A PESOS ──
+  // ── HELPER FORMATO USD Y CONVERSIÓN SEGURA A PESOS ──
   const fmtUsd = (ars) => {
     if (!window.usdBlue || window.usdBlue <= 0) return '';
-    const usd = Math.round(ars / window.usdBlue);
-    return `<span class="usd-val">US$ ${usd.toLocaleString('en-US')}</span>`;
+    const usd = Math.round(parseFloat(ars) / window.usdBlue);
+    return `<span class="usd-val">US$ ${usd.toLocaleString('es-AR')}</span>`;
   };
   
-  // Función central para convertir todo valor a ARS para sumar en el Dashboard
+  // FUNCIÓN BLINDADA PARA CONVERTIR AL DASHBOARD
   window.valToArs = (monto, moneda) => {
-    if (!monto) return 0;
-    if (moneda === 'USD') return monto * (window.usdBlue || 1);
-    if (moneda === 'UVA') return 0; // Excluimos UVA del total en pesos temporalmente
-    return monto; // ARS por defecto
+    let m = parseFloat(monto) || 0;
+    let mon = moneda || 'ARS'; // Si el crédito es viejo, lo asume en Pesos
+    if (mon === 'USD') return m * (window.usdBlue || 1000);
+    if (mon === 'UVA') return 0; // Excluimos UVA temporalmente de los totales consolidados
+    return m;
   };
 
   // ── UTILIDADES DE CÁLCULO ──
@@ -1041,7 +1044,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <td><span class="badge badge-blue">${s.tipo}</span></td>
         <td class="td-name"><strong>${s.modelo}</strong><br><span style="font-size:11px; color:var(--gray-500)">${s.notas||''}</span></td>
         <td>${s.anio || '—'}</td>
-        <td style="font-weight:600; color:var(--blue-800)">$${s.precio.toLocaleString('es-AR')}<br>${fmtUsd(s.precio)}</td>
+        <td style="font-weight:600; color:var(--blue-800)">$${parseFloat(s.precio||0).toLocaleString('es-AR')}<br>${fmtUsd(s.precio)}</td>
         <td><span class="badge ${statusBadge}">${s.estado}</span></td>
         <td style="text-align:right">
           <button class="btn btn-sm btn-icon" onclick="abrirModalStock(${s.id})">✎</button>
@@ -1112,7 +1115,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div style="background: #f8f9fa; padding: 15px 20px; border: 1px solid #ccc; margin: 25px 0;">
           <strong>Vehículo Garantía:</strong> ${c.garantia} (Año ${c.anio || '____'})<br>
           <strong>Dominio / Patente:</strong> ${c.patente}<br>
-          <strong>Capital Base Financiado:</strong> ${sym}${c.capital.toLocaleString('es-AR')}
+          <strong>Capital Base Financiado:</strong> ${sym}${parseFloat(c.capital||0).toLocaleString('es-AR')}
         </div>
         <ol style="text-align: justify; padding-left: 20px; margin-bottom: 40px;">
           <li style="margin-bottom: 15px;"><strong>OBLIGATORIEDAD DE MANTENIMIENTO:</strong> El Titular se compromete a realizar los servicios en Campus Nexo o talleres oficiales de Nexo Autocréditos.</li>
@@ -1147,7 +1150,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         </div>
         <div style="font-size: 15px; line-height: 2;">
           <div>Recibí de: <strong>${c.nombre}</strong></div>
-          <div>La cantidad de ${txtMoneda}: <strong style="font-size: 18px;">${sym} ${monto.toLocaleString('es-AR')}</strong></div>
+          <div>La cantidad de ${txtMoneda}: <strong style="font-size: 18px;">${sym} ${parseFloat(monto||0).toLocaleString('es-AR')}</strong></div>
           <div>Concepto: ${isRef ? 'Refuerzo Extraordinario N° '+num : 'Cuota N° '+num} - Crédito ${c.tipo}.</div>
         </div>
         <div style="margin-top: 60px; text-align: center; width: 250px;">
@@ -1180,7 +1183,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if (!num.startsWith('54')) num = '549' + num; 
     
     const primerNombre = c.nombre.split(' ')[0];
-    const monto = c.cuota.toLocaleString('es-AR');
+    const monto = parseFloat(c.cuota||0).toLocaleString('es-AR');
     const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs ' : '$');
     
     let msg = "";
@@ -1241,17 +1244,21 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       if (c.tipo === 'prendario') garTxt = `${c.garantia||'—'}<br><span style="font-size:10px; color:var(--blue-500)">${c.patente||''}</span>`;
       else if (c.tipo === 'hipotecario') garTxt = `${c.hipoDetalle||'—'}<br><span style="font-size:10px; color:var(--amber)">Inmueble / Hipoteca</span>`;
 
-      // Renderizado dinámico según la Moneda elegida
+      // Renderizado dinámico según la Moneda
       let cuotaTxt, capTxt;
-      if (c.moneda === 'USD') {
-        cuotaTxt = `US$${c.cuota.toLocaleString('en-US')}<br><span class="usd-val-inline" style="color:var(--gray-500)">($${Math.round(c.cuota * (window.usdBlue || 1)).toLocaleString('es-AR')})</span>`;
-        capTxt = `US$${c.capital.toLocaleString('en-US')}<br><span class="usd-val-inline" style="color:var(--gray-500)">($${Math.round(c.capital * (window.usdBlue || 1)).toLocaleString('es-AR')})</span>`;
-      } else if (c.moneda === 'UVA') {
-        cuotaTxt = `${c.cuota.toLocaleString('es-AR')} UVAs`;
-        capTxt = `${c.capital.toLocaleString('es-AR')} UVAs`;
+      const cCapital = parseFloat(c.capital) || 0;
+      const cCuota = parseFloat(c.cuota) || 0;
+      const cMoneda = c.moneda || 'ARS';
+
+      if (cMoneda === 'USD') {
+        cuotaTxt = `US$${cCuota.toLocaleString('es-AR')}<br><span class="usd-val-inline" style="color:var(--gray-500)">($${Math.round(cCuota * (window.usdBlue || 1000)).toLocaleString('es-AR')})</span>`;
+        capTxt = `US$${cCapital.toLocaleString('es-AR')}<br><span class="usd-val-inline" style="color:var(--gray-500)">($${Math.round(cCapital * (window.usdBlue || 1000)).toLocaleString('es-AR')})</span>`;
+      } else if (cMoneda === 'UVA') {
+        cuotaTxt = `${cCuota.toLocaleString('es-AR')} UVAs`;
+        capTxt = `${cCapital.toLocaleString('es-AR')} UVAs`;
       } else {
-        cuotaTxt = `$${c.cuota.toLocaleString('es-AR')}<br>${fmtUsd(c.cuota)}`;
-        capTxt = `$${c.capital.toLocaleString('es-AR')}<br>${fmtUsd(c.capital)}`;
+        cuotaTxt = `$${cCuota.toLocaleString('es-AR')}<br>${fmtUsd(cCuota)}`;
+        capTxt = `$${cCapital.toLocaleString('es-AR')}<br>${fmtUsd(cCapital)}`;
       }
 
       return `<tr>
@@ -1281,7 +1288,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   window.renderSeguros = () => {
     const prendas = window.creditos.filter(c => c.tipo === 'prendario' && c.estado !== 'TERMINADA');
     if (window.IS_ADMIN) {
-      const tot = prendas.reduce((s,c)=>s+(c.seguroComision||0), 0);
+      const tot = prendas.reduce((s,c)=>s+(parseFloat(c.seguroComision)||0), 0);
       document.getElementById('seguros-metrics-grid').innerHTML = `<div class="metric-card green"><div class="metric-label">Comisiones Limpias</div><div class="metric-value">$${tot.toLocaleString('es-AR')}</div>${fmtUsd(tot)}</div>`;
     }
     document.getElementById('tabla-seguros-body').innerHTML = prendas.map(c => {
@@ -1289,8 +1296,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <td class="td-name">${c.nombre}</td>
         <td>${c.garantia}<br><span style="font-size:10px">${c.patente}</span></td>
         <td>${c.seguroCia || '<span class="badge badge-gray">Sin póliza</span>'}<br><span style="font-size:10px; color:var(--gray-500)">${c.seguroPoliza||''}</span></td>
-        <td>$${(c.seguroCosto||0).toLocaleString('es-AR')}</td>
-        ${window.IS_ADMIN ? `<td style="color:var(--green);font-weight:600" class="admin-only">$${(c.seguroComision||0).toLocaleString('es-AR')}</td>` : ''}
+        <td>$${(parseFloat(c.seguroCosto)||0).toLocaleString('es-AR')}</td>
+        ${window.IS_ADMIN ? `<td style="color:var(--green);font-weight:600" class="admin-only">$${(parseFloat(c.seguroComision)||0).toLocaleString('es-AR')}</td>` : ''}
         <td>${c.seguroVencimiento || '—'}</td>
         <td style="text-align:right">
           <button class="btn btn-sm" style="color:var(--amber); border-color:var(--amber-border)" onclick="abrirModalSeguro(${c.id})">Editar Seguro ✎</button>
@@ -1493,24 +1500,24 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     window.guardar(); window.renderAll();
   };
 
-  // ── DASHBOARD Y METRICAS ──
+  // ── DASHBOARD Y METRICAS BLINDADAS ──
   window.renderMetricas = () => {
     if(!window.IS_ADMIN) return;
     const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
     
-    // Acá convertimos todo a ARS antes de sumar para tener una foto general
-    const totCap = acts.reduce((s,c)=>s + window.valToArs(c.capital, c.moneda), 0); 
-    const recMens = acts.reduce((s,c)=>s + window.valToArs(c.cuota, c.moneda), 0); 
-    const comSeg = acts.reduce((s,c)=>s + (c.seguroComision||0), 0); // Asumimos seguros en ARS
+    // SUMATORIAS PROTEGIDAS PARA EVITAR NaN
+    const totCap = acts.reduce((s,c)=> s + window.valToArs(c.capital, c.moneda), 0); 
+    const recMens = acts.reduce((s,c)=> s + window.valToArs(c.cuota, c.moneda), 0); 
+    const comSeg = acts.reduce((s,c)=> s + (parseFloat(c.seguroComision)||0), 0);
     
     let totalACobrar = 0;
     let interesPonderado = 0;
 
     acts.forEach(c => {
-      let aCobrar = (c.cuota * c.plazo) + ((c.refuerzoMonto || 0) * (c.refuerzoCantidad || 0));
+      let aCobrar = ((parseFloat(c.cuota)||0) * (parseInt(c.plazo)||0)) + ((parseFloat(c.refuerzoMonto) || 0) * (parseInt(c.refuerzoCantidad) || 0));
       totalACobrar += window.valToArs(aCobrar, c.moneda);
       
-      let tasaReal = c.tasa || 8;
+      let tasaReal = parseFloat(c.tasa) || 8;
       interesPonderado += (window.valToArs(c.capital, c.moneda) * tasaReal);
     });
 
@@ -1524,9 +1531,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       if(!g.fecha) return false;
       const d = new Date(g.fecha + 'T12:00:00');
       return d.getMonth() === mesActual && d.getFullYear() === anioActual;
-    }).reduce((sum, g) => sum + Number(g.monto), 0);
+    }).reduce((sum, g) => sum + (parseFloat(g.monto)||0), 0);
 
-    const totStock = (window.stock || []).filter(s => s.estado === 'Disponible').reduce((sum, s) => sum + s.precio, 0);
+    const totStock = (window.stock || []).filter(s => s.estado === 'Disponible').reduce((sum, s) => sum + (parseFloat(s.precio)||0), 0);
 
     const f = n => '$'+n.toLocaleString('es-AR');
 
@@ -1545,8 +1552,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(!window.IS_ADMIN) return;
     const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
     
-    const totalCap = acts.reduce((s,c)=>s+window.valToArs(c.capital, c.moneda),0);
-    const sorted = [...acts].sort((a,b)=>window.valToArs(b.capital, b.moneda)-window.valToArs(a.capital, a.moneda)).slice(0,5);
+    const totalCap = acts.reduce((s,c) => s + window.valToArs(c.capital, c.moneda), 0);
+    const sorted = [...acts].sort((a,b) => window.valToArs(b.capital, b.moneda) - window.valToArs(a.capital, a.moneda)).slice(0,5);
+    
     document.getElementById('dash-barras').innerHTML = sorted.map(c => {
       const pct = totalCap ? Math.round(window.valToArs(c.capital, c.moneda)/totalCap*100) : 0;
       return `<div class="bar-row"><span class="bar-label">${c.nombre.split(' ').slice(0,2).join(' ')}</span><div class="bar-track"><div class="bar-fill-h" style="width:${pct}%"></div></div><span class="bar-val-h">$${(window.valToArs(c.capital, c.moneda)/1e6).toFixed(1)}M</span></div>`;
@@ -1586,7 +1594,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs' : '$');
       return `<div class="venc-item">
         <span class="venc-name">${c.nombre.split(' ').slice(0,2).join(' ')}</span>
-        <span class="venc-info">${sym}${c.cuota.toLocaleString('es-AR')}</span>
+        <span class="venc-info">${sym}${parseFloat(c.cuota||0).toLocaleString('es-AR')}</span>
       </div>`;
     }).join('') : '<div class="empty" style="padding:15px">No hay cobros pendientes para esta fecha</div>';
   };
