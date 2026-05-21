@@ -1634,9 +1634,40 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     document.getElementById('dash-venc').innerHTML = vencen.length ? vencen.map(c => `
       <div class="venc-item">
         <span class="venc-name">${c.nombre.split(' ').slice(0,2).join(' ')}</span>
-        <span class="venc-info">$${c.cuota.toLocaleString('es-AR')}</span>
+        <span class="venc-info">$${parseFloat(c.cuota||0).toLocaleString('es-AR')}</span>
       </div>
-    `).join('') : '<div class="empty" style="padding:15px">No hay cobros pendientes para esta fecha</div>';
+    `).join('') : '<div class="empty" style="padding:15px">No hay cobros pendientes</div>';
+        const morososEsteMes = acts.filter(c => {
+          if(!c.fecha) return false;
+          const inicio = new Date(c.fecha);
+          const cuotaDelMes = (anioActual - inicio.getFullYear()) * 12 + (mesActual - inicio.getMonth());
+          const estaPagada = window.pagosEstado[c.id] && window.pagosEstado[c.id][cuotaDelMes] === 'pagada';
+          return cuotaDelMes > 0 && cuotaDelMes <= (c.plazo||0) && !estaPagada;
+        });
+window.renderMorosos = () => {
+        document.getElementById('dash-morosos').innerHTML = morososEsteMes.length > 0 ? morososEsteMes.map(c => {
+          const cuotaBase = parseFloat(c.cuota || 0);
+          let recargoPorDia = 0;
+          if (cuotaBase <= 200000) recargoPorDia = 500;
+          else if (cuotaBase <= 400000) recargoPorDia = 800;
+          else if (cuotaBase <= 600000) recargoPorDia = 1000;
+          else if (cuotaBase <= 800000) recargoPorDia = 1500;
+          else if (cuotaBase <= 1000000) recargoPorDia = 2000;
+          else recargoPorDia = 2500;
+
+          const totalRecargo = diasAtraso * recargoPorDia;
+          const totalPagar = cuotaBase + totalRecargo;
+          const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs ' : '$');
+          const nombreDisplay = (c.nombre || 'Sin nombre').split(' ').slice(0,2).join(' ');
+
+          return `<div class="venc-item">
+            <div><div class="venc-name" style="color:var(--red)">${nombreDisplay}</div><div style="font-size:10px; color:var(--gray-500)">Atraso: ${diasAtraso} días</div></div>
+            <div style="text-align:right"><span class="venc-info" style="color:var(--gray-800)">${sym}${totalPagar.toLocaleString('es-AR')}</span><div style="font-size:10px; color:var(--red)">Base + ${sym}${totalRecargo.toLocaleString('es-AR')} mora</div></div>
+          </div>`;
+        }).join('') : '<div class="empty" style="padding:15px">Todos pagaron este mes 🙌</div>';
+      }
+    
+     '<div class="empty" style="padding:15px">No hay cobros pendientes para esta fecha</div>';
   };
 
   window.renderAll = () => {
