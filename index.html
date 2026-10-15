@@ -938,70 +938,164 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   // ── SIMULADOR / COTIZADOR PANE ──
   window.ejecutarSimulador = () => {
     const capSolicitado = parseFloat(document.getElementById('sim-capital').value) || 0;
-    const plaz = parseInt(document.getElementById('sim-plazo').value) || 0;
     const tasa = parseFloat(document.getElementById('sim-tasa').value) || 0;
+    const tipoMoneda = document.getElementById('sim-tipo')?.value || 'pesos';
+    const incluirGasto = document.getElementById('sim-inc-gasto') ? document.getElementById('sim-inc-gasto').checked : true;
 
-    const gastoOtorgamiento = capSolicitado * 0.03;
+    const gastoOtorgamiento = incluirGasto ? capSolicitado * 0.03 : 0;
     const capitalTotal = capSolicitado + gastoOtorgamiento;
 
-    document.getElementById('prev-cap').textContent = `$${capSolicitado.toLocaleString('es-AR')}`;
-    document.getElementById('prev-gasto').textContent = `+$${gastoOtorgamiento.toLocaleString('es-AR')}`;
-    document.getElementById('prev-total').textContent = `$${capitalTotal.toLocaleString('es-AR')}`;
-    document.getElementById('prev-plazo').textContent = plaz;
+    let simMoneda = '$';
+    let sufijo = '';
+    if (tipoMoneda === 'usd') simMoneda = 'USD ';
+    if (tipoMoneda === 'uvas') { simMoneda = ''; sufijo = ' UVAs'; }
 
-    if (capitalTotal > 0 && plaz > 0 && tasa > 0) {
+    if (document.getElementById('prev-cap')) document.getElementById('prev-cap').textContent = `${simMoneda}${capSolicitado.toLocaleString('es-AR')}${sufijo}`;
+    
+    if (document.getElementById('prev-gasto')) {
+      const elGastoContainer = document.getElementById('prev-gasto')?.parentElement;
+      if (elGastoContainer) elGastoContainer.style.display = incluirGasto ? 'block' : 'none';
+      document.getElementById('prev-gasto').textContent = `+${simMoneda}${gastoOtorgamiento.toLocaleString('es-AR')}${sufijo}`;
+    }
+    
+    if (document.getElementById('prev-total')) document.getElementById('prev-total').textContent = `${simMoneda}${capitalTotal.toLocaleString('es-AR')}${sufijo}`;
+
+    // Renderizado de tabla comparativa automática (12, 18, 24, 36, 48, 60 meses)
+    const plazos = [12, 18, 24, 36, 48, 60];
+    const containerTabla = document.getElementById('tabla-comparativa-cuotas');
+
+    if (containerTabla && capitalTotal > 0 && tasa > 0) {
       const i = tasa / 100;
-      const cuota = capitalTotal * (i / (1 - Math.pow(1 + i, -plaz)));
-      document.getElementById('prev-cuota').textContent = `$${Math.round(cuota).toLocaleString('es-AR')}`;
-    } else {
-      document.getElementById('prev-cuota').textContent = `$0`;
+      let rowsHtml = '';
+
+      plazos.forEach(p => {
+        const cuota = capitalTotal * (i / (1 - Math.pow(1 + i, -p)));
+        const totalFinanciado = cuota * p;
+
+        rowsHtml += `
+          <tr style="border-bottom: 1px solid #e2e8f0; text-align: center;">
+            <td style="padding: 10px; font-weight: bold; color: #1e5baa;">${p} Meses</td>
+            <td style="padding: 10px; font-weight: bold; font-size: 17px; color: #103058;">
+              ${simMoneda}${Math.round(cuota).toLocaleString('es-AR')}${sufijo}
+            </td>
+            <td style="padding: 10px; color: #64748b; font-size: 14px;">
+              ${simMoneda}${Math.round(totalFinanciado).toLocaleString('es-AR')}${sufijo}
+            </td>
+          </tr>
+        `;
+      });
+
+      containerTabla.innerHTML = `
+        <div style="margin-top: 20px; background: #fff; border-radius: 8px; padding: 15px; border: 1px solid #e2e8f0;">
+          <h4 style="margin-top: 0; color: #1e5baa; text-align: center; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
+            Planes de Financiación (${tipoMoneda.toUpperCase()})
+          </h4>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f8fafc; color: #475569; font-size: 12px; text-transform: uppercase;">
+                <th style="padding: 8px;">Plazo</th>
+                <th style="padding: 8px;">Cuota Mensual</th>
+                <th style="padding: 8px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } else if (containerTabla) {
+      containerTabla.innerHTML = '';
     }
   };
 
   window.imprimirCotizacion = () => {
     const capSolicitado = parseFloat(document.getElementById('sim-capital').value) || 0;
-    const plaz = parseInt(document.getElementById('sim-plazo').value) || 0;
     const tasa = parseFloat(document.getElementById('sim-tasa').value) || 0;
-    const gastoOtorgamiento = capSolicitado * 0.03;
+    const tipoMoneda = document.getElementById('sim-tipo')?.value || 'pesos';
+    const incluirGasto = document.getElementById('sim-inc-gasto') ? document.getElementById('sim-inc-gasto').checked : true;
+
+    const gastoOtorgamiento = incluirGasto ? capSolicitado * 0.03 : 0;
     const capitalTotal = capSolicitado + gastoOtorgamiento;
     const i = tasa / 100;
-    const cuota = capitalTotal > 0 && plaz > 0 && tasa > 0 ? capitalTotal * (i / (1 - Math.pow(1 + i, -plaz))) : 0;
+
+    let simMoneda = '$';
+    let sufijo = '';
+    let textoTipo = 'Pesos (Tasa Fija)';
+    if (tipoMoneda === 'usd') { simMoneda = 'USD '; textoTipo = 'Dólares (Tasa Fija USD)'; }
+    if (tipoMoneda === 'uvas') { simMoneda = ''; sufijo = ' UVAs'; textoTipo = 'Ajustable por UVAs'; }
+
+    const plazos = [12, 18, 24, 36, 48, 60];
+    let filasTabla = '';
+
+    plazos.forEach(p => {
+      const cuota = capitalTotal > 0 && tasa > 0 ? capitalTotal * (i / (1 - Math.pow(1 + i, -p))) : 0;
+      filasTabla += `
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 10px; font-weight: bold; color: #1e5baa;">${p} Meses</td>
+          <td style="padding: 10px; text-align: right; font-weight: bold; font-size: 18px; color: #103058;">
+            ${simMoneda}${Math.round(cuota).toLocaleString('es-AR')}${sufijo}
+          </td>
+        </tr>
+      `;
+    });
+
+    const htmlGastoRenglon = incluirGasto ? `
+      <tr>
+        <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1e5baa;">Gasto de Otorgamiento (3%):</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right; color: #1e5baa;">
+          <strong>+${simMoneda}${gastoOtorgamiento.toLocaleString('es-AR')}${sufijo}</strong>
+        </td>
+      </tr>
+    ` : '';
 
     const html = `
       <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 40px;">
         <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1e5baa; padding-bottom: 20px;">
           <h1 style="margin: 0; color: #1e5baa; font-size: 28px; font-style: italic;">NEXO AUTOCREDITOS</h1>
           <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Cotización de Crédito - Monte Buey, Córdoba</p>
-          <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Fecha: ${window.HOY.toLocaleDateString('es-AR')} (Válida por 48hs)</p>
+          <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Fecha: ${window.HOY ? window.HOY.toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')} (Válida por 48hs)</p>
+          <span style="display: inline-block; margin-top: 10px; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+            Modalidad: ${textoTipo}
+          </span>
         </div>
-        <table style="width: 100%; font-size: 16px; margin-bottom: 30px; border-collapse: collapse;">
+
+        <table style="width: 100%; font-size: 16px; margin-bottom: 25px; border-collapse: collapse;">
           <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #eee;">Capital Base Solicitado:</td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;"><strong>$${capSolicitado.toLocaleString('es-AR')}</strong></td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee;">Capital Solicitado:</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">
+              <strong>${simMoneda}${capSolicitado.toLocaleString('es-AR')}${sufijo}</strong>
+            </td>
           </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1e5baa;">Gasto de Otorgamiento (3%):</td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right; color: #1e5baa;"><strong>$${gastoOtorgamiento.toLocaleString('es-AR')}</strong></td>
-          </tr>
+          ${htmlGastoRenglon}
           <tr>
             <td style="padding: 15px 0; border-bottom: 2px solid #ccc; font-weight: bold;">Total a Financiar:</td>
-            <td style="padding: 15px 0; border-bottom: 2px solid #ccc; text-align: right; font-weight: bold; font-size: 18px;">$${capitalTotal.toLocaleString('es-AR')}</td>
+            <td style="padding: 15px 0; border-bottom: 2px solid #ccc; text-align: right; font-weight: bold; font-size: 18px;">
+              ${simMoneda}${capitalTotal.toLocaleString('es-AR')}${sufijo}
+            </td>
           </tr>
         </table>
-        <div style="background-color: #f0f7ff; border: 1px solid #dceeff; padding: 30px; text-align: center; border-radius: 8px;">
-          <p style="margin: 0; font-size: 14px; color: #1e5baa; font-weight: bold; text-transform: uppercase;">Cuota Mensual Fija</p>
-          <p style="margin: 10px 0; font-size: 48px; color: #103058; font-weight: bold;">$${Math.round(cuota).toLocaleString('es-AR')}</p>
-          <p style="margin: 0; font-size: 16px; color: #444;">Plan de <strong>${plaz}</strong> meses</p>
+
+        <div style="background-color: #f0f7ff; border: 1px solid #dceeff; padding: 25px; border-radius: 8px;">
+          <h3 style="margin: 0 0 15px 0; text-align: center; color: #1e5baa; font-size: 15px; text-transform: uppercase;">
+            Opciones de Cuotas Mensuales
+          </h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            ${filasTabla}
+          </table>
         </div>
-        <div style="margin-top: 40px; font-size: 11px; color: #777; text-align: justify;">
+
+        <div style="margin-top: 30px; font-size: 11px; color: #777; text-align: justify;">
           * Las cuotas vencen indefectiblemente el día 10 de cada mes. Simulación sujeta a aprobación crediticia y revisión de la documentación/garantía presentada por el solicitante.
         </div>
       </div>
     `;
-    const win = window.open('', '_blank'); win.document.write(html); win.document.close();
+
+    const win = window.open('', '_blank'); 
+    win.document.write(html); 
+    win.document.close();
     setTimeout(() => win.print(), 250);
   };
-
   // ── CONTROL DE INVENTARIO / STOCK ──
   window.renderStock = () => {
     const tbody = document.getElementById('tabla-stock-body');
