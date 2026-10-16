@@ -1989,6 +1989,33 @@ function generarVistaPreviaContrato() {
   document.getElementById('vista-previa-contrato').innerHTML = htmlContrato;
 }
 
+// Ejecutar la vista previa al cargar la página o al hacer clic en el menú
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(generarVistaPreviaContrato, 500);
+});
+
+function imprimirContratoSeleccionado() {
+  const contenedor = document.getElementById('vista-previa-contrato');
+  if (!contenedor || !contenedor.innerHTML.trim()) {
+    alert("No hay contenido para imprimir.");
+    return;
+  }
+  const contenido = contenedor.innerHTML;
+  const ventana = window.open('', '_blank');
+  if(!ventana) {
+    alert("El navegador bloqueó la ventana emergente. Por favor permití las ventanas emergentes.");
+    return;
+  }
+  ventana.document.write('<html><head><title>Imprimir Contrato - Nexo Autocréditos</title>');
+  ventana.document.write('<style>body { font-family: Arial, sans-serif; padding: 30px; color: #000; line-height: 1.6; max-width: 800px; margin: 0 auto; }</style>');
+  ventana.document.write('</head><body>');
+  ventana.document.write(contenido);
+  ventana.document.write('</body></html>');
+  ventana.document.close();
+  ventana.focus();
+  setTimeout(() => { ventana.print(); }, 500);
+}
+
 </script>
 </body>
 </html>
