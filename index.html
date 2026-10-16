@@ -1858,6 +1858,155 @@ window.renderMorosos = () => {
     if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
     if(document.getElementById('pane-simulador').classList.contains('active')) window.ejecutarSimulador();
   };
+
+function generarVistaPreviaContrato() {
+  const tipo = document.getElementById('contrato-tipo').value;
+  const idSel = document.getElementById('contrato-cliente').value;
+  const montoInput = document.getElementById('contrato-monto').value || '0';
+  const vehiculoInput = document.getElementById('contrato-vehiculo').value || 'Vehículo no especificado';
+  
+  let clienteNombre = "________________________";
+  let clienteDni = "________";
+  let clienteDom = "________________________";
+  let montoFinanciar = "$ 0";
+
+  if(idSel && window.creditos) {
+    const c = window.creditos.find(x => String(x.id) === String(idSel));
+    if(c) {
+      clienteNombre = c.nombre || clienteNombre;
+      clienteDni = c.dni || clienteDni;
+      clienteDom = c.domicilio || clienteDom;
+      montoFinanciar = "$ " + Number(c.montoTotal || c.cuota * c.cuotas || 0).toLocaleString('es-AR');
+    }
+  }
+
+  const hoyStr = new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const montoFormateado = "$ " + Number(montoInput).toLocaleString('es-AR');
+
+  let htmlContrato = "";
+
+  if(tipo === 'sena_venta') {
+    htmlContrato = `
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #1e5baa; padding-bottom:10px; margin-bottom:20px;">
+        <h2 style="margin:0; color:#1e5baa;">NEXO AUTOCREDITOS</h2>
+        <div style="text-align:right;"><strong>RECIBO DE SEÑA Y RESERVA</strong><br><small>Fecha: ${hoyStr}</small></div>
+      </div>
+      <p>En la localidad de Monte Buey, a los ${hoyStr}, recibí de <strong>${clienteNombre}</strong>, D.N.I. N° <strong>${clienteDni}</strong>, la suma de <strong>${montoFormateado}</strong> en concepto de <strong>SEÑA / RESERVA DE COMPRA</strong> para la unidad: <strong>${vehiculoInput}</strong>.</p>
+    `;
+  } else if(tipo === 'sena_compra') {
+    htmlContrato = `
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #1e5baa; padding-bottom:10px; margin-bottom:20px;">
+        <h2 style="margin:0; color:#1e5baa;">NEXO AUTOCREDITOS</h2>
+        <div style="text-align:right;"><strong>COMPROMISO DE COMPRA Y SEÑA</strong><br><small>Fecha: ${hoyStr}</small></div>
+      </div>
+      <p>Por medio del presente, <strong>Facundo Ariaudo</strong> (NEXO AUTOCREDITOS), D.N.I. N° 43.061.392, entrega a <strong>${clienteNombre}</strong>, D.N.I. N° <strong>${clienteDni}</strong>, la suma de <strong>${montoFormateado}</strong> en concepto de <strong>SEÑA Y RESERVA DE COMPRA</strong> de la unidad: <strong>${vehiculoInput}</strong>.</p>
+    `;
+  } else if(tipo === 'mutuo') {
+    htmlContrato = `
+      <h3 style="text-align:center; text-transform:uppercase; text-decoration:underline;">Contrato de Mutuo</h3>
+      <p>Entre el Sr. <strong>ARIAUDO, FACUNDO</strong>, D.N.I. 43.061.392, con domicilio en calle Av. Belgrano Nº 463, de la localidad de Monte Buey, provincia de Córdoba; en adelante denominado <em>“el Mutuante”</em>, y la/el Sr./a <strong>${clienteNombre}</strong>, D.N.I. <strong>${clienteDni}</strong>, con domicilio en calle <strong>${clienteDom}</strong>, de la localidad de Monte Buey, provincia de Córdoba, en adelante denominado <em>“el Mutuario”</em>, se celebra el presente contrato de mutuo o préstamo de dinero de acuerdo a las siguientes cláusulas:</p>
+      
+      <p><strong>PRIMERO: PERFECCIONAMIENTO DEL CONTRATO:</strong> El Mutuante da en préstamo al Mutuario, la suma de <strong>${montoFormateado}</strong>, importe que es recibido de conformidad en este acto por EL MUTUARIO, en efectivo, sirviendo el presente de formal recibo, reconocimiento de deuda, e instrumento constitutivo de la obligación. El monto del préstamo expresado en la presente cláusula, resulta el importe total del financiamiento, que devengará los intereses pactados en la cláusula subsiguiente.</p>
+      
+      <p><strong>SEGUNDO: TASA DE INTERES – IMPUESTOS:</strong> Al valor total recibido por EL MUTUARIO, se le adicionarán los intereses compensatorios pactados entre las partes, calculados a razón de una tasa de interés del NUEVE por ciento (9 %), efectivo mensual (T.E.M.).</p>
+      
+      <p><strong>TERCERO: CONDICIONES DE RESTITUCION DEL PRESTAMO:</strong> El importe dado en préstamo, será reintegrado por EL MUTUARIO, en cuotas iguales, mensuales, consecutivas y fijas.</p>
+      
+      <p><strong>CUARTO: CRONOGRAMA DE VENCIMIENTOS:</strong> Los vencimientos de las cuotas pactadas operarán los días diez (10) de cada mes, o el primer día hábil siguiente si éste resultara inhábil, hasta la cancelación total del capital.</p>
+      
+      <p><strong>QUINTO: PLAZO DEL PRESTAMO:</strong> El plazo del préstamo se establece en las condiciones acordadas para la unidad: <strong>${vehiculoInput}</strong>.</p>
+      
+      <p><strong>SEXTO: DOMICILIO Y FORMA DE PAGO:</strong> Toda suma derivada del presente contrato será pagadera en el domicilio Güemes Nº 226, de la localidad de Monte Buey, provincia de Córdoba, o dónde en el futuro éste lo determine, en efectivo, puntualmente, a su vencimiento.</p>
+      
+      <p><strong>SEPTIMO: DETERMINACION DEL SALDO CAPITAL:</strong> Al momento de cumplimentarse las obligaciones previstas en la Cláusula Tercera de este contrato, el ACREEDOR expedirá a EL MUTUARIO, un recibo en el cual se indique la imputación del pago que se efectúo.— Las partes expresamente establecen para el supuesto que, como consecuencia de haberse producido la mora, por cualquier causal prevista en este contrato, el ACREEDOR promoviera acciones judiciales en contra de EL MUTUARIO; que el saldo de capital objeto de su pretensión, será aquel que surja del recibo expedido por el ACREEDOR, por aplicación de esta Cláusula, correspondiente a la última cuota cancelada e imputada.</p>
+      
+      <p><strong>OCTAVO: CAUSALES DE MORA:</strong> EL MUTUARIO incurrirá en mora en el cumplimiento de sus obligaciones, sin necesidad de requerimiento previo, en cualquiera de los siguientes casos: a) Por el sólo hecho de no abonar en el lugar y los plazos convenidos cualquiera de las prestaciones pactadas; b) Si se presentase solicitando la formación de concurso de acreedores o su declaración de quiebra o le fueren solicitadas las mismas medidas cautelares por cualquier acreedor o fuere inhibido; c) Si los bienes gravados u otorgados como garantía o integrativos de su patrimonio, fueran enajenados o sufrieran cualquier siniestro que disminuyera su valor actual; d) Cuando promueva como actor o sufra como demandado cualquier juicio que pueda afectar la situación de los bienes gravados o considerados para el otorgamiento del presente; e) Si incurriese en violaciones de cualesquiera de las obligaciones que asume en este contrato y/o en la documentación, solicitudes y liquidaciones que dieron lugar al mismo; f) Si desviara el destino por el que le fuera otorgado el presente préstamo.</p>
+      
+      <p><strong>NOVENO: CONSECUENCIAS DE LA MORA:</strong> La falta de cumplimiento de cualquiera de las obligaciones que EL MUTUARIO asume con motivo de este contrato generará la mora de pleno derecho, tornándose exigible el total adeudado por todo concepto, como si se tratara de una obligación de plazo vencido. A partir de la constitución en mora regirá, a cargo del Deudor, un interés punitorio cuya tasa será el 3% diario por cada día de retraso del monto a abonar.</p>
+      
+      <p><strong>DECIMO: DESTINO DEL CREDITO:</strong> EL MUTUARIO declara que el crédito que obtiene en este acto será destinado para CONSUMO PERSONAL.</p>
+      
+      <p><strong>DECIMO PRIMERO: PROCEDIMIENTO DE EJECUCION:</strong> Para el caso que EL ACREEDOR, por cualquier motivo, promueva acciones judiciales por el cobro del crédito emergente de este contrato, las partes convienen expresamente la vía ejecutiva en los términos del Código Procesal Civil y Comercial de la Provincia de Córdoba, renunciando EL MUTUARIO a recusar sin causa al juez del Tribunal interviniente.</p>
+      
+      <p><strong>DECIMO SEGUNDO: TITULO EJECUTIVO:</strong> Este instrumento y/o la constancia de certificación de deuda emitidos serán indistintamente títulos suficientes a los fines de ejercitar la vía ejecutiva.</p>
+      
+      <p><strong>DECIMO TERCERO: AUTONOMIA DE LA VOLUNTAD:</strong> Las partes adoptan libremente las condiciones pactadas en todas las cláusulas de este contrato, considerándolas objetivas y conducentes a un justo equilibrio de las prestaciones dentro del mercado financiero.</p>
+      
+      <p><strong>DECIMO CUARTO:</strong> En garantía de la restitución del préstamo, el Mutuario libra a favor del Mutuante un (1) pagaré por el valor total de la operación, el cual será restituido al cancelándose la deuda total.</p>
+      
+      <p><strong>DÉCIMO QUINTO: JURISDICCIÓN Y DOMICILIOS:</strong> A todos los efectos legales emergentes de este contrato, las partes se someten a la Jurisdicción de la Justicia Ordinaria de la Ciudad de Marcos Juárez, con renuncia a cualquier otro fuero, constituyendo domicilio en los previstos al comienzo.</p>
+      
+      <p style="text-align:center; margin-top:30px;">En prueba de conformidad y obligándose a su total cumplimiento, se firman dos ejemplares de un mismo tenor y a un solo efecto en la localidad de Monte Buey, provincia de Córdoba, a los <strong>${hoyStr}</strong>.</p>
+    `;
+  } else if(tipo === 'cancelacion') {
+    htmlContrato = `
+      <h3 style="text-align:center; text-transform:uppercase; text-decoration:underline;">Acta de Rescisión y Entrega Voluntaria de Rodado</h3>
+      <p>En Monte Buey, a los ${hoyStr}, entre <strong>NEXO AUTOCREDITOS</strong> y <strong>${clienteNombre}</strong>, DNI N° <strong>${clienteDni}</strong>, se acuerda la rescisión del crédito sobre la unidad <strong>${vehiculoInput}</strong>.</p>
+    `;
+  } else if(tipo === 'adenda') {
+    htmlContrato = `
+      <h3 style="text-align:center; text-transform:uppercase; text-decoration:underline;">Adenda de Refinanciación de Deuda</h3>
+      <p>En Monte Buey, a los ${hoyStr}, entre <strong>NEXO AUTOCREDITOS</strong> y <strong>${clienteNombre}</strong>, D.N.I. N° <strong>${clienteDni}</strong>, titular del crédito sobre el rodado <strong>${vehiculoInput}</strong>, se conviene reestructurar el saldo pendiente.</p>
+    `;
+  }
+
+  // Firma digital abajo
+  htmlContrato += `
+    <div style="margin-top:60px; display:flex; justify-content:space-between; align-items:flex-end;">
+      <div style="text-align:center; width:220px; border-top:1px solid #000; padding-top:5px;">
+        <strong>FIRMA DEL CLIENTE</strong><br><small>Aclaración / DNI</small>
+      </div>
+      <div style="text-align:center; width:220px;">
+        <img src="firma.png" alt="Firma Facundo" style="max-height:60px; display:block; margin:0 auto 5px auto;" />
+        <div style="border-top:1px solid #000; padding-top:5px;">
+          <strong>FACUNDO ARIAUDO</strong><br><small>NEXO AUTOCREDITOS</small>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('vista-previa-contrato').innerHTML = htmlContrato;
+}
+
+function cargarClientesEnContratos() {
+  const select = document.getElementById('contrato-cliente');
+  if(!select) return;
+  select.innerHTML = '<option value="">-- Cargar de lista de créditos --</option>';
+  if(window.creditos && window.creditos.length > 0) {
+    window.creditos.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.nombre} - ${c.vehiculo || 'Vehículo'} ($${Number(c.montoTotal || 0).toLocaleString('es-AR')})`;
+      select.appendChild(opt);
+    });
+  }
+}
+
+function actualizarCamposContrato() {
+  const idSel = document.getElementById('contrato-cliente').value;
+  if(idSel && window.creditos) {
+    const c = window.creditos.find(x => String(x.id) === String(idSel));
+    if(c) {
+      if(c.montoTotal) document.getElementById('contrato-monto').value = c.montoTotal;
+      if(c.vehiculo) document.getElementById('contrato-vehiculo').value = c.vehiculo;
+    }
+  }
+  generarVistaPreviaContrato();
+}
+
+function imprimirContratoSeleccionado() {
+  const contenido = document.getElementById('vista-previa-contrato').innerHTML;
+  const ventana = window.open('', '', 'height=700,width=900');
+  ventana.document.write('<html><head><title>Imprimir Contrato - Nexo Autocréditos</title>');
+  ventana.document.write('<style>body { font-family: Arial, sans-serif; padding: 30px; color: #000; line-height: 1.6; }</style>');
+  ventana.document.write('</head><body>');
+  ventana.document.write(contenido);
+  ventana.document.write('</body></html>');
+  ventana.document.close();
+  ventana.focus();
+  setTimeout(() => { ventana.print(); ventana.close(); }, 500);
+}
+
 </script>
 </body>
 </html>
