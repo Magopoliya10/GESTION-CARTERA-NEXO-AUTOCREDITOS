@@ -1233,10 +1233,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div style="font-size: 15px; line-height: 2;">
           <div>Recibí de: <strong>${c.nombre}</strong></div>
           <div>La cantidad de PESOS: <strong style="font-size: 18px;">$ ${monto.toLocaleString('es-AR')}</strong></div>
-          <div>Concepto: ${isRef ? 'Refuerzo Extraordinario N° '+num : 'Cuota N° '+num} - Crédito ${c.tipo}.</div>
+          <div>Concepto: ${isRef ? 'Refuerzo Extraordinario N° '+num : 'Cuota N° '+num} Crédito ${c.tipo}.</div>
         </div>
-        <div style="margin-top: 60px; text-align: center; width: 250px;">
-          <div style="border-top: 1px solid #000; padding-top: 8px;">Firma y Aclaración (Nexo)</div>
+        <div style="margin-top: 50px; display: flex; justify-content: flex-end;">
+          <div style="text-align: center; width: 250px;">
+            <img src="firma.png" alt="Firma Facundo" style="max-height: 60px; display: block; margin: 0 auto 5px auto;" />
+            <div style="border-top: 1px solid #000; padding-top: 8px;">Firma y Aclaración (Nexo)</div>
+          </div>
         </div>
       </div>
     `;
