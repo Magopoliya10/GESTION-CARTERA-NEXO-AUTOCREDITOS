@@ -961,14 +961,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     localStorage.setItem('nexo_gastos', JSON.stringify(window.gastos));
     localStorage.setItem('nexo_stock', JSON.stringify(window.stock));
     
-    if (auth.currentUser) {
-      try {
-        await setDoc(doc(db, "empresa", "datos_nexo"), {
-          creditos: window.creditos, pagosEstado: window.pagosEstado, gastos: window.gastos, stock: window.stock
-        });
-      } catch (e) { console.log("Error guardando en la nube"); }
-    }
-  };
+    
 
   // ── LÓGICA DE ROLES Y NAVEGACIÓN ──
   function aplicarPermisos() {
@@ -2032,6 +2025,43 @@ window.imprimirContratoSeleccionado = function() {
   setTimeout(() => { ventana.print(); }, 500);
 }
 }
+// Sincronización con Firebase
+  window.cargarDatosDesdeNube = async function() {
+    if (!auth.currentUser) return;
+    try {
+      const docRef = doc(db, "empresa", "datos_nexo");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        window.creditos = data.creditos || [];
+        window.pagosEstado = data.pagosEstado || {};
+        window.gastos = data.gastos || [];
+        window.stock = data.stock || [];
+        
+        if (typeof window.cargarClientesEnContratos === 'function') window.cargarClientesEnContratos();
+        if (typeof render === 'function') render();
+        if (typeof renderizarTabla === 'function') renderizarTabla();
+        console.log("Datos recuperados con éxito desde Firestore");
+      }
+    } catch (e) { 
+      console.log("Error cargando de la nube", e); 
+    }
+  };
+
+  window.guardarEnNube = async function() {
+    if (!auth.currentUser) return;
+    try {
+      await setDoc(doc(db, "empresa", "datos_nexo"), {
+        creditos: window.creditos, 
+        pagosEstado: window.pagosEstado, 
+        gastos: window.gastos, 
+        stock: window.stock
+      });
+    } catch (e) { 
+      console.log("Error guardando en la nube", e); 
+    }
+  };
+
 </script>
 </body>
 </html>
