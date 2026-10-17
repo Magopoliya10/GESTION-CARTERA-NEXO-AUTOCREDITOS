@@ -1005,8 +1005,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(id==='gastos') window.renderGastos();
     if(id==='simulador') window.ejecutarSimulador();
     if(id==='stock') window.renderStock();
-    if(id==='contratos') { cargarClientesEnContratos(); generarVistaPreviaContrato(); }
-  };
+    if(id==='contratos') { 
+      if(typeof window.cargarClientesEnContratos === 'function') window.cargarClientesEnContratos(); 
+      if(typeof window.generarVistaPreviaContrato === 'function') window.generarVistaPreviaContrato(); 
+    }
  
   // ── HELPER FORMATO USD ──
   const fmtUsd = (ars) => {
@@ -1875,7 +1877,7 @@ window.renderMorosos = () => {
     if(document.getElementById('pane-simulador').classList.contains('active')) window.ejecutarSimulador();
   };
 
-function generarVistaPreviaContrato() {
+window.generarVistaPreviaContrato = function() {
   const elTipo = document.getElementById('contrato-tipo');
   if (!elTipo) return;
 
@@ -2008,7 +2010,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setTimeout(generarVistaPreviaContrato, 500);
 });
 
-function imprimirContratoSeleccionado() {
+window.imprimirContratoSeleccionado = function() {
   const contenedor = document.getElementById('vista-previa-contrato');
   if (!contenedor || !contenedor.innerHTML.trim()) {
     alert("No hay contenido para imprimir.");
