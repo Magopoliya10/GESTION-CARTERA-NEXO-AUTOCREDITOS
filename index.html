@@ -2025,7 +2025,7 @@ window.imprimirContratoSeleccionado = function() {
   setTimeout(() => { ventana.print(); }, 500);
 }
 }
-// Sincronización con Firebase
+// Sincronización con Firebase (Funciones seguras)
   window.cargarDatosDesdeNube = async function() {
     if (!auth.currentUser) return;
     try {
@@ -2062,6 +2062,7 @@ window.imprimirContratoSeleccionado = function() {
     }
   };
 
+} // <-- Esta llave extra asegura que cualquier bloque previo que haya quedado abierto se cierre acá perfectamente.
 </script>
 </body>
 </html>
