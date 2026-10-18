@@ -955,11 +955,16 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
   window.cerrarSesion = () => signOut(auth);
 
-  window.guardar = async () => {
-    localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
-    localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
-    localStorage.setItem('nexo_gastos', JSON.stringify(window.gastos));
-    localStorage.setItem('nexo_stock', JSON.stringify(window.stock));
+ window.guardar = async () => {
+  localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
+  localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
+  localStorage.setItem('nexo_gastos', JSON.stringify(window.gastos));
+  localStorage.setItem('nexo_stock', JSON.stringify(window.stock));
+
+  if (typeof window.guardarEnNube === 'function') {
+    await window.guardarEnNube();
+  }
+};
     
     
 
@@ -1002,6 +1007,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       if(typeof window.cargarClientesEnContratos === 'function') window.cargarClientesEnContratos(); 
       if(typeof window.generarVistaPreviaContrato === 'function') window.generarVistaPreviaContrato(); 
     }
+
+    };
  
   // ── HELPER FORMATO USD ──
   const fmtUsd = (ars) => {
@@ -1359,7 +1366,10 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         break;
     }
 
-    window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+   window.open(
+  `https://wa.me/${num}?text=${encodeURIComponent(msg)}`,
+  '_blank'
+);
     window.cerrarModalWsp();
   };
 
@@ -1776,92 +1786,156 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   };
 
   window.renderDashboard = () => {
-    if(!window.IS_ADMIN) return;
-    const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
-    
-    // Gráfico de barras de capital
-    const totalCap = acts.reduce((s,c)=>s+c.capital,0);
-    const sorted = [...acts].sort((a,b)=>b.capital-a.capital).slice(0,5);
-    document.getElementById('dash-barras').innerHTML = sorted.map(c => {
-      const pct = totalCap ? Math.round(c.capital/totalCap*100) : 0;
-      return `<div class="bar-row"><span class="bar-label">${c.nombre.split(' ').slice(0,2).join(' ')}</span><div class="bar-track"><div class="bar-fill-h" style="width:${pct}%"></div></div><span class="bar-val-h">$${(c.capital/1e6).toFixed(1)}M</span></div>`;
+  if (!window.IS_ADMIN) return;
+
+  const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
+
+  // Gráfico de barras de capital
+  const totalCap = acts.reduce((s, c) => s + c.capital, 0);
+
+  const sorted = [...acts]
+    .sort((a, b) => b.capital - a.capital)
+    .slice(0, 5);
+
+  document.getElementById('dash-barras').innerHTML =
+    sorted.map(c => {
+      const pct = totalCap
+        ? Math.round((c.capital / totalCap) * 100)
+        : 0;
+
+      return `
+        <div class="bar-row">
+          <span class="bar-label">
+            ${c.nombre.split(' ').slice(0,2).join(' ')}
+          </span>
+          <div class="bar-track">
+            <div class="bar-fill-h" style="width:${pct}%"></div>
+          </div>
+          <span class="bar-val-h">
+            $${(c.capital / 1000000).toFixed(1)}M
+          </span>
+        </div>
+      `;
     }).join('');
 
-    // Gráfico de tipos
-    const pr = acts.filter(c=>c.tipo==='prendario').length;
-    const pe = acts.filter(c=>c.tipo==='personal').length;
-    const hi = acts.filter(c=>c.tipo==='hipotecario').length;
-    const tot = acts.length || 1;
-    document.getElementById('dash-tipo').innerHTML = `
-      <div class="bar-row"><span class="bar-label">Prendarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pr/tot*100)}%"></div></div><span class="bar-val-h">${pr}</span></div>
-      <div class="bar-row"><span class="bar-label">Hipotecarios</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(hi/tot*100)}%;background:var(--green)"></div></div><span class="bar-val-h">${hi}</span></div>
-      <div class="bar-row"><span class="bar-label">Personales</span><div class="bar-track"><div class="bar-fill-h" style="width:${Math.round(pe/tot*100)}%;background:var(--amber)"></div></div><span class="bar-val-h">${pe}</span></div>`;
+  // Distribución por tipo
+  const pr = acts.filter(c => c.tipo === 'prendario').length;
+  const pe = acts.filter(c => c.tipo === 'personal').length;
+  const hi = acts.filter(c => c.tipo === 'hipotecario').length;
 
-    // Gráfico de estado
-    const alDia = window.creditos.filter(c=>c.estado==='AL DIA').length;
-    const mora = window.creditos.filter(c=>c.estado==='MORA').length;
-    document.getElementById('dash-estado').innerHTML = `
-      <div class="venc-item"><div><div class="venc-name">Al día</div></div><span class="badge badge-green">${alDia}</span></div>
-      <div class="venc-item"><div><div class="venc-name">En mora</div></div><span class="badge ${mora?'badge-red':'badge-gray'}">${mora||'—'}</span></div>`;
+  const tot = acts.length || 1;
 
-    // LÓGICA VENCIMIENTOS DÍA 10
-    const hoy = window.HOY;
-    let mesRef = hoy.getMonth();
-    let anioRef = hoy.getFullYear();
-    
-    if (hoy.getDate() > 10) {
-      mesRef++;
-      if(mesRef > 11) { mesRef = 0; anioRef++; }
-    }
-    
-    const fechaVenc = new Date(anioRef, mesRef, 10);
-    const mesTxt = fechaVenc.toLocaleString('es-AR', { month: 'long' });
-    document.getElementById('venc-titulo').textContent = `Vencimientos: 10 de ${mesTxt}`;
-
-    const vencen = acts.filter(c => {
-      const inicio = new Date(c.fecha);
-      const mesesTranscurridos = (anioRef - inicio.getFullYear()) * 12 + (mesRef - inicio.getMonth());
-      return mesesTranscurridos > 0 && mesesTranscurridos <= c.plazo && (!window.pagosEstado[c.id] || window.pagosEstado[c.id][mesesTranscurridos] !== 'pagada');
-    });
-
-    document.getElementById('dash-venc').innerHTML = vencen.length ? vencen.map(c => `
-      <div class="venc-item">
-        <span class="venc-name">${c.nombre.split(' ').slice(0,2).join(' ')}</span>
-        <span class="venc-info">$${parseFloat(c.cuota||0).toLocaleString('es-AR')}</span>
+  document.getElementById('dash-tipo').innerHTML = `
+    <div class="bar-row">
+      <span class="bar-label">Prendarios</span>
+      <div class="bar-track">
+        <div class="bar-fill-h" style="width:${Math.round(pr/tot*100)}%"></div>
       </div>
-    `).join('') : '<div class="empty" style="padding:15px">No hay cobros pendientes</div>';
-        const morososEsteMes = acts.filter(c => {
-          if(!c.fecha) return false;
-          const inicio = new Date(c.fecha);
-          const cuotaDelMes = (anioActual - inicio.getFullYear()) * 12 + (mesActual - inicio.getMonth());
-          const estaPagada = window.pagosEstado[c.id] && window.pagosEstado[c.id][cuotaDelMes] === 'pagada';
-          return cuotaDelMes > 0 && cuotaDelMes <= (c.plazo||0) && !estaPagada;
-        });
-window.renderMorosos = () => {
-        document.getElementById('dash-morosos').innerHTML = morososEsteMes.length > 0 ? morososEsteMes.map(c => {
-          const cuotaBase = parseFloat(c.cuota || 0);
-          let recargoPorDia = 0;
-          if (cuotaBase <= 200000) recargoPorDia = 500;
-          else if (cuotaBase <= 400000) recargoPorDia = 800;
-          else if (cuotaBase <= 600000) recargoPorDia = 1000;
-          else if (cuotaBase <= 800000) recargoPorDia = 1500;
-          else if (cuotaBase <= 1000000) recargoPorDia = 2000;
-          else recargoPorDia = 2500;
+      <span class="bar-val-h">${pr}</span>
+    </div>
 
-          const totalRecargo = diasAtraso * recargoPorDia;
-          const totalPagar = cuotaBase + totalRecargo;
-          const sym = c.moneda === 'USD' ? 'US$' : (c.moneda === 'UVA' ? 'UVAs ' : '$');
-          const nombreDisplay = (c.nombre || 'Sin nombre').split(' ').slice(0,2).join(' ');
+    <div class="bar-row">
+      <span class="bar-label">Hipotecarios</span>
+      <div class="bar-track">
+        <div class="bar-fill-h"
+             style="width:${Math.round(hi/tot*100)}%;background:var(--green)">
+        </div>
+      </div>
+      <span class="bar-val-h">${hi}</span>
+    </div>
 
-          return `<div class="venc-item">
-            <div><div class="venc-name" style="color:var(--red)">${nombreDisplay}</div><div style="font-size:10px; color:var(--gray-500)">Atraso: ${diasAtraso} días</div></div>
-            <div style="text-align:right"><span class="venc-info" style="color:var(--gray-800)">${sym}${totalPagar.toLocaleString('es-AR')}</span><div style="font-size:10px; color:var(--red)">Base + ${sym}${totalRecargo.toLocaleString('es-AR')} mora</div></div>
-          </div>`;
-        }).join('') : '<div class="empty" style="padding:15px">Todos pagaron este mes 🙌</div>';
-      }
-    
-     '<div class="empty" style="padding:15px">No hay cobros pendientes para esta fecha</div>';
-  };
+    <div class="bar-row">
+      <span class="bar-label">Personales</span>
+      <div class="bar-track">
+        <div class="bar-fill-h"
+             style="width:${Math.round(pe/tot*100)}%;background:var(--amber)">
+        </div>
+      </div>
+      <span class="bar-val-h">${pe}</span>
+    </div>
+  `;
+
+  // Estado de cartera
+  const alDia = window.creditos.filter(c => c.estado === 'AL DIA').length;
+  const mora = window.creditos.filter(c => c.estado === 'MORA').length;
+
+  document.getElementById('dash-estado').innerHTML = `
+    <div class="venc-item">
+      <div>
+        <div class="venc-name">Al día</div>
+      </div>
+      <span class="badge badge-green">${alDia}</span>
+    </div>
+
+    <div class="venc-item">
+      <div>
+        <div class="venc-name">En mora</div>
+      </div>
+      <span class="badge ${mora ? 'badge-red' : 'badge-gray'}">
+        ${mora || '—'}
+      </span>
+    </div>
+  `;
+
+  // Próximo vencimiento (día 10)
+  const hoy = new Date();
+
+  let mesRef = hoy.getMonth();
+  let anioRef = hoy.getFullYear();
+
+  if (hoy.getDate() > 10) {
+    mesRef++;
+    if (mesRef > 11) {
+      mesRef = 0;
+      anioRef++;
+    }
+  }
+
+  const fechaVenc = new Date(anioRef, mesRef, 10);
+
+  document.getElementById('venc-titulo').textContent =
+    `Vencimientos: 10 de ${fechaVenc.toLocaleString('es-AR', {
+      month: 'long'
+    })}`;
+
+  const vencen = acts.filter(c => {
+
+    if (!c.fecha) return false;
+
+    const inicio = new Date(c.fecha);
+
+    const nroCuota =
+      (anioRef - inicio.getFullYear()) * 12 +
+      (mesRef - inicio.getMonth());
+
+    if (nroCuota <= 0) return false;
+
+    if (nroCuota > c.plazo) return false;
+
+    return !(
+      window.pagosEstado[c.id] &&
+      window.pagosEstado[c.id][nroCuota] === 'pagada'
+    );
+  });
+
+  document.getElementById('dash-venc').innerHTML =
+    vencen.length
+      ? vencen.map(c => `
+          <div class="venc-item">
+            <span class="venc-name">
+              ${c.nombre.split(' ').slice(0,2).join(' ')}
+            </span>
+            <span class="venc-info">
+              $${Number(c.cuota || 0).toLocaleString('es-AR')}
+            </span>
+          </div>
+        `).join('')
+      : `
+          <div class="empty" style="padding:15px">
+            No hay cobros pendientes
+          </div>
+        `;
+};
 
   window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
@@ -2023,46 +2097,40 @@ window.imprimirContratoSeleccionado = function() {
   ventana.document.close();
   ventana.focus();
   setTimeout(() => { ventana.print(); }, 500);
-}
-}
-// Sincronización con Firebase (Funciones seguras)
+
+  };
+
+
+</script>
+
+<script>
   window.cargarDatosDesdeNube = async function() {
     if (!auth.currentUser) return;
-    try {
-      const docRef = doc(db, "empresa", "datos_nexo");
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        window.creditos = data.creditos || [];
-        window.pagosEstado = data.pagosEstado || {};
-        window.gastos = data.gastos || [];
-        window.stock = data.stock || [];
-        
-        if (typeof window.cargarClientesEnContratos === 'function') window.cargarClientesEnContratos();
-        if (typeof render === 'function') render();
-        if (typeof renderizarTabla === 'function') renderizarTabla();
-        console.log("Datos recuperados con éxito desde Firestore");
-      }
-    } catch (e) { 
-      console.log("Error cargando de la nube", e); 
+    const docRef = doc(db, "empresa", "datos_nexo");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      window.creditos = data.creditos || [];
+      window.pagosEstado = data.pagosEstado || {};
+      window.gastos = data.gastos || [];
+      window.stock = data.stock || [];
+      if (typeof window.cargarClientesEnContratos === 'function') window.cargarClientesEnContratos();
+      if (typeof render === 'function') render();
+      if (typeof renderizarTabla === 'function') renderizarTabla();
     }
   };
 
   window.guardarEnNube = async function() {
     if (!auth.currentUser) return;
-    try {
-      await setDoc(doc(db, "empresa", "datos_nexo"), {
-        creditos: window.creditos, 
-        pagosEstado: window.pagosEstado, 
-        gastos: window.gastos, 
-        stock: window.stock
-      });
-    } catch (e) { 
-      console.log("Error guardando en la nube", e); 
-    }
+    await setDoc(doc(db, "empresa", "datos_nexo"), {
+      creditos: window.creditos, 
+      pagosEstado: window.pagosEstado, 
+      gastos: window.gastos, 
+      stock: window.stock
+    });
   };
-
-} // <-- Esta llave extra asegura que cualquier bloque previo que haya quedado abierto se cierre acá perfectamente.
 </script>
+
 </body>
-</html>
+</html> 
+
