@@ -2253,8 +2253,112 @@ window.guardar = async () => {
   }
 
 };
+
+// ── INVERSORES ──
+
+window.abrirModalInversor = () => {
+
+  document.getElementById('fi-nombre').value = '';
+  document.getElementById('fi-dni').value = '';
+  document.getElementById('fi-tel').value = '';
+  document.getElementById('fi-capital').value = '';
+  document.getElementById('fi-tasa').value = 4;
+  document.getElementById('fi-plazo').value = 12;
+
+  document.getElementById('modal-inversor-overlay')
+    .classList.add('open');
+};
+
+window.cerrarModalInversor = () => {
+
+  document.getElementById('modal-inversor-overlay')
+    .classList.remove('open');
+};
+
+window.cerrarModalInversorFuera = (e) => {
+
+  if (e.target.id === 'modal-inversor-overlay') {
+    cerrarModalInversor();
+  }
+};
+
+window.guardarInversor = () => {
+
+  const nombre =
+    document.getElementById('fi-nombre').value.trim();
+
+  const dni =
+    document.getElementById('fi-dni').value.trim();
+
+  const tel =
+    document.getElementById('fi-tel').value.trim();
+
+  const capital =
+    parseFloat(document.getElementById('fi-capital').value) || 0;
+
+  const tasa =
+    parseFloat(document.getElementById('fi-tasa').value) || 0;
+
+  const plazo =
+    parseInt(document.getElementById('fi-plazo').value) || 0;
+
+  const sistema =
+    document.getElementById('fi-sistema').value;
+
+  if (!nombre || capital <= 0) {
+    return alert('Completá nombre y capital.');
+  }
+
+  let cuota = 0;
+
+  // SISTEMA FRANCÉS
+
+  if (sistema === 'Frances') {
+
+    const i = tasa / 100;
+
+    cuota =
+      capital *
+      (i / (1 - Math.pow(1 + i, -plazo)));
+  }
+
+  // SISTEMA ALEMÁN (simple inicial)
+
+  if (sistema === 'Aleman') {
+
+    cuota =
+      (capital / plazo) +
+      (capital * (tasa / 100));
+  }
+
+  window.inversores.push({
+
+    id: Date.now(),
+
+    nombre,
+    dni,
+    tel,
+
+    capital,
+    tasa,
+    plazo,
+
+    sistema,
+
+    cuota: Math.round(cuota),
+
+    fecha: window.HOY.toISOString().split('T')[0]
+
+  });
+
+  window.guardar();
+
+  window.renderInversores();
+
+  window.cerrarModalInversor();
+};
   
-  window.renderAll = () => {
+window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
     if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
