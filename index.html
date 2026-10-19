@@ -344,6 +344,18 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
           <div class="card-header"><span class="card-title" id="venc-titulo">Próximos vencimientos</span></div>
           <div class="card-body" id="dash-venc" style="max-height: 250px; overflow-y: auto;"></div>
         </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Clientes en Mora</h3>
+          </div>
+
+          <div class="card-body"
+               id="dash-mora"
+               style="max-height: 250px; overflow-y: auto;">
+          </div>
+        </div>
+
       </div>
       <div class="dash-row">
         <div class="card">
@@ -1786,11 +1798,13 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   };
 
   window.renderDashboard = () => {
+
   if (!window.IS_ADMIN) return;
 
   const acts = window.creditos.filter(c => c.estado !== 'TERMINADA');
 
-  // Gráfico de barras de capital
+  // TOP CAPITALES
+
   const totalCap = acts.reduce((s, c) => s + c.capital, 0);
 
   const sorted = [...acts]
@@ -1799,6 +1813,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
   document.getElementById('dash-barras').innerHTML =
     sorted.map(c => {
+
       const pct = totalCap
         ? Math.round((c.capital / totalCap) * 100)
         : 0;
@@ -1808,9 +1823,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
           <span class="bar-label">
             ${c.nombre.split(' ').slice(0,2).join(' ')}
           </span>
+
           <div class="bar-track">
             <div class="bar-fill-h" style="width:${pct}%"></div>
           </div>
+
           <span class="bar-val-h">
             $${(c.capital / 1000000).toFixed(1)}M
           </span>
@@ -1818,7 +1835,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       `;
     }).join('');
 
-  // Distribución por tipo
+  // TIPOS
+
   const pr = acts.filter(c => c.tipo === 'prendario').length;
   const pe = acts.filter(c => c.tipo === 'personal').length;
   const hi = acts.filter(c => c.tipo === 'hipotecario').length;
@@ -1837,9 +1855,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="bar-row">
       <span class="bar-label">Hipotecarios</span>
       <div class="bar-track">
-        <div class="bar-fill-h"
-             style="width:${Math.round(hi/tot*100)}%;background:var(--green)">
-        </div>
+        <div class="bar-fill-h" style="width:${Math.round(hi/tot*100)}%;background:var(--green)"></div>
       </div>
       <span class="bar-val-h">${hi}</span>
     </div>
@@ -1847,37 +1863,33 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="bar-row">
       <span class="bar-label">Personales</span>
       <div class="bar-track">
-        <div class="bar-fill-h"
-             style="width:${Math.round(pe/tot*100)}%;background:var(--amber)">
-        </div>
+        <div class="bar-fill-h" style="width:${Math.round(pe/tot*100)}%;background:var(--amber)"></div>
       </div>
       <span class="bar-val-h">${pe}</span>
     </div>
   `;
 
-  // Estado de cartera
+  // ESTADO
+
   const alDia = window.creditos.filter(c => c.estado === 'AL DIA').length;
   const mora = window.creditos.filter(c => c.estado === 'MORA').length;
 
   document.getElementById('dash-estado').innerHTML = `
     <div class="venc-item">
-      <div>
-        <div class="venc-name">Al día</div>
-      </div>
+      <div class="venc-name">Al día</div>
       <span class="badge badge-green">${alDia}</span>
     </div>
 
     <div class="venc-item">
-      <div>
-        <div class="venc-name">En mora</div>
-      </div>
+      <div class="venc-name">En mora</div>
       <span class="badge ${mora ? 'badge-red' : 'badge-gray'}">
-        ${mora || '—'}
+        ${mora || 0}
       </span>
     </div>
   `;
 
-  // Próximo vencimiento (día 10)
+  // PROXIMOS VENCIMIENTOS
+
   const hoy = new Date();
 
   let mesRef = hoy.getMonth();
@@ -1885,6 +1897,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
   if (hoy.getDate() > 10) {
     mesRef++;
+
     if (mesRef > 11) {
       mesRef = 0;
       anioRef++;
@@ -1905,17 +1918,17 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     const inicio = new Date(c.fecha);
 
     const nroCuota =
-      (anioRef - inicio.getFullYear()) * 12 +
+      ((anioRef - inicio.getFullYear()) * 12) +
       (mesRef - inicio.getMonth());
 
     if (nroCuota <= 0) return false;
-
     if (nroCuota > c.plazo) return false;
 
     return !(
       window.pagosEstado[c.id] &&
       window.pagosEstado[c.id][nroCuota] === 'pagada'
     );
+
   });
 
   document.getElementById('dash-venc').innerHTML =
@@ -1935,8 +1948,104 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
             No hay cobros pendientes
           </div>
         `;
-};
 
+  // CLIENTES EN MORA
+
+  const morosos = [];
+
+  acts.forEach(c => {
+
+    if (!c.fecha) return;
+
+    const inicio = new Date(c.fecha);
+
+    const cuotaActual =
+      ((hoy.getFullYear() - inicio.getFullYear()) * 12) +
+      (hoy.getMonth() - inicio.getMonth());
+
+    if (cuotaActual <= 0) return;
+    if (cuotaActual > c.plazo) return;
+
+    const pagada =
+      window.pagosEstado[c.id] &&
+      window.pagosEstado[c.id][cuotaActual] === 'pagada';
+
+    if (pagada) return;
+
+    const vencimiento = new Date(
+      hoy.getFullYear(),
+      hoy.getMonth(),
+      10
+    );
+
+    if (hoy <= vencimiento) return;
+
+    const diasAtraso = Math.floor(
+      (hoy - vencimiento) /
+      (1000 * 60 * 60 * 24)
+    );
+
+    let moraDiaria = 500;
+
+    if (c.cuota > 200000) moraDiaria = 800;
+    if (c.cuota > 400000) moraDiaria = 1000;
+    if (c.cuota > 600000) moraDiaria = 1500;
+    if (c.cuota > 800000) moraDiaria = 2000;
+    if (c.cuota > 1000000) moraDiaria = 2500;
+
+    const interes = diasAtraso * moraDiaria;
+
+    morosos.push({
+      nombre: c.nombre,
+      diasAtraso,
+      interes,
+      total: c.cuota + interes
+    });
+
+  });
+
+  const moraDiv = document.getElementById('dash-mora');
+
+  if (moraDiv) {
+
+    moraDiv.innerHTML =
+      morosos.length
+        ? morosos.map(m => `
+          <div class="venc-item">
+
+            <div>
+              <div class="venc-name" style="color:#dc2626">
+                ${m.nombre}
+              </div>
+
+              <div style="font-size:11px;color:#64748b">
+                ${m.diasAtraso} días de atraso
+              </div>
+            </div>
+
+            <div style="text-align:right">
+
+              <div class="venc-info">
+                $${m.total.toLocaleString('es-AR')}
+              </div>
+
+              <div style="font-size:11px;color:#dc2626">
+                Mora: $${m.interes.toLocaleString('es-AR')}
+              </div>
+
+            </div>
+
+          </div>
+        `).join('')
+        : `
+          <div class="empty" style="padding:15px">
+            Sin clientes en mora 🎉
+          </div>
+        `;
+  }
+
+};
+  
   window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
