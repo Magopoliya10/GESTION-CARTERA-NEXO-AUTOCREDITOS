@@ -978,6 +978,88 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   </div>
 </div>
 
+<!-- MODAL INVERSOR -->
+
+<div class="modal-overlay"
+     id="modal-inversor-overlay"
+     onclick="cerrarModalInversorFuera(event)">
+
+  <div class="modal" style="max-width:550px;">
+
+    <div class="modal-header">
+
+      <div class="modal-icon"
+           style="background:#ecfdf5;color:#16a34a;border-color:#bbf7d0;">
+        💰
+      </div>
+
+      <div>
+        <h2 id="mi-titulo">Nuevo Inversor</h2>
+        <small>Captación de capital de terceros</small>
+      </div>
+
+    </div>
+
+    <div class="form-grid">
+
+      <div>
+        <label>Nombre</label>
+        <input id="fi-nombre" type="text">
+      </div>
+
+      <div>
+        <label>DNI</label>
+        <input id="fi-dni" type="text">
+      </div>
+
+      <div>
+        <label>Teléfono</label>
+        <input id="fi-tel" type="text">
+      </div>
+
+      <div>
+        <label>Capital</label>
+        <input id="fi-capital" type="number">
+      </div>
+
+      <div>
+        <label>Tasa Mensual (%)</label>
+        <input id="fi-tasa" type="number" value="4">
+      </div>
+
+      <div>
+        <label>Plazo (meses)</label>
+        <input id="fi-plazo" type="number" value="12">
+      </div>
+
+      <div>
+        <label>Sistema</label>
+        <select id="fi-sistema">
+          <option value="Frances">Francés</option>
+          <option value="Aleman">Alemán</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px">
+
+      <button class="btn"
+              onclick="cerrarModalInversor()">
+        Cancelar
+      </button>
+
+      <button class="btn btn-primary"
+              onclick="guardarInversor()">
+        Guardar Inversor
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
