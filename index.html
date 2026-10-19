@@ -502,23 +502,19 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
         </thead>
 
-        <tbody id="tabla-inversores-body">
+        <tbody id="tabla-inversores-body"></tbody>
 
-          <tr>
-            <td colspan="8" class="empty">
-              No hay inversores registrados
-            </td>
-          </tr>
+</table>
 
-        </tbody>
+<hr style="margin:20px 0;">
 
-      </table>
+<div id="detalle-inversor">
 
-    </div>
-
+  <div class="empty">
+    Seleccioná un inversor para ver su cronograma.
   </div>
 
-</div>
+<
 
     <div class="pane" id="pane-pagos">
       <div class="page-header">
@@ -1109,6 +1105,7 @@ window.legajoActualId = null;
 window.cuotaSelId = null;
 window.cuotaSelN = null;
 window.clienteWsp = null;
+window.inversorActual = null;
 
   // FETCH USD BLUE API
   async function fetchUsdBlue() {
@@ -2358,6 +2355,115 @@ window.guardarInversor = () => {
   window.cerrarModalInversor();
 };
   
+// ===== CRONOGRAMA DE PAGOS DE INVERSORES =====
+
+window.seleccionarInversor = (id) => {
+
+  window.inversorActual = id;
+
+  window.renderDetalleInversor(id);
+};
+
+window.renderDetalleInversor = (id) => {
+
+  const inv = window.inversores.find(x => x.id === id);
+
+  if (!inv) return;
+
+  if (!window.pagosInversores[id]) {
+    window.pagosInversores[id] = {};
+  }
+
+  const inicio = new Date(inv.fecha);
+
+  const cuotas = Array.from(
+    { length: inv.plazo },
+    (_, i) => {
+
+      const nro = i + 1;
+
+      let mes = inicio.getMonth() + nro;
+      let anio = inicio.getFullYear();
+
+      if (mes > 11) {
+        anio += Math.floor(mes / 12);
+        mes = mes % 12;
+      }
+
+      const fecha = new Date(anio, mes, 10);
+
+      const estado =
+        window.pagosInversores[id][nro] ||
+        (fecha < window.HOY ? 'vencida' : 'pendiente');
+
+      return {
+        nro,
+        fecha,
+        estado
+      };
+    }
+  );
+
+  document.getElementById('detalle-inversor').innerHTML = `
+
+    <h3>${inv.nombre}</h3>
+
+    <p>
+      Capital:
+      <strong>$${inv.capital.toLocaleString('es-AR')}</strong>
+    </p>
+
+    <p>
+      Cuota:
+      <strong>$${inv.cuota.toLocaleString('es-AR')}</strong>
+    </p>
+
+    <div class="cuotas-grid">
+
+      ${cuotas.map(c => `
+
+        <div
+          class="cuota-btn ${c.estado}"
+          onclick="marcarPagoInversor(${id}, ${c.nro})">
+
+          <div class="cuota-num">
+            ${c.nro}
+          </div>
+
+          <div class="cuota-mes">
+            ${c.fecha.toLocaleDateString('es-AR', {
+              month:'short'
+            })}
+          </div>
+
+        </div>
+
+      `).join('')}
+
+    </div>
+
+  `;
+};
+
+window.marcarPagoInversor = (id, nro) => {
+
+  if (!window.pagosInversores[id]) {
+    window.pagosInversores[id] = {};
+  }
+
+  const estadoActual =
+    window.pagosInversores[id][nro];
+
+  window.pagosInversores[id][nro] =
+    estadoActual === 'pagada'
+      ? 'pendiente'
+      : 'pagada';
+
+  window.guardar();
+
+  window.renderDetalleInversor(id);
+};
+
 window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
