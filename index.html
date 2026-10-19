@@ -297,6 +297,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     <div class="nav-item" onclick="showPane('seguros',this)">
       <span class="icon">🛡️</span><span>Seguros</span>
     </div>
+    <div class="nav-item"
+     onclick="showPane('inversores',this)">
+  <span class="icon">💰</span>
+  <span>Inversores</span>
+</div>
     <div class="nav-item" style="opacity: 0.6; cursor: default;">
       <span class="icon">🔧</span><span>Taller <span style="font-size:8px; background:var(--amber); color:white; padding:2px 4px; border-radius:4px; margin-left:5px">Meta</span></span>
     </div>
@@ -414,6 +419,106 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         </div>
       </div>
     </div>
+
+    <!-- INVERSORES -->
+
+<div class="pane" id="pane-inversores">
+
+  <div class="page-header">
+
+    <div>
+      <h2>💰 Inversores</h2>
+      <p style="color:var(--gray-500)">
+        Gestión de capital de terceros
+      </p>
+    </div>
+
+    <button class="btn btn-primary"
+            onclick="abrirModalInversor()">
+      + Nuevo Inversor
+    </button>
+
+  </div>
+
+  <div class="metrics-grid"
+       id="inversores-metrics">
+
+    <div class="metric-card blue">
+      <div class="metric-label">
+        Capital Captado
+      </div>
+      <div class="metric-value"
+           id="inv-capital-total">
+        $0
+      </div>
+    </div>
+
+    <div class="metric-card green">
+      <div class="metric-label">
+        Pago Mensual
+      </div>
+      <div class="metric-value"
+           id="inv-cuotas-total">
+        $0
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">
+        Inversores Activos
+      </div>
+      <div class="metric-value"
+           id="inv-cantidad">
+        0
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="card-header">
+      <h3 class="card-title">
+        Cartera de Inversores
+      </h3>
+    </div>
+
+    <div class="card-body">
+
+      <table class="table">
+
+        <thead>
+
+          <tr>
+            <th>Inversor</th>
+            <th>Capital</th>
+            <th>Tasa</th>
+            <th>Plazo</th>
+            <th>Cuota</th>
+            <th>Sistema</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+
+        </thead>
+
+        <tbody id="tabla-inversores-body">
+
+          <tr>
+            <td colspan="8" class="empty">
+              No hay inversores registrados
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
 
     <div class="pane" id="pane-pagos">
       <div class="page-header">
@@ -896,17 +1001,32 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   const CORREOS_ADMIN = ["facundo@nexo.com", "sofia@nexo.com"];
 
   // Variables Globales
-  window.HOY = new Date();
-  window.creditos = [];
-  window.pagosEstado = {};
-  window.gastos = []; 
-  window.stock = []; // NUEVA VARIABLE GLOBAL DE STOCK
-  window.IS_ADMIN = false;
-  window.usdBlue = null;
-  
-  window.sortCol = null; window.sortDir = 1; window.editId = null; window.editSeguroId = null;
-  window.editGastoId = null; window.editStockId = null; window.pagoActual = null; window.legajoActualId = null;
-  window.cuotaSelId = null; window.cuotaSelN = null; window.clienteWsp = null;
+window.HOY = new Date();
+
+window.creditos = [];
+window.pagosEstado = {};
+
+window.gastos = [];
+window.stock = [];
+
+// NUEVO
+window.inversores = [];
+window.pagosInversores = {};
+
+window.IS_ADMIN = false;
+window.usdBlue = null;
+
+window.sortCol = null;
+window.sortDir = 1;
+window.editId = null;
+window.editSeguroId = null;
+window.editGastoId = null;
+window.editStockId = null;
+window.pagoActual = null;
+window.legajoActualId = null;
+window.cuotaSelId = null;
+window.cuotaSelN = null;
+window.clienteWsp = null;
 
   // FETCH USD BLUE API
   async function fetchUsdBlue() {
@@ -967,11 +1087,16 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 
   window.cerrarSesion = () => signOut(auth);
 
- window.guardar = async () => {
+window.guardar = async () => {
+
   localStorage.setItem('nexo_creditos', JSON.stringify(window.creditos));
   localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
   localStorage.setItem('nexo_gastos', JSON.stringify(window.gastos));
   localStorage.setItem('nexo_stock', JSON.stringify(window.stock));
+
+  // NUEVO
+  localStorage.setItem('nexo_inversores', JSON.stringify(window.inversores));
+  localStorage.setItem('nexo_pagos_inversores', JSON.stringify(window.pagosInversores));
 
   if (typeof window.guardarEnNube === 'function') {
     await window.guardarEnNube();
@@ -1015,6 +1140,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     if(id==='gastos') window.renderGastos();
     if(id==='simulador') window.ejecutarSimulador();
     if(id==='stock') window.renderStock();
+    if(id==='inversores') window.renderInversores();
     if(id==='contratos') { 
       if(typeof window.cargarClientesEnContratos === 'function') window.cargarClientesEnContratos(); 
       if(typeof window.generarVistaPreviaContrato === 'function') window.generarVistaPreviaContrato(); 
@@ -2214,30 +2340,49 @@ window.imprimirContratoSeleccionado = function() {
 
 <script>
   window.cargarDatosDesdeNube = async function() {
-    if (!auth.currentUser) return;
-    const docRef = doc(db, "empresa", "datos_nexo");
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      window.creditos = data.creditos || [];
-      window.pagosEstado = data.pagosEstado || {};
-      window.gastos = data.gastos || [];
-      window.stock = data.stock || [];
-      if (typeof window.cargarClientesEnContratos === 'function') window.cargarClientesEnContratos();
-      if (typeof render === 'function') render();
-      if (typeof renderizarTabla === 'function') renderizarTabla();
-    }
-  };
+  if (!auth.currentUser) return;
+
+  const docRef = doc(db, "empresa", "datos_nexo");
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+
+    const data = docSnap.data();
+
+    window.creditos = data.creditos || [];
+    window.pagosEstado = data.pagosEstado || {};
+    window.gastos = data.gastos || [];
+    window.stock = data.stock || [];
+
+    // NUEVO MÓDULO INVERSORES
+    window.inversores = data.inversores || [];
+    window.pagosInversores = data.pagosInversores || {};
+
+    if (typeof window.cargarClientesEnContratos === 'function')
+      window.cargarClientesEnContratos();
+
+    if (typeof render === 'function')
+      render();
+
+    if (typeof renderizarTabla === 'function')
+      renderizarTabla();
+  }
+};
 
   window.guardarEnNube = async function() {
-    if (!auth.currentUser) return;
-    await setDoc(doc(db, "empresa", "datos_nexo"), {
-      creditos: window.creditos, 
-      pagosEstado: window.pagosEstado, 
-      gastos: window.gastos, 
-      stock: window.stock
-    });
-  };
+  if (!auth.currentUser) return;
+
+  await setDoc(doc(db, "empresa", "datos_nexo"), {
+    creditos: window.creditos,
+    pagosEstado: window.pagosEstado,
+    gastos: window.gastos,
+    stock: window.stock,
+
+    // NUEVO MÓDULO INVERSORES
+    inversores: window.inversores,
+    pagosInversores: window.pagosInversores
+  });
+};
 </script>
 
 </body>
