@@ -2376,6 +2376,20 @@ window.renderDetalleInversor = (id) => {
 
   const inicio = new Date(inv.fecha);
 
+const cuotasPagadas =
+  Object.values(window.pagosInversores[id] || {})
+    .filter(x => x === 'pagada')
+    .length;
+
+const totalPagado =
+  cuotasPagadas * inv.cuota;
+
+const totalDevolver =
+  inv.cuota * inv.plazo;
+
+const saldoPendiente =
+  totalDevolver - totalPagado;
+
   const cuotas = Array.from(
     { length: inv.plazo },
     (_, i) => {
@@ -2406,19 +2420,70 @@ window.renderDetalleInversor = (id) => {
 
   document.getElementById('detalle-inversor').innerHTML = `
 
-    <h3>${inv.nombre}</h3>
+  <h3>${inv.nombre}</h3>
 
-    <p>
-      Capital:
-      <strong>$${inv.capital.toLocaleString('es-AR')}</strong>
-    </p>
+  <div class="metrics-grid">
 
-    <p>
-      Cuota:
-      <strong>$${inv.cuota.toLocaleString('es-AR')}</strong>
-    </p>
+    <div class="metric-card">
+      <div class="metric-label">
+        Capital Invertido
+      </div>
 
-    <div class="cuotas-grid">
+      <div class="metric-value">
+        $${inv.capital.toLocaleString('es-AR')}
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">
+        Total a Devolver
+      </div>
+
+      <div class="metric-value">
+        $${totalDevolver.toLocaleString('es-AR')}
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">
+        Total Pagado
+      </div>
+
+      <div class="metric-value" style="color:#16a34a">
+        $${totalPagado.toLocaleString('es-AR')}
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">
+        Saldo Pendiente
+      </div>
+
+      <div class="metric-value" style="color:#dc2626">
+        $${saldoPendiente.toLocaleString('es-AR')}
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin:15px 0">
+
+    <strong>
+      Cuotas pagadas:
+    </strong>
+
+    ${cuotasPagadas} / ${inv.plazo}
+
+  </div>
+
+  <p>
+    Cuota mensual:
+    <strong>
+      $${inv.cuota.toLocaleString('es-AR')}
+    </strong>
+  </p>
+
+  <div class="cuotas-grid">
 
       ${cuotas.map(c => `
 
