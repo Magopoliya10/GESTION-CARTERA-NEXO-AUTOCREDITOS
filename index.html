@@ -2529,6 +2529,65 @@ window.marcarPagoInversor = (id, nro) => {
   window.renderDetalleInversor(id);
 };
 
+window.renderInversores = () => {
+
+  const tbody =
+    document.getElementById('tabla-inversores-body');
+
+  if (!tbody) return;
+
+  if (!window.inversores.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          No hay inversores registrados
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML = window.inversores.map(i => `
+
+    <tr onclick="seleccionarInversor(${i.id})"
+        style="cursor:pointer">
+
+      <td>
+        <strong>${i.nombre}</strong>
+      </td>
+
+      <td>
+        $${Number(i.capital).toLocaleString('es-AR')}
+      </td>
+
+      <td>
+        ${i.tasa}%
+      </td>
+
+      <td>
+        ${i.plazo}
+      </td>
+
+      <td>
+        $${Number(i.cuota).toLocaleString('es-AR')}
+      </td>
+
+      <td>
+        ${i.sistema}
+      </td>
+
+      <td>
+        👁
+      </td>
+
+    </tr>
+
+  `).join('');
+
+};
+
 window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
