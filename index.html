@@ -1184,6 +1184,43 @@ window.guardar = async () => {
     await window.guardarEnNube();
   }
 };
+
+window.cargarDatosDesdeNube = async function() {
+  if (!auth.currentUser) return;
+
+  const docSnap = await getDoc(doc(db, "empresa", "datos_nexo"));
+  if (!docSnap.exists()) return;
+
+  const data = docSnap.data();
+  window.creditos = data.creditos || [];
+  window.pagosEstado = data.pagosEstado || {};
+  window.gastos = data.gastos || [];
+  window.stock = data.stock || [];
+  window.inversores = data.inversores || [];
+  window.pagosInversores = data.pagosInversores || {};
+
+  if (typeof window.cargarClientesEnContratos === 'function')
+    window.cargarClientesEnContratos();
+  if (typeof render === 'function')
+    render();
+  if (typeof renderizarTabla === 'function')
+    renderizarTabla();
+};
+
+window.guardarEnNube = async function() {
+  if (!auth.currentUser) {
+    throw new Error('No hay una sesión activa de Firebase.');
+  }
+
+  await setDoc(doc(db, "empresa", "datos_nexo"), {
+    creditos: window.creditos,
+    pagosEstado: window.pagosEstado,
+    gastos: window.gastos,
+    stock: window.stock,
+    inversores: window.inversores,
+    pagosInversores: window.pagosInversores
+  });
+};
     
     
 
@@ -1769,16 +1806,41 @@ window.guardar = async () => {
     } else {
       btn1.className = 'btn'; btn1.innerHTML = '🖨️ Imprimir Recibo'; btn1.style.display = 'flex'; btn1.onclick = () => window.imprimirRecibo(id, n);
       btn2.style.display = 'none';
-      btn3.className = 'btn btn-danger'; btn3.innerHTML = '✕ Deshacer pago'; btn3.style.display = 'flex'; btn3.onclick = () => { window.pagosEstado[id][n] = 'pendiente'; window.guardar(); window.cerrarModalCuota(); window.renderAll(); };
+      btn3.className = 'btn btn-danger'; btn3.innerHTML = '✕ Deshacer pago'; btn3.style.display = 'flex'; btn3.onclick = async () => {
+        if (await window.actualizarEstadoPago(id, n, 'pendiente')) {
+          window.cerrarModalCuota();
+          window.renderAll();
+        }
+      };
     }
     document.getElementById('modal-cuota-overlay').classList.add('open');
   };
 
-  window.marcarPagada = (imprimir) => {
-    if (!window.pagosEstado[window.cuotaSelId]) window.pagosEstado[window.cuotaSelId] = {};
-    window.pagosEstado[window.cuotaSelId][window.cuotaSelN] = 'pagada';
-    window.guardar(); window.renderAll(); window.cerrarModalCuota();
-    if(imprimir) window.imprimirRecibo(window.cuotaSelId, window.cuotaSelN);
+  window.actualizarEstadoPago = async (id, n, estado) => {
+    if (!window.pagosEstado[id]) window.pagosEstado[id] = {};
+    const estadoAnterior = window.pagosEstado[id][n];
+    window.pagosEstado[id][n] = estado;
+
+    try {
+      await window.guardar();
+      return true;
+    } catch (error) {
+      if (estadoAnterior === undefined) delete window.pagosEstado[id][n];
+      else window.pagosEstado[id][n] = estadoAnterior;
+      localStorage.setItem('nexo_pagos', JSON.stringify(window.pagosEstado));
+      alert(`No se pudo guardar el pago en Firebase: ${error.message || error}`);
+      return false;
+    }
+  };
+
+  window.marcarPagada = async (imprimir) => {
+    const id = window.cuotaSelId;
+    const n = window.cuotaSelN;
+    if (!await window.actualizarEstadoPago(id, n, 'pagada')) return;
+
+    window.renderAll();
+    window.cerrarModalCuota();
+    if (imprimir) window.imprimirRecibo(id, n);
   };
   
   window.cerrarModalCuota = () => document.getElementById('modal-cuota-overlay').classList.remove('open');
@@ -2757,53 +2819,5 @@ window.imprimirContratoSeleccionado = function() {
 
 </script>
 
-<script>
-  window.cargarDatosDesdeNube = async function() {
-  if (!auth.currentUser) return;
-
-  const docRef = doc(db, "empresa", "datos_nexo");
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-
-    const data = docSnap.data();
-
-    window.creditos = data.creditos || [];
-    window.pagosEstado = data.pagosEstado || {};
-    window.gastos = data.gastos || [];
-    window.stock = data.stock || [];
-
-    // NUEVO MÓDULO INVERSORES
-    window.inversores = data.inversores || [];
-    window.pagosInversores = data.pagosInversores || {};
-
-    if (typeof window.cargarClientesEnContratos === 'function')
-      window.cargarClientesEnContratos();
-
-    if (typeof render === 'function')
-      render();
-
-    if (typeof renderizarTabla === 'function')
-      renderizarTabla();
-  }
-};
-
- window.guardarEnNube = async function() {
-
-  if (!window.auth?.currentUser) return;
-
-  await setDoc(doc(window.db, "empresa", "datos_nexo"), {
-    creditos: window.creditos,
-    pagosEstado: window.pagosEstado,
-    gastos: window.gastos,
-    stock: window.stock,
-
-    inversores: window.inversores,
-    pagosInversores: window.pagosInversores
-  });
-};
-</script>
-
 </body>
 </html> 
-
