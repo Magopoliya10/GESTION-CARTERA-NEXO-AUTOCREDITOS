@@ -1075,6 +1075,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+window.auth = auth;
+window.db = db;
+
   // === CORREOS ADMIN (DUEÑOS) ===
   const CORREOS_ADMIN = ["facundo@nexo.com", "sofia@nexo.com"];
 
@@ -2785,16 +2788,16 @@ window.imprimirContratoSeleccionado = function() {
   }
 };
 
-  window.guardarEnNube = async function() {
-  if (!auth.currentUser) return;
+ window.guardarEnNube = async function() {
 
-  await setDoc(doc(db, "empresa", "datos_nexo"), {
+  if (!window.auth?.currentUser) return;
+
+  await setDoc(doc(window.db, "empresa", "datos_nexo"), {
     creditos: window.creditos,
     pagosEstado: window.pagosEstado,
     gastos: window.gastos,
     stock: window.stock,
 
-    // NUEVO MÓDULO INVERSORES
     inversores: window.inversores,
     pagosInversores: window.pagosInversores
   });
