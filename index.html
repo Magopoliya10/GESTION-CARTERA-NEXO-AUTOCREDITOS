@@ -160,6 +160,30 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .sim-watermark { position: absolute; top: -20px; right: -20px; font-family: var(--serif); font-size: 120px; color: var(--gray-100); font-weight: bold; font-style: italic; opacity: 0.5; z-index: 0; pointer-events: none; }
 .sim-content { position: relative; z-index: 1; }
 
+/* ── PROYECCION DE FLUJO ── */
+.flow-layout { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.flow-controls { padding: 20px; }
+.flow-input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); color: var(--gray-800); font: 13px var(--sans); outline: none; }
+.flow-input:focus { border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(30,91,170,.08); }
+.flow-help { font-size: 11px; color: var(--gray-500); margin-top: 5px; line-height: 1.5; }
+.flow-movement { display: grid; grid-template-columns: 85px minmax(115px, 1fr) minmax(90px, 1fr) 110px 32px; gap: 7px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--gray-100); }
+.flow-movement:last-child { border-bottom: 0; }
+.flow-movement .flow-input { padding: 7px 8px; font-size: 11px; min-width: 0; }
+.flow-remove { border: 0; background: transparent; color: var(--red); cursor: pointer; font-size: 17px; }
+.flow-chart { display: flex; align-items: end; gap: 8px; min-height: 170px; padding: 18px 4px 0; overflow-x: auto; }
+.flow-chart-item { flex: 1 0 42px; min-width: 42px; display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.flow-chart-value { font-size: 9px; color: var(--gray-500); white-space: nowrap; }
+.flow-chart-track { height: 105px; width: 100%; display: flex; align-items: end; border-bottom: 1px solid var(--gray-300); }
+.flow-chart-bar { width: 100%; min-height: 2px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--blue-400), var(--blue-700)); }
+.flow-chart-bar.negative { background: linear-gradient(180deg, #f87171, var(--red)); }
+.flow-chart-label { font-size: 10px; color: var(--gray-500); white-space: nowrap; }
+.flow-note { padding: 12px 14px; border-radius: var(--radius); background: var(--amber-bg); border: 1px solid var(--amber-border); color: #854d0e; font-size: 11px; line-height: 1.55; }
+.flow-table td { white-space: nowrap; text-align: right; }
+.flow-table th { text-align: right; }
+.flow-table th:first-child, .flow-table td:first-child { text-align: left; }
+.flow-result-positive { color: var(--green) !important; font-weight: 600; }
+.flow-result-negative { color: var(--red) !important; font-weight: 600; }
+
 /* ── PAGOS ── */
 .pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); min-height: 420px; }
 .pagos-lista { border-right: 1px solid var(--gray-100); overflow-y: auto; max-height: 560px; }
@@ -229,11 +253,15 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .content { padding: 20px 16px; }
   .topbar { padding: 0 16px; }
   .sim-grid { grid-template-columns: 1fr; }
+  .flow-layout { grid-template-columns: 1fr; }
+  .flow-movement { grid-template-columns: 72px minmax(100px, 1fr) minmax(80px, 1fr) 90px 24px; gap: 4px; }
 }
 @media(max-width: 600px) {
   .form-grid { grid-template-columns: 1fr; }
   .metrics-grid { grid-template-columns: 1fr 1fr; }
   .metric-card.hero { grid-column: 1 / -1; }
+  .flow-movement { grid-template-columns: 1fr 1fr 1fr 1fr 22px; }
+  .flow-movement .flow-input { font-size: 10px; padding: 6px 4px; }
 }
 </style>
 </head>
@@ -283,6 +311,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     </div>
     <div class="nav-item" onclick="showPane('simulador',this)">
       <span class="icon">🧮</span><span>Simulador</span>
+    </div>
+    <div class="nav-item admin-only" onclick="showPane('flujo',this)">
+      <span class="icon">📈</span><span>Flujo y cartera</span>
     </div>
     <div class="nav-item" onclick="showPane('contratos',this)">
       <span class="icon">📄</span><span>Contratos</span>
@@ -606,6 +637,80 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       </div>
     </div>
 
+    <div class="pane admin-only" id="pane-flujo">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Flujo de caja y cartera</div>
+          <div class="page-sub">Proyección mensual de cobros, caja y capital pendiente</div>
+        </div>
+      </div>
+      <div class="flow-note" style="margin-bottom:16px">
+        <strong>Solo análisis:</strong> este escenario no guarda ni modifica créditos, pagos, gastos, inversiones ni stock.
+        El saldo de caja inicial y los movimientos planificados son datos que ingresás vos; no se infieren de la base.
+        Los cobros futuros son estimaciones, no garantías.
+      </div>
+      <div class="flow-layout">
+        <div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Supuestos del escenario</span></div>
+            <div class="card-body flow-controls">
+              <div class="form-group" style="margin-bottom:14px">
+                <label for="flow-cash-initial">Caja disponible hoy ($)</label>
+                <input class="flow-input" type="number" id="flow-cash-initial" min="0" step="1000" placeholder="Ingresá el saldo real" oninput="renderFlujoCartera()">
+                <div class="flow-help">Obligatorio: se usa como punto de partida, no se toma de Firebase.</div>
+              </div>
+              <div class="form-group" style="margin-bottom:14px">
+                <label for="flow-horizon">Horizonte (meses)</label>
+                <select class="flow-input" id="flow-horizon" onchange="renderFlujoCartera()">
+                  <option value="6">6 meses</option>
+                  <option value="12" selected>12 meses</option>
+                  <option value="24">24 meses</option>
+                  <option value="36">36 meses</option>
+                  <option value="60">60 meses</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="flow-collection">Probabilidad de cobro de cuotas futuras (%)</label>
+                <input class="flow-input" type="number" id="flow-collection" min="0" max="100" step="5" value="65" oninput="renderFlujoCartera()">
+                <div class="flow-help">Supuesto prudente editable. En créditos marcados en mora se aplica la mitad.</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Movimientos planificados</span>
+              <button class="btn btn-sm" type="button" onclick="agregarMovimientoFlujo()">＋ Agregar</button>
+            </div>
+            <div class="card-body" style="padding:12px">
+              <div class="flow-help" style="margin:0 4px 8px">Mes 1 corresponde al mes actual. Las filas solo existen en esta sesión.</div>
+              <div id="flow-movements"></div>
+              <div id="flow-no-movements" class="empty" style="padding:18px">No agregaste movimientos al escenario.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="metrics-grid" id="flow-metrics"></div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Caja de cierre proyectada</span></div>
+            <div class="card-body"><div id="flow-chart" class="flow-chart"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Detalle mensual</span></div>
+            <div class="table-wrap">
+              <table class="flow-table">
+                <thead><tr>
+                  <th>Mes</th><th>Cobros estimados</th><th>Ingresos escenario</th>
+                  <th>Salidas</th><th>Caja cierre</th><th>Cartera capital</th><th>Resultado estimado</th>
+                </tr></thead>
+                <tbody id="flow-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="flow-note" id="flow-assumptions"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="pane" id="pane-stock">
       <div class="page-header">
         <div><div class="page-title">Stock de Unidades</div><div class="page-sub">Inventario de vehículos y motos para venta directa o consignación</div></div>
@@ -670,7 +775,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
       
       <div style="margin-bottom: 12px;">
         <label style="font-weight:bold; font-size:12px;">TIPO DE DOCUMENTO:</label>
-        <select id="contrato-tipo" class="form-control" style="width:100%; padding:8px; margin-top:5px;" onchange="generarVistaPreviaContrato()">
+        <select id="contrato-tipo" class="form-control" style="width:100%; padding:8px; margin-top:5px;" onchange="actualizarCamposFinanciacionContrato(); generarVistaPreviaContrato()">
           <option value="mutuo">📝 Contrato de Mutuo y Reconocimiento de Deuda</option>
           <option value="sena_venta">🤝 Recibo de Seña / Entrega Inicial (Venta)</option>
           <option value="sena_compra">🚗 Reserva / Seña de Compra (Acopio/Vehículo)</option>
@@ -688,6 +793,21 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
           <label style="font-weight:bold; font-size:12px;">VEHÍCULO / DOMINIO:</label>
           <input type="text" id="contrato-vehiculo" class="form-control" placeholder="Ej: Zanella ZB 110 (A075KTV)" style="width:100%; padding:8px; margin-top:5px;" oninput="generarVistaPreviaContrato()">
         </div>
+      </div>
+
+      <div id="contrato-condiciones-financiacion" style="display:none; margin-bottom:12px;">
+        <div style="font-weight:bold; font-size:12px; margin-bottom:8px;">CONDICIONES DE FINANCIACIÓN:</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label for="contrato-tem" style="font-size:12px;">Tasa efectiva mensual (TEM %):</label>
+            <input type="number" id="contrato-tem" class="form-control" min="0" step="0.1" value="9" style="width:100%; padding:8px; margin-top:5px;" oninput="this.dataset.personalizada='true'; generarVistaPreviaContrato()">
+          </div>
+          <div>
+            <label for="contrato-cuotas" style="font-size:12px;">Cantidad de cuotas:</label>
+            <input type="number" id="contrato-cuotas" class="form-control" min="1" step="1" placeholder="Ej: 24" style="width:100%; padding:8px; margin-top:5px;" oninput="generarVistaPreviaContrato()">
+          </div>
+        </div>
+        <small style="display:block; color:var(--gray-500); margin-top:6px;">Completá ambos datos para habilitar la impresión del documento financiado.</small>
       </div>
 
       <div style="margin-bottom: 12px;">
@@ -1249,6 +1369,7 @@ window.guardarEnNube = async function() {
       cartera: 'Cartera de créditos', 
       pagos: 'Seguimiento de pagos', 
       simulador: 'Simulador / Cotizador', 
+      flujo: 'Flujo de caja y cartera',
       stock: 'Stock de Unidades', 
       seguros: 'Gestión de Seguros', 
       gastos: 'Gastos Operativos', 
@@ -1261,6 +1382,7 @@ window.guardarEnNube = async function() {
     if(id==='seguros') window.renderSeguros();
     if(id==='gastos') window.renderGastos();
     if(id==='simulador') window.ejecutarSimulador();
+    if(id==='flujo') window.renderFlujoCartera();
     if(id==='stock') window.renderStock();
     if(id==='inversores') window.renderInversores();
     if(id==='contratos') { 
@@ -2656,16 +2778,197 @@ window.renderInversores = () => {
 
 };
 
+  // ── PROYECCION DE FLUJO DE CAJA Y CARTERA (solo lectura) ──
+  window.flowScenarioMovements = window.flowScenarioMovements || [];
+
+  const flowMoney = value => '$' + Math.round(value || 0).toLocaleString('es-AR');
+  const flowEscape = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const flowMonthLabel = date => date.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' });
+
+  window.agregarMovimientoFlujo = () => {
+    window.flowScenarioMovements.push({ mes: 1, tipo: 'gasto', concepto: '', monto: '' });
+    window.renderFlujoCartera();
+  };
+
+  window.eliminarMovimientoFlujo = index => {
+    window.flowScenarioMovements.splice(index, 1);
+    window.renderFlujoCartera();
+  };
+
+  window.actualizarMovimientoFlujo = (index, key, value) => {
+    const movement = window.flowScenarioMovements[index];
+    if (!movement) return;
+    movement[key] = value;
+    window.renderFlujoCartera(false);
+  };
+
+  window.renderFlujoCartera = (renderMovements = true) => {
+    const initialInput = document.getElementById('flow-cash-initial');
+    const horizonInput = document.getElementById('flow-horizon');
+    const probabilityInput = document.getElementById('flow-collection');
+    if (!initialInput || !horizonInput || !probabilityInput) return;
+
+    if (renderMovements) {
+      const container = document.getElementById('flow-movements');
+      const empty = document.getElementById('flow-no-movements');
+      empty.style.display = window.flowScenarioMovements.length ? 'none' : 'block';
+      container.innerHTML = window.flowScenarioMovements.map((movement, index) => `
+        <div class="flow-movement">
+          <select class="flow-input" aria-label="Mes del movimiento" onchange="actualizarMovimientoFlujo(${index},'mes',this.value)">
+            ${Array.from({length:60}, (_, month) => `<option value="${month+1}" ${Number(movement.mes) === month+1 ? 'selected' : ''}>Mes ${month+1}</option>`).join('')}
+          </select>
+          <select class="flow-input" aria-label="Tipo de movimiento" onchange="actualizarMovimientoFlujo(${index},'tipo',this.value)">
+            <option value="ingreso" ${movement.tipo === 'ingreso' ? 'selected' : ''}>Ingreso</option>
+            <option value="gasto" ${movement.tipo === 'gasto' ? 'selected' : ''}>Gasto</option>
+            <option value="prestamo" ${movement.tipo === 'prestamo' ? 'selected' : ''}>Nuevo préstamo</option>
+            <option value="reinversion" ${movement.tipo === 'reinversion' ? 'selected' : ''}>Compra/reinversión</option>
+          </select>
+          <input class="flow-input" type="text" aria-label="Concepto" placeholder="Concepto" value="${flowEscape(movement.concepto || '')}" oninput="actualizarMovimientoFlujo(${index},'concepto',this.value)">
+          <input class="flow-input" type="number" aria-label="Monto en pesos" min="0" step="1000" placeholder="$ Monto" value="${flowEscape(movement.monto)}" oninput="actualizarMovimientoFlujo(${index},'monto',this.value)">
+          <button type="button" class="flow-remove" aria-label="Eliminar movimiento" onclick="eliminarMovimientoFlujo(${index})">×</button>
+        </div>`).join('');
+    }
+
+    const initialCash = initialInput.value.trim() === '' ? null : Number(initialInput.value);
+    const horizon = Math.min(60, Math.max(1, Number(horizonInput.value) || 12));
+    const probability = probabilityInput.value.trim() === '' ? null : Number(probabilityInput.value);
+    const metrics = document.getElementById('flow-metrics');
+    const chart = document.getElementById('flow-chart');
+    const table = document.getElementById('flow-table-body');
+    const assumptions = document.getElementById('flow-assumptions');
+
+    if (initialCash === null || !Number.isFinite(initialCash) || initialCash < 0 || probability === null || !Number.isFinite(probability) || probability < 0 || probability > 100) {
+      metrics.innerHTML = '<div class="metric-card" style="grid-column:1/-1"><div class="metric-label">Escenario sin calcular</div><div class="metric-sub">Ingresá una caja inicial válida y una probabilidad entre 0% y 100%.</div></div>';
+      chart.innerHTML = '';
+      table.innerHTML = '<tr><td colspan="7" class="empty">Completá los supuestos para ver la proyección.</td></tr>';
+      assumptions.textContent = 'La caja inicial es un dato obligatorio y no se completa automáticamente.';
+      return;
+    }
+
+    const today = window.HOY || new Date();
+    const firstMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const projection = Array.from({length:horizon}, (_, index) => ({
+      date: new Date(firstMonth.getFullYear(), firstMonth.getMonth()+index, 1),
+      collections: 0, principalRecovery: 0, plannedIncome: 0, expenses: 0,
+      newLoans: 0, reinvestments: 0, cash: 0, portfolio: 0, result: 0
+    }));
+    let startingPortfolio = 0;
+    const credits = Array.isArray(window.creditos) ? window.creditos : [];
+    const paymentStatus = window.pagosEstado || {};
+
+    credits.filter(credit => credit.estado !== 'TERMINADA').forEach(credit => {
+      const capital = Math.max(0, Number(credit.capital) || 0);
+      if (!capital) return;
+      const term = Math.min(600, Math.max(0, Math.floor(Number(credit.plazo) || 0)));
+      const quota = Math.max(0, Number(credit.cuota) || 0);
+      const reinforcementAmount = Math.max(0, Number(credit.refuerzoMonto) || 0);
+      const reinforcementCount = Math.min(200, Math.max(0, Math.floor(Number(credit.refuerzoCantidad) || 0)));
+      const frequency = Math.max(1, Math.floor(Number(credit.refuerzoFrecuencia) || 6));
+      const totalContract = quota * term + reinforcementAmount * reinforcementCount;
+      const principalShare = totalContract > 0 ? capital / totalContract : 0;
+      const statuses = paymentStatus[credit.id] || {};
+      let paidAmount = 0;
+      for (let n = 1; n <= term; n++) if (statuses[n] === 'pagada') paidAmount += quota;
+      for (let n = 1; n <= reinforcementCount; n++) if (statuses['R'+n] === 'pagada') paidAmount += reinforcementAmount;
+      let remainingPrincipal = Math.max(0, capital - Math.min(capital, paidAmount * principalShare));
+      startingPortfolio += remainingPrincipal;
+
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(credit.fecha || ''));
+      if (!match || !term) return;
+      const startYear = Number(match[1]);
+      const startMonth = Number(match[2]) - 1;
+      const collectionFactor = probability / 100 * (credit.estado === 'MORA' ? 0.5 : 1);
+      const addDuePayment = (dueMonthOffset, amount, statusKey) => {
+        if (statuses[statusKey] === 'pagada' || amount <= 0) return;
+        const dueDate = new Date(startYear, startMonth + dueMonthOffset, 10);
+        if (dueDate <= today) return;
+        const monthIndex = (dueDate.getFullYear() - firstMonth.getFullYear()) * 12 + dueDate.getMonth() - firstMonth.getMonth();
+        if (monthIndex < 0 || monthIndex >= horizon) return;
+        const expected = amount * collectionFactor;
+        const principal = Math.min(remainingPrincipal, expected * principalShare);
+        projection[monthIndex].collections += expected;
+        projection[monthIndex].principalRecovery += principal;
+        remainingPrincipal -= principal;
+      };
+      for (let n = 1; n <= term; n++) addDuePayment(n, quota, n);
+      for (let n = 1; n <= reinforcementCount; n++) addDuePayment(n * frequency, reinforcementAmount, 'R'+n);
+    });
+
+    const movementTotals = Array.from({length:horizon}, () => ({ income:0, expenses:0, loans:0, reinvestments:0 }));
+    window.flowScenarioMovements.forEach(movement => {
+      const monthIndex = Math.floor(Number(movement.mes) || 0) - 1;
+      const amount = Math.max(0, Number(movement.monto) || 0);
+      if (monthIndex < 0 || monthIndex >= horizon || amount <= 0) return;
+      const totals = movementTotals[monthIndex];
+      if (movement.tipo === 'ingreso') totals.income += amount;
+      else if (movement.tipo === 'gasto') totals.expenses += amount;
+      else if (movement.tipo === 'prestamo') totals.loans += amount;
+      else if (movement.tipo === 'reinversion') totals.reinvestments += amount;
+    });
+
+    let cash = initialCash;
+    let portfolio = startingPortfolio;
+    projection.forEach((month, index) => {
+      const planned = movementTotals[index];
+      month.plannedIncome = planned.income;
+      month.expenses = planned.expenses;
+      month.newLoans = planned.loans;
+      month.reinvestments = planned.reinvestments;
+      cash += month.collections + planned.income - planned.expenses - planned.loans - planned.reinvestments;
+      portfolio = Math.max(0, portfolio - month.principalRecovery + planned.loans);
+      month.cash = cash;
+      month.portfolio = portfolio;
+      month.result = month.collections - month.principalRecovery + planned.income - planned.expenses;
+    });
+
+    const cumulativeResult = projection.reduce((sum, month) => sum + month.result, 0);
+    const lowestCash = Math.min(initialCash, ...projection.map(month => month.cash));
+    const ending = projection[projection.length - 1];
+    metrics.innerHTML = `
+      <div class="metric-card blue"><div class="metric-label">Caja al final</div><div class="metric-value">${flowMoney(ending.cash)}</div><div class="metric-sub">Desde ${flowMoney(initialCash)} ingresados hoy</div></div>
+      <div class="metric-card"><div class="metric-label">Cartera: capital estimado</div><div class="metric-value">${flowMoney(ending.portfolio)}</div><div class="metric-sub">Saldo inicial estimado: ${flowMoney(startingPortfolio)}</div></div>
+      <div class="metric-card ${cumulativeResult >= 0 ? 'green' : ''}"><div class="metric-label">Resultado acumulado estimado</div><div class="metric-value">${flowMoney(cumulativeResult)}</div><div class="metric-sub">Margen de cobros menos gastos</div></div>
+      <div class="metric-card"><div class="metric-label">Piso de caja</div><div class="metric-value" style="color:${lowestCash < 0 ? 'var(--red)' : 'var(--blue-700)'}">${flowMoney(lowestCash)}</div><div class="metric-sub">Saldo mínimo del horizonte</div></div>`;
+
+    const maxCash = Math.max(1, ...projection.map(month => Math.abs(month.cash)));
+    chart.innerHTML = projection.map(month => {
+      const height = Math.max(2, Math.abs(month.cash) / maxCash * 100);
+      return `<div class="flow-chart-item"><span class="flow-chart-value">${flowMoney(month.cash)}</span><div class="flow-chart-track"><div class="flow-chart-bar ${month.cash < 0 ? 'negative' : ''}" style="height:${height}%"></div></div><span class="flow-chart-label">${flowMonthLabel(month.date)}</span></div>`;
+    }).join('');
+    table.innerHTML = projection.map(month => {
+      const outflow = month.expenses + month.newLoans + month.reinvestments;
+      const resultClass = month.result >= 0 ? 'flow-result-positive' : 'flow-result-negative';
+      return `<tr><td>${flowMonthLabel(month.date)}</td><td>${flowMoney(month.collections)}</td><td>${flowMoney(month.plannedIncome)}</td><td>${flowMoney(outflow)}</td><td>${flowMoney(month.cash)}</td><td>${flowMoney(month.portfolio)}</td><td class="${resultClass}">${flowMoney(month.result)}</td></tr>`;
+    }).join('');
+    assumptions.innerHTML = `<strong>Cómo leer la estimación:</strong> los pagos futuros vencidos o impagos se excluyen; los próximos se ponderan por ${probability}% y por la mitad si el crédito figura en mora. La cartera se estima como capital pendiente: se resta el capital proporcional a cada cobro esperado y se suma el capital de nuevos préstamos planificados. Como el sistema no registra el desglose de capital/interés de cada cuota, se supone una distribución proporcional sobre el total contractual. Los nuevos préstamos no generan cuotas futuras en este escenario porque no se ingresaron tasa ni plazo. Ingresos extraordinarios suman al resultado; gastos lo reducen; préstamos y compras/reinversión afectan caja, pero no se contabilizan como ganancia o gasto. No incluye penalidades, cobranzas recuperadas ni revalorización de activos.`;
+  };
+
 window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
     if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
     if(document.getElementById('pane-simulador').classList.contains('active')) window.ejecutarSimulador();
+    if(document.getElementById('pane-flujo').classList.contains('active')) window.renderFlujoCartera();
   };
+
+window.actualizarCamposFinanciacionContrato = function() {
+  const tipo = document.getElementById('contrato-tipo')?.value;
+  const tasaInput = document.getElementById('contrato-tem');
+  const camposFinanciacion = document.getElementById('contrato-condiciones-financiacion');
+  if (tipo !== window.tipoContratoAnterior) {
+    if (tipo === 'adenda' && tasaInput?.dataset.personalizada !== 'true') tasaInput.value = '';
+    if (tipo === 'mutuo' && tasaInput?.dataset.personalizada !== 'true' && !tasaInput.value.trim()) tasaInput.value = '9';
+    window.tipoContratoAnterior = tipo;
+  }
+  if (camposFinanciacion) {
+    camposFinanciacion.style.display = ['mutuo', 'adenda'].includes(tipo) ? 'block' : 'none';
+  }
+};
 
 window.generarVistaPreviaContrato = function() {
   const elTipo = document.getElementById('contrato-tipo');
   if (!elTipo) return;
+  window.actualizarCamposFinanciacionContrato();
 
   const tipo = elTipo.value;
   const idSel = document.getElementById('contrato-cliente') ? document.getElementById('contrato-cliente').value : '';
@@ -2698,6 +3001,16 @@ window.generarVistaPreviaContrato = function() {
   
   const numMonto = parseFloat(montoInput) || 0;
   const montoFormateado = "$ " + numMonto.toLocaleString('es-AR');
+  const temInput = document.getElementById('contrato-tem')?.value.trim() || '';
+  const cuotasInput = document.getElementById('contrato-cuotas')?.value.trim() || '';
+  const tem = temInput === '' ? null : Number(temInput);
+  const cuotas = cuotasInput === '' ? null : Number(cuotasInput);
+  const temFormateada = tem !== null && Number.isFinite(tem)
+    ? `${tem.toLocaleString('es-AR', { maximumFractionDigits: 2 })} %`
+    : '________________';
+  const cuotasFormateadas = Number.isInteger(cuotas) && cuotas > 0
+    ? `${cuotas} ${cuotas === 1 ? 'cuota' : 'cuotas'}`
+    : '________________';
 
   const nom = clienteNombre.trim() || "________________________";
   const dni = clienteDni.trim() || "________";
@@ -2729,13 +3042,13 @@ window.generarVistaPreviaContrato = function() {
       
       <p><strong>PRIMERO: PERFECCIONAMIENTO DEL CONTRATO:</strong> El Mutuante da en préstamo al Mutuario, la suma de <strong>${montoFormateado}</strong>, importe que es recibido de conformidad en este acto por EL MUTUARIO, en efectivo, sirviendo el presente de formal recibo, reconocimiento de deuda, e instrumento constitutivo de la obligación. El monto del préstamo expresado en la presente cláusula, resulta el importe total del financiamiento, que devengará los intereses pactados en la cláusula subsiguiente.</p>
       
-      <p><strong>SEGUNDO: TASA DE INTERES – IMPUESTOS:</strong> Al valor total recibido por EL MUTUARIO, se le adicionarán los intereses compensatorios pactados entre las partes, calculados a razón de una tasa de interés del NUEVE por ciento (9 %), efectivo mensual (T.E.M.).</p>
+      <p><strong>SEGUNDO: TASA DE INTERES – IMPUESTOS:</strong> Al valor total recibido por EL MUTUARIO, se le adicionarán los intereses compensatorios pactados entre las partes, calculados a razón de una tasa de interés del <strong>${temFormateada}</strong> efectivo mensual (T.E.M.).</p>
       
-      <p><strong>TERCERO: CONDICIONES DE RESTITUCION DEL PRESTAMO:</strong> El importe dado en préstamo, será reintegrado por EL MUTUARIO, en cuotas iguales, mensuales, consecutivas y fijas.</p>
+      <p><strong>TERCERO: CONDICIONES DE RESTITUCION DEL PRESTAMO:</strong> El importe dado en préstamo será reintegrado por EL MUTUARIO en <strong>${cuotasFormateadas}</strong> iguales, mensuales, consecutivas y fijas.</p>
       
       <p><strong>CUARTO: CRONOGRAMA DE VENCIMIENTOS:</strong> Los vencimientos de las cuotas pactadas operarán los días diez (10) de cada mes, o el primer día hábil siguiente si éste resultara inhábil, hasta la cancelación total del capital.</p>
       
-      <p><strong>QUINTO: PLAZO DEL PRESTAMO:</strong> El plazo del préstamo se establece en las condiciones acordadas para la unidad: <strong>${veh}</strong>.</p>
+      <p><strong>QUINTO: PLAZO DEL PRESTAMO:</strong> El plazo se establece en <strong>${cuotasFormateadas}</strong>, con vencimientos mensuales, conforme al cronograma acordado para la unidad <strong>${veh}</strong>.</p>
       
       <p><strong>SEXTO: DOMICILIO Y FORMA DE PAGO:</strong> Toda suma derivada del presente contrato será pagadera en el domicilio Güemes Nº 226, de la localidad de Monte Buey, provincia de Córdoba, o dónde en el futuro éste lo determine, en efectivo, puntualmente, a su vencimiento.</p>
       
@@ -2768,6 +3081,7 @@ window.generarVistaPreviaContrato = function() {
     htmlContrato = `
       <h3 style="text-align:center; text-transform:uppercase; text-decoration:underline;">Adenda de Refinanciación de Deuda</h3>
       <p>En Monte Buey, a los ${hoyStr}, entre <strong>NEXO AUTOCREDITOS</strong> y <strong>${nom}</strong> (D.N.I. N° <strong>${dni}</strong>, domiciliado en <strong>${dom}</strong>), titular del crédito sobre el rodado <strong>${veh}</strong>, se conviene reestructurar el saldo pendiente.</p>
+      <p>El saldo objeto de refinanciación asciende a <strong>${montoFormateado}</strong> y devengará una tasa efectiva mensual (T.E.M.) del <strong>${temFormateada}</strong>. La devolución se realizará en <strong>${cuotasFormateadas}</strong> mensuales, consecutivas y fijas, con vencimiento los días diez (10) de cada mes o el primer día hábil siguiente si éste resultara inhábil.</p>
     `;
   }
 
@@ -2797,6 +3111,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.imprimirContratoSeleccionado = function() {
+  const tipo = document.getElementById('contrato-tipo')?.value;
+  if (['mutuo', 'adenda'].includes(tipo)) {
+    const temValue = document.getElementById('contrato-tem')?.value.trim() || '';
+    const cuotasValue = document.getElementById('contrato-cuotas')?.value.trim() || '';
+    const tem = Number(temValue);
+    const cuotas = Number(cuotasValue);
+    if (!temValue || !cuotasValue || !Number.isFinite(tem) || tem < 0 || !Number.isInteger(cuotas) || cuotas < 1) {
+      alert('Completá una TEM válida y una cantidad entera de cuotas para imprimir este documento.');
+      return;
+    }
+    window.generarVistaPreviaContrato();
+  }
+
   const contenedor = document.getElementById('vista-previa-contrato');
   if (!contenedor || !contenedor.innerHTML.trim()) {
     alert("No hay contenido para imprimir.");
