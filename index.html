@@ -209,6 +209,31 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .business-table td:first-child, .business-table th:first-child { text-align: left; }
 .business-table td { white-space: nowrap; }
 
+/* ── GESTORIA ── */
+.gestoria-layout { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); gap: 18px; align-items: start; }
+.gestoria-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gestoria-fields .form-group { min-width: 0; }
+.gestoria-fields .form-group.full { grid-column: 1 / -1; }
+.gestoria-notice { padding: 12px 14px; border: 1px solid var(--amber-border); border-radius: var(--radius); color: #854d0e; background: var(--amber-bg); font-size: 11px; line-height: 1.55; }
+.gestoria-sources { margin-top: 10px; font-size: 11px; color: var(--gray-500); }
+.gestoria-sources a { color: var(--blue-600); }
+.gestoria-item { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(82px, .7fr) minmax(0, 1fr) minmax(95px, .8fr) 28px; gap: 7px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--gray-100); }
+.gestoria-item:last-child { border-bottom: 0; }
+.gestoria-item input, .gestoria-item select { width: 100%; min-width: 0; padding: 7px 8px; border: 1px solid var(--gray-200); border-radius: 7px; font: 11px var(--sans); color: var(--gray-700); background: var(--white); }
+.gestoria-item .gestoria-amount { text-align: right; }
+.gestoria-item-header { padding: 8px 0 2px; color: var(--gray-500); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.gestoria-item-header span { min-width: 0; }
+.gestoria-remove { border: 0; background: transparent; color: var(--red); cursor: pointer; font-size: 17px; }
+.gestoria-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 0 6px; border-top: 1px solid var(--gray-200); }
+.gestoria-total strong { font-family: var(--serif); color: var(--blue-800); font-size: 27px; }
+.gestoria-status { min-height: 20px; font-size: 11px; color: var(--gray-500); }
+.gestoria-status.error { color: var(--red); }
+.gestoria-status.warning { color: #854d0e; }
+.gestoria-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.gestoria-summary { font-size: 12px; color: var(--gray-600); }
+.gestoria-summary-row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--gray-100); }
+.gestoria-summary-row strong { text-align: right; color: var(--gray-800); }
+
 /* ── PAGOS ── */
 .pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); min-height: 420px; }
 .pagos-lista { border-right: 1px solid var(--gray-100); overflow-y: auto; max-height: 560px; }
@@ -282,6 +307,16 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .business-layout { grid-template-columns: 1fr; }
   .flow-movement { grid-template-columns: 72px minmax(100px, 1fr) minmax(80px, 1fr) 90px 24px; gap: 4px; }
   .business-comparison-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gestoria-layout { grid-template-columns: 1fr; }
+  .gestoria-item-header { display: none; }
+  .gestoria-item { grid-template-columns: minmax(120px, 1.2fr) minmax(110px, .8fr) minmax(100px, .7fr) 30px; }
+  .gestoria-item .gestoria-source, .gestoria-item .gestoria-date { grid-row: 2; }
+  .gestoria-item .gestoria-source { grid-column: 1 / 3; }
+  .gestoria-item .gestoria-date { grid-column: 3; }
+  .gestoria-item .gestoria-remove { grid-column: 4; grid-row: 1 / 3; }
+}
+@media(max-width: 1400px) {
+  .gestoria-layout { grid-template-columns: 1fr; }
 }
 @media(max-width: 600px) {
   .form-grid { grid-template-columns: 1fr; }
@@ -292,6 +327,21 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .business-fields, .business-comparison-fields { grid-template-columns: 1fr; }
   .business-section-title { grid-column: 1; }
   .business-metric-value { font-size: 20px; }
+  .gestoria-fields { grid-template-columns: 1fr; }
+  .gestoria-item-header { display: none; }
+  .gestoria-fields .form-group.full { grid-column: 1; }
+  .gestoria-item { grid-template-columns: minmax(0, 1fr) minmax(110px, .75fr) 28px; }
+  .gestoria-item .gestoria-kind { grid-column: 1; grid-row: 2; }
+  .gestoria-item .gestoria-amount { grid-column: 2; grid-row: 1; }
+  .gestoria-item .gestoria-source { grid-column: 1 / 3; grid-row: 3; }
+  .gestoria-item .gestoria-date { grid-column: 1 / 3; grid-row: 4; }
+  .gestoria-item .gestoria-remove { grid-column: 3; grid-row: 1 / 3; }
+  .gestoria-total { align-items: flex-start; flex-direction: column; gap: 2px; }
+}
+@media print {
+  body.gestoria-print * { visibility: hidden !important; }
+  body.gestoria-print #gestoria-print-area, body.gestoria-print #gestoria-print-area * { visibility: visible !important; }
+  body.gestoria-print #gestoria-print-area { position: absolute; inset: 0; width: 100%; padding: 20px; }
 }
 </style>
 </head>
@@ -344,6 +394,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     </div>
     <div class="nav-item" onclick="showPane('evaluar-negocio',this)">
       <span class="icon">🚗</span><span>Evaluar negocio</span>
+    </div>
+    <div class="nav-item" onclick="showPane('gestoria',this)">
+      <span class="icon">🧾</span><span>Gestoría</span>
     </div>
     <div class="nav-item admin-only" onclick="showPane('flujo',this)">
       <span class="icon">📈</span><span>Flujo y cartera</span>
@@ -887,6 +940,97 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
             <thead><tr><th>Indicador</th><th>Actual</th><th>Alternativo</th><th>Diferencia</th></tr></thead>
             <tbody id="business-comparison-results"><tr><td colspan="4" class="empty">Completá el precio y el costo de la unidad para comparar.</td></tr></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-gestoria">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Gestoría</div>
+          <div class="page-sub">Presupuesto orientativo de trámites para vehículos</div>
+        </div>
+      </div>
+      <div class="gestoria-notice" role="note">
+        <strong>Estimación, no liquidación oficial.</strong> No hay tarifas ni gastos locales precargados: los importes dependen del vehículo, el origen, la jurisdicción y el expediente. Completá cada concepto con un comprobante o presupuesto; confirmá aranceles e impuestos con el Registro Seccional de Justiniano Posse. Esta herramienta no brinda certeza legal ni fiscal y no guarda los datos.
+        <div class="gestoria-sources">Fuentes oficiales para consultar, sin importes precargados:
+          <a href="https://www.argentina.gob.ar/justicia/dnrpa" target="_blank" rel="noopener noreferrer">DNRPA / Argentina</a> ·
+          <a href="https://www.rentascordoba.gob.ar/" target="_blank" rel="noopener noreferrer">Rentas Córdoba</a>.
+        </div>
+      </div>
+      <div class="gestoria-layout" style="margin-top:16px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Datos del vehículo y la operación</span></div>
+          <div class="card-body">
+            <div class="gestoria-fields">
+              <div class="form-group full">
+                <label for="gestoria-operacion">Trámite</label>
+                <select class="flow-input" id="gestoria-operacion" onchange="cambiarOperacionGestoria()">
+                  <option value="transferencia">Transferencia de usado</option>
+                  <option value="0km">Alta / patentamiento 0 km</option>
+                  <option value="prenda">Inscripción de prenda</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="gestoria-vehiculo-tipo">Tipo de vehículo</label>
+                <select class="flow-input" id="gestoria-vehiculo-tipo" onchange="actualizarGestoria()">
+                  <option>Automóvil</option><option>Motocicleta</option><option>Utilitario</option><option>Otro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="gestoria-origen">Origen / condición</label>
+                <select class="flow-input" id="gestoria-origen" onchange="actualizarGestoria()">
+                  <option value="usado">Usado</option><option value="nacional">0 km nacional</option><option value="importado">Importado</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label for="gestoria-descripcion">Marca, modelo y año (opcional)</label>
+                <input class="flow-input" id="gestoria-descripcion" maxlength="120" placeholder="Sin datos personales" oninput="actualizarGestoria()">
+              </div>
+              <div class="form-group">
+                <label for="gestoria-valor">Valor declarado / de operación ($)</label>
+                <input class="flow-input" type="number" id="gestoria-valor" min="0" step="1000" placeholder="Pendiente" oninput="actualizarGestoria()">
+              </div>
+              <div class="form-group" id="gestoria-prenda-group" style="display:none">
+                <label for="gestoria-monto-prenda">Monto prendado ($)</label>
+                <input class="flow-input" type="number" id="gestoria-monto-prenda" min="0" step="1000" placeholder="Pendiente" oninput="actualizarGestoria()">
+              </div>
+              <div class="form-group">
+                <label for="gestoria-provincia">Jurisdicción</label>
+                <input class="flow-input" id="gestoria-provincia" maxlength="80" value="Córdoba" oninput="actualizarGestoria()">
+              </div>
+              <div class="form-group">
+                <label for="gestoria-localidad">Localidad / departamento</label>
+                <input class="flow-input" id="gestoria-localidad" maxlength="100" value="Monte Buey, Marcos Juárez" oninput="actualizarGestoria()">
+              </div>
+              <div class="form-group full">
+                <label for="gestoria-registro">Registro Seccional de referencia</label>
+                <input class="flow-input" id="gestoria-registro" maxlength="100" value="Justiniano Posse" oninput="actualizarGestoria()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div><span class="card-title">Conceptos del presupuesto</span><div class="flow-help">Dejá vacío lo que todavía no tenga importe. Indicá fuente y fecha si verificás un arancel oficial.</div></div>
+              <button class="btn btn-sm" type="button" onclick="agregarConceptoGestoria()">＋ Rubro</button>
+            </div>
+            <div class="card-body">
+              <div class="gestoria-item gestoria-item-header" aria-hidden="true"><span>Concepto</span><span>Clasificación</span><span>Importe ($)</span><span>Fuente / comprobante</span><span>Fecha</span><span></span></div>
+              <div id="gestoria-conceptos" aria-live="polite"></div>
+              <div class="gestoria-total"><span><strong>Subtotal de importes cargados</strong><div class="flow-help" id="gestoria-conteo">Sin importes cargados</div></span><strong id="gestoria-total">$—</strong></div>
+              <div id="gestoria-status" class="gestoria-status" role="status" aria-live="polite">Los valores en blanco están pendientes de comprobante; no equivalen a $0.</div>
+              <div class="gestoria-actions">
+                <button class="btn btn-primary" type="button" onclick="imprimirGestoria()">🖨️ Imprimir / Guardar PDF</button>
+                <button class="btn" type="button" onclick="compartirGestoria()">↗ Compartir resumen</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="gestoria-print-area">
+            <div class="card-header"><span class="card-title">Resumen para compartir</span><span class="badge badge-amber">Orientativo</span></div>
+            <div class="card-body gestoria-summary" id="gestoria-resumen"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1550,6 +1694,7 @@ window.guardarEnNube = async function() {
       pagos: 'Seguimiento de pagos', 
       simulador: 'Simulador / Cotizador', 
       'evaluar-negocio': 'Evaluar negocio',
+      gestoria: 'Gestoría',
       flujo: 'Flujo de caja y cartera',
       stock: 'Stock de Unidades', 
       seguros: 'Gestión de Seguros', 
@@ -1564,6 +1709,7 @@ window.guardarEnNube = async function() {
     if(id==='gastos') window.renderGastos();
     if(id==='simulador') window.ejecutarSimulador();
     if(id==='evaluar-negocio') window.actualizarEvaluacionNegocio();
+    if(id==='gestoria') window.actualizarGestoria();
     if(id==='flujo') window.renderFlujoCartera();
     if(id==='stock') window.renderStock();
     if(id==='inversores') window.renderInversores();
@@ -3239,6 +3385,213 @@ window.renderInversores = () => {
       return `<tr><td>${label}</td><td>${businessMoney(current)}</td><td>${businessMoney(alternateValue)}</td><td>${delta}${businessMoney(Math.abs(difference))}</td></tr>`;
     }).join('');
   };
+
+  const gestoriaRubrosBase = {
+    transferencia: ['Arancel registral de transferencia', 'Impuestos y sellados provinciales', 'Formularios e informes', 'Certificación de firmas', 'Verificación policial', 'Honorarios de gestoría', 'Otros gastos'],
+    '0km': ['Arancel de inscripción inicial / patentamiento', 'Impuestos y sellados provinciales', 'Formularios e informes', 'Certificación de firmas', 'Honorarios de gestoría', 'Otros gastos'],
+    prenda: ['Arancel de inscripción de prenda', 'Formularios / contrato de prenda', 'Certificación de firmas', 'Impuestos y sellados aplicables', 'Honorarios de gestoría', 'Otros gastos']
+  };
+  const gestoriaPresupuestos = Object.create(null);
+  const gestoriaOperaciones = {
+    transferencia: 'Transferencia de usado',
+    '0km': 'Alta / patentamiento 0 km',
+    prenda: 'Inscripción de prenda'
+  };
+  const gestoriaTipos = {
+    pendiente: 'Pendiente de comprobante',
+    oficial: 'Arancel oficial (verificar)',
+    estimado: 'Estimado',
+    manual: 'Manual'
+  };
+  const gestoriaEscape = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+  const gestoriaMoney = value => '$ ' + Math.round(value).toLocaleString('es-AR');
+  const gestoriaItemsActuales = () => {
+    const operation = document.getElementById('gestoria-operacion').value;
+    if (!gestoriaPresupuestos[operation]) {
+      gestoriaPresupuestos[operation] = gestoriaRubrosBase[operation].map(nombre => ({
+        nombre, tipo: 'pendiente', importe: '', fuente: '', fecha: ''
+      }));
+    }
+    return gestoriaPresupuestos[operation];
+  };
+  window.calcularTotalGestoria = items => {
+    let total = 0;
+    let pendientes = 0;
+    let invalidos = 0;
+    items.forEach(item => {
+      if (item.importe === '' || item.importe === null || item.importe === undefined) {
+        pendientes++;
+        return;
+      }
+      const importe = Number(item.importe);
+      if (!Number.isFinite(importe) || importe < 0) {
+        invalidos++;
+        return;
+      }
+      total += importe;
+      if (!Number.isFinite(total)) invalidos++;
+    });
+    return { total, pendientes, invalidos };
+  };
+  const gestoriaLeerDatos = () => ({
+    operacion: document.getElementById('gestoria-operacion').value,
+    tipoVehiculo: document.getElementById('gestoria-vehiculo-tipo').value,
+    origen: document.getElementById('gestoria-origen').selectedOptions[0].textContent,
+    descripcion: document.getElementById('gestoria-descripcion').value.trim(),
+    valor: document.getElementById('gestoria-valor').value.trim(),
+    montoPrenda: document.getElementById('gestoria-monto-prenda').value.trim(),
+    provincia: document.getElementById('gestoria-provincia').value.trim(),
+    localidad: document.getElementById('gestoria-localidad').value.trim(),
+    registro: document.getElementById('gestoria-registro').value.trim()
+  });
+  const gestoriaRenderItems = () => {
+    const items = gestoriaItemsActuales();
+    document.getElementById('gestoria-conceptos').innerHTML = items.map((item, index) => `
+      <div class="gestoria-item">
+        <input aria-label="Concepto ${index + 1}" maxlength="100" value="${gestoriaEscape(item.nombre)}" data-gestoria-index="${index}" data-gestoria-field="nombre">
+        <select class="gestoria-kind" aria-label="Clasificación del concepto ${index + 1}" data-gestoria-index="${index}" data-gestoria-field="tipo">
+          ${Object.entries(gestoriaTipos).map(([value, label]) => `<option value="${value}" ${item.tipo === value ? 'selected' : ''}>${label}</option>`).join('')}
+        </select>
+        <input class="gestoria-amount" aria-label="Importe del concepto ${index + 1}" type="number" min="0" step="0.01" placeholder="Pendiente" value="${gestoriaEscape(item.importe)}" data-gestoria-index="${index}" data-gestoria-field="importe">
+        <input class="gestoria-source" aria-label="Fuente o comprobante del concepto ${index + 1}" maxlength="160" placeholder="Fuente / comprobante" value="${gestoriaEscape(item.fuente)}" data-gestoria-index="${index}" data-gestoria-field="fuente">
+        <input class="gestoria-date" aria-label="Fecha de consulta del concepto ${index + 1}" type="date" title="Fecha del arancel, presupuesto o comprobante" value="${gestoriaEscape(item.fecha)}" data-gestoria-index="${index}" data-gestoria-field="fecha">
+        <button class="gestoria-remove" type="button" aria-label="Quitar concepto ${index + 1}" onclick="quitarConceptoGestoria(${index})">×</button>
+      </div>`).join('');
+  };
+  const gestoriaBuildSummary = () => {
+    const data = gestoriaLeerDatos();
+    const items = gestoriaItemsActuales();
+    const total = window.calcularTotalGestoria(items);
+    const importeInvalido = items.some(item => item.importe !== '' && item.importe !== null && item.importe !== undefined &&
+      (!Number.isFinite(Number(item.importe)) || Number(item.importe) < 0));
+    const detalles = items.map(item => {
+      const monto = item.importe === '' || item.importe === null || item.importe === undefined
+        ? 'Pendiente de comprobante'
+        : Number.isFinite(Number(item.importe)) && Number(item.importe) >= 0 ? gestoriaMoney(Number(item.importe)) : 'Importe inválido';
+      const clasificacion = item.tipo === 'oficial' && (!item.fuente.trim() || !item.fecha)
+        ? 'Oficial sin fuente/fecha; no verificado'
+        : gestoriaTipos[item.tipo];
+      const referencia = [item.fuente.trim(), item.fecha].filter(Boolean).join(' · ');
+      return `<div class="gestoria-summary-row"><span>${gestoriaEscape(item.nombre)}<small style="display:block;color:var(--gray-500)">${gestoriaEscape(clasificacion)}${referencia ? ' · ' + gestoriaEscape(referencia) : ''}</small></span><strong>${gestoriaEscape(monto)}</strong></div>`;
+    }).join('');
+    const localizacion = [data.localidad, data.provincia].filter(Boolean).join(' · ');
+    return `<div><strong>${gestoriaEscape(gestoriaOperaciones[data.operacion])}</strong></div>
+      <div class="gestoria-summary-row"><span>Vehículo</span><strong>${gestoriaEscape([data.tipoVehiculo, data.descripcion].filter(Boolean).join(' · ') || 'Sin especificar')}</strong></div>
+      <div class="gestoria-summary-row"><span>Origen / condición</span><strong>${gestoriaEscape(data.origen)}</strong></div>
+      <div class="gestoria-summary-row"><span>Valor declarado / operación</span><strong>${data.valor === '' ? 'Pendiente' : gestoriaEscape(gestoriaMoney(Number(data.valor)))}</strong></div>
+      ${data.operacion === 'prenda' ? `<div class="gestoria-summary-row"><span>Monto prendado</span><strong>${data.montoPrenda === '' ? 'Pendiente' : gestoriaEscape(gestoriaMoney(Number(data.montoPrenda)))}</strong></div>` : ''}
+      <div class="gestoria-summary-row"><span>Jurisdicción / localidad</span><strong>${gestoriaEscape(localizacion || 'Sin especificar')}</strong></div>
+      <div class="gestoria-summary-row"><span>Registro Seccional de referencia</span><strong>${gestoriaEscape(data.registro || 'A confirmar')}</strong></div>
+      <div style="margin-top:14px"><strong>Detalle de conceptos</strong></div>${detalles}
+      <div class="gestoria-total"><span><strong>Subtotal de importes cargados</strong><div class="flow-help">${total.pendientes} concepto(s) sin importe</div></span><strong>${importeInvalido || total.invalidos ? 'Importes inválidos' : gestoriaMoney(total.total)}</strong></div>
+      <div class="flow-help" style="margin-top:10px">Presupuesto orientativo generado el ${new Date().toLocaleDateString('es-AR')}. Confirmar importes, requisitos e impuestos con el Registro Seccional de Justiniano Posse y los organismos competentes. No constituye liquidación ni asesoramiento legal o fiscal.</div>`;
+  };
+  window.actualizarGestoria = () => {
+    const data = gestoriaLeerDatos();
+    document.getElementById('gestoria-prenda-group').style.display = data.operacion === 'prenda' ? '' : 'none';
+    const numbers = [
+      ['gestoria-valor', 'Valor declarado / de operación'],
+      ['gestoria-monto-prenda', 'Monto prendado']
+    ];
+    const invalidField = numbers.find(([id]) => {
+      const field = document.getElementById(id);
+      return field.value.trim() !== '' && (!Number.isFinite(Number(field.value)) || Number(field.value) < 0);
+    });
+    const items = gestoriaItemsActuales();
+    const total = window.calcularTotalGestoria(items);
+    const status = document.getElementById('gestoria-status');
+    const itemInvalid = items.some(item => item.importe !== '' && item.importe !== null && item.importe !== undefined &&
+      (!Number.isFinite(Number(item.importe)) || Number(item.importe) < 0));
+    if (invalidField || itemInvalid || total.invalidos) {
+      status.className = 'gestoria-status error';
+      status.textContent = invalidField ? `${invalidField[1]} debe ser un número mayor o igual a cero.` : 'Los importes deben ser números mayores o iguales a cero.';
+      document.getElementById('gestoria-total').textContent = 'Revisar importes';
+    } else {
+      status.className = `gestoria-status${total.pendientes ? ' warning' : ''}`;
+      status.textContent = total.pendientes
+        ? `${total.pendientes} concepto(s) pendiente(s) de comprobante. El subtotal incluye solo importes cargados y no es una liquidación final.`
+        : 'Todos los conceptos tienen importe ingresado; verificá fuente, vigencia y requisitos antes de cotizar.';
+      document.getElementById('gestoria-total').textContent = gestoriaMoney(total.total);
+    }
+    document.getElementById('gestoria-conteo').textContent = `${items.length - total.pendientes} importe(s) cargado(s) · ${total.pendientes} pendiente(s)`;
+    document.getElementById('gestoria-resumen').innerHTML = gestoriaBuildSummary();
+  };
+  window.cambiarOperacionGestoria = () => {
+    const operation = document.getElementById('gestoria-operacion').value;
+    document.getElementById('gestoria-origen').value = operation === 'transferencia' ? 'usado' : operation === '0km' ? 'nacional' : 'usado';
+    gestoriaRenderItems();
+    window.actualizarGestoria();
+  };
+  window.agregarConceptoGestoria = () => {
+    gestoriaItemsActuales().push({ nombre: 'Otro concepto', tipo: 'manual', importe: '', fuente: '', fecha: '' });
+    gestoriaRenderItems();
+    window.actualizarGestoria();
+  };
+  window.quitarConceptoGestoria = index => {
+    gestoriaItemsActuales().splice(index, 1);
+    gestoriaRenderItems();
+    window.actualizarGestoria();
+  };
+  document.getElementById('gestoria-conceptos').addEventListener('input', event => {
+    const field = event.target.closest('[data-gestoria-index]');
+    if (!field) return;
+    const item = gestoriaItemsActuales()[Number(field.dataset.gestoriaIndex)];
+    if (!item) return;
+    item[field.dataset.gestoriaField] = field.value;
+    window.actualizarGestoria();
+  });
+  document.getElementById('gestoria-conceptos').addEventListener('change', event => {
+    if (event.target.matches('[data-gestoria-field="tipo"]')) {
+      const field = event.target;
+      const item = gestoriaItemsActuales()[Number(field.dataset.gestoriaIndex)];
+      if (item) {
+        item.tipo = field.value;
+        window.actualizarGestoria();
+      }
+    }
+  });
+  window.imprimirGestoria = () => {
+    const contenido = gestoriaBuildSummary();
+    const ventana = window.open('', '_blank');
+    if (!ventana) {
+      alert('El navegador bloqueó la ventana emergente. Permití las ventanas emergentes para imprimir el presupuesto.');
+      return;
+    }
+    ventana.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Presupuesto de gestoría - Nexo</title><style>body{font:14px Arial,sans-serif;max-width:760px;margin:30px auto;color:#1e293b;line-height:1.5}h1{color:#0d2040;font-size:22px}.gestoria-summary-row,.gestoria-total{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #ddd}.gestoria-summary-row strong,.gestoria-total strong{text-align:right}.gestoria-total{border-top:2px solid #999;font-size:17px}.flow-help,small{display:block;color:#64748b;font-size:11px;margin-top:3px}@media print{body{margin:0}}</style></head><body><h1>Gestoría · Presupuesto orientativo</h1>${contenido}</body></html>`);
+    ventana.document.close();
+    ventana.focus();
+    ventana.onload = () => ventana.print();
+  };
+  window.compartirGestoria = async () => {
+    const texto = document.getElementById('gestoria-resumen').innerText.replace(/\n{3,}/g, '\n\n');
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Presupuesto de gestoría - Nexo', text: texto });
+      } catch (error) {
+        if (error.name !== 'AbortError') alert(`No se pudo compartir el presupuesto: ${error.message || error}`);
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(texto);
+      alert('Resumen copiado. Ya podés pegarlo para compartir.');
+    } catch (error) {
+      const textarea = document.createElement('textarea');
+      textarea.value = texto;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      textarea.remove();
+      if (copied) alert('Resumen copiado. Ya podés pegarlo para compartir.');
+      else alert(`No se pudo copiar el resumen: ${error.message || error}`);
+    }
+  };
+  gestoriaRenderItems();
+  window.actualizarGestoria();
 
 window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
