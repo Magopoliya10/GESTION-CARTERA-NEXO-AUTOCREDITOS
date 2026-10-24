@@ -952,8 +952,8 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         </div>
       </div>
       <div class="gestoria-notice" role="note">
-        <strong>Estimación, no liquidación oficial.</strong> No hay tarifas ni gastos locales precargados: los importes dependen del vehículo, el origen, la jurisdicción y el expediente. Completá cada concepto con un comprobante o presupuesto; confirmá aranceles e impuestos con el Registro Seccional de Justiniano Posse. Esta herramienta no brinda certeza legal ni fiscal y no guarda los datos.
-        <div class="gestoria-sources">Fuentes oficiales para consultar, sin importes precargados:
+        <strong>Estimación, no liquidación oficial.</strong> La transferencia abre con un ejemplo de recibos aportados para una Bajaj Dominar 400 modelo 2022 en Justiniano Posse, fechados el 23/10/2026. Son importes observados en ese expediente, no una tarifa vigente garantizada: revisalos y editá cada caso. Los demás trámites no tienen valores precargados. Confirmá aranceles e impuestos con el Registro Seccional. Esta herramienta no brinda certeza legal ni fiscal y no guarda los datos.
+        <div class="gestoria-sources">Referencias del ejemplo: recibo del Registro Seccional de Justiniano Posse y reporte de Sellos de Rentas Córdoba aportados por la usuaria. Para consultar información oficial:
           <a href="https://www.argentina.gob.ar/justicia/dnrpa" target="_blank" rel="noopener noreferrer">DNRPA / Argentina</a> ·
           <a href="https://www.rentascordoba.gob.ar/" target="_blank" rel="noopener noreferrer">Rentas Córdoba</a>.
         </div>
@@ -974,7 +974,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
               <div class="form-group">
                 <label for="gestoria-vehiculo-tipo">Tipo de vehículo</label>
                 <select class="flow-input" id="gestoria-vehiculo-tipo" onchange="actualizarGestoria()">
-                  <option>Automóvil</option><option>Motocicleta</option><option>Utilitario</option><option>Otro</option>
+                  <option>Automóvil</option><option selected>Motocicleta</option><option>Utilitario</option><option>Otro</option>
                 </select>
               </div>
               <div class="form-group">
@@ -985,11 +985,11 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
               </div>
               <div class="form-group full">
                 <label for="gestoria-descripcion">Marca, modelo y año (opcional)</label>
-                <input class="flow-input" id="gestoria-descripcion" maxlength="120" placeholder="Sin datos personales" oninput="actualizarGestoria()">
+                <input class="flow-input" id="gestoria-descripcion" maxlength="120" value="Bajaj Dominar 400 · 2022" placeholder="Sin datos personales" oninput="actualizarGestoria()">
               </div>
               <div class="form-group">
                 <label for="gestoria-valor">Valor declarado / de operación ($)</label>
-                <input class="flow-input" type="number" id="gestoria-valor" min="0" step="1000" placeholder="Pendiente" oninput="actualizarGestoria()">
+                <input class="flow-input" type="number" id="gestoria-valor" min="0" step="1000" value="4000000" oninput="actualizarGestoria()">
               </div>
               <div class="form-group" id="gestoria-prenda-group" style="display:none">
                 <label for="gestoria-monto-prenda">Monto prendado ($)</label>
@@ -3391,6 +3391,20 @@ window.renderInversores = () => {
     '0km': ['Arancel de inscripción inicial / patentamiento', 'Impuestos y sellados provinciales', 'Formularios e informes', 'Certificación de firmas', 'Honorarios de gestoría', 'Otros gastos'],
     prenda: ['Arancel de inscripción de prenda', 'Formularios / contrato de prenda', 'Certificación de firmas', 'Impuestos y sellados aplicables', 'Honorarios de gestoría', 'Otros gastos']
   };
+  const gestoriaFechaRecibo = '2026-10-23';
+  const gestoriaFuenteDnrpa = 'Recibo del Registro Seccional de Justiniano Posse (ejemplo aportado)';
+  const gestoriaFuenteRentas = 'Reporte de cálculo de Sellos · Rentas Córdoba (ejemplo aportado)';
+  const gestoriaRubrosTransferenciaEjemplo = [
+    { nombre: 'Transferencia nacional', tipo: 'oficial', importe: '48048', fuente: gestoriaFuenteDnrpa, fecha: gestoriaFechaRecibo },
+    { nombre: 'Expedición de cédula (bonificada; neto $0)', tipo: 'oficial', importe: '0', fuente: `${gestoriaFuenteDnrpa} · cargo $3.080, bonificación −$3.080`, fecha: gestoriaFechaRecibo },
+    { nombre: 'Expedición de título de transferencia (bonificada; neto $0)', tipo: 'oficial', importe: '0', fuente: `${gestoriaFuenteDnrpa} · cargo $3.080, bonificación −$3.080`, fecha: gestoriaFechaRecibo },
+    { nombre: 'Envío de legajo (bonificado; neto $0)', tipo: 'oficial', importe: '0', fuente: `${gestoriaFuenteDnrpa} · cargo $1.430, bonificación −$1.430`, fecha: gestoriaFechaRecibo },
+    { nombre: 'Certificación de firmas F59', tipo: 'oficial', importe: '2050', fuente: gestoriaFuenteDnrpa, fecha: gestoriaFechaRecibo },
+    { nombre: 'Impuesto de sellos Córdoba (Acto 71)', tipo: 'oficial', importe: '60000', fuente: `${gestoriaFuenteRentas} · base imponible $4.000.000`, fecha: gestoriaFechaRecibo },
+    { nombre: 'Verificación policial', tipo: 'pendiente', importe: '', fuente: '', fecha: '' },
+    { nombre: 'Honorarios de gestoría', tipo: 'pendiente', importe: '', fuente: '', fecha: '' },
+    { nombre: 'Otros gastos', tipo: 'pendiente', importe: '', fuente: '', fecha: '' }
+  ];
   const gestoriaPresupuestos = Object.create(null);
   const gestoriaOperaciones = {
     transferencia: 'Transferencia de usado',
@@ -3399,7 +3413,7 @@ window.renderInversores = () => {
   };
   const gestoriaTipos = {
     pendiente: 'Pendiente de comprobante',
-    oficial: 'Arancel oficial (verificar)',
+    oficial: 'Importe de recibo oficial (verificar vigencia)',
     estimado: 'Estimado',
     manual: 'Manual'
   };
@@ -3410,9 +3424,11 @@ window.renderInversores = () => {
   const gestoriaItemsActuales = () => {
     const operation = document.getElementById('gestoria-operacion').value;
     if (!gestoriaPresupuestos[operation]) {
-      gestoriaPresupuestos[operation] = gestoriaRubrosBase[operation].map(nombre => ({
-        nombre, tipo: 'pendiente', importe: '', fuente: '', fecha: ''
-      }));
+      gestoriaPresupuestos[operation] = operation === 'transferencia'
+        ? gestoriaRubrosTransferenciaEjemplo.map(item => ({ ...item }))
+        : gestoriaRubrosBase[operation].map(nombre => ({
+          nombre, tipo: 'pendiente', importe: '', fuente: '', fecha: ''
+        }));
     }
     return gestoriaPresupuestos[operation];
   };
