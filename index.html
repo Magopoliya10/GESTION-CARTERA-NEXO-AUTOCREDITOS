@@ -184,6 +184,31 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .flow-result-positive { color: var(--green) !important; font-weight: 600; }
 .flow-result-negative { color: var(--red) !important; font-weight: 600; }
 
+/* ── EVALUACION DE NEGOCIOS ── */
+.business-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr); gap: 18px; align-items: start; }
+.business-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.business-fields .form-group { min-width: 0; }
+.business-section-title { grid-column: 1 / -1; font-size: 11px; font-weight: 700; color: var(--blue-600); text-transform: uppercase; letter-spacing: .07em; padding-bottom: 6px; border-bottom: 1px solid var(--blue-100); }
+.business-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.business-metric { min-width: 0; padding: 14px; border: 1px solid var(--gray-200); border-radius: var(--radius); background: var(--white); }
+.business-metric.primary { grid-column: 1 / -1; background: var(--blue-50); border-color: var(--blue-200); }
+.business-metric-label { color: var(--gray-500); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.business-metric-value { margin-top: 3px; color: var(--blue-800); font-family: var(--serif); font-size: 23px; line-height: 1.25; overflow-wrap: anywhere; }
+.business-metric.primary .business-metric-value { font-size: 30px; }
+.business-status { margin-bottom: 12px; padding: 11px 13px; border-radius: var(--radius); font-size: 11px; line-height: 1.5; }
+.business-status.error { color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
+.business-status.warning { color: #854d0e; background: var(--amber-bg); border: 1px solid var(--amber-border); }
+.business-status.ok { color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
+.business-breakdown { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--gray-100); font-size: 11px; color: var(--gray-500); }
+.business-breakdown-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.business-breakdown-row strong { color: var(--gray-700); text-align: right; }
+.business-comparison-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 18px 20px; }
+.business-comparison-fields .form-group { min-width: 0; }
+.business-comparison-fields input { width: 100%; min-width: 0; }
+.business-table td, .business-table th { text-align: right; }
+.business-table td:first-child, .business-table th:first-child { text-align: left; }
+.business-table td { white-space: nowrap; }
+
 /* ── PAGOS ── */
 .pagos-grid { display: grid; grid-template-columns: 280px 1fr; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); min-height: 420px; }
 .pagos-lista { border-right: 1px solid var(--gray-100); overflow-y: auto; max-height: 560px; }
@@ -254,7 +279,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .topbar { padding: 0 16px; }
   .sim-grid { grid-template-columns: 1fr; }
   .flow-layout { grid-template-columns: 1fr; }
+  .business-layout { grid-template-columns: 1fr; }
   .flow-movement { grid-template-columns: 72px minmax(100px, 1fr) minmax(80px, 1fr) 90px 24px; gap: 4px; }
+  .business-comparison-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media(max-width: 600px) {
   .form-grid { grid-template-columns: 1fr; }
@@ -262,6 +289,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
   .metric-card.hero { grid-column: 1 / -1; }
   .flow-movement { grid-template-columns: 1fr 1fr 1fr 1fr 22px; }
   .flow-movement .flow-input { font-size: 10px; padding: 6px 4px; }
+  .business-fields, .business-comparison-fields { grid-template-columns: 1fr; }
+  .business-section-title { grid-column: 1; }
+  .business-metric-value { font-size: 20px; }
 }
 </style>
 </head>
@@ -311,6 +341,9 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
     </div>
     <div class="nav-item" onclick="showPane('simulador',this)">
       <span class="icon">🧮</span><span>Simulador</span>
+    </div>
+    <div class="nav-item" onclick="showPane('evaluar-negocio',this)">
+      <span class="icon">🚗</span><span>Evaluar negocio</span>
     </div>
     <div class="nav-item admin-only" onclick="showPane('flujo',this)">
       <span class="icon">📈</span><span>Flujo y cartera</span>
@@ -707,6 +740,153 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
             </div>
           </div>
           <div class="flow-note" id="flow-assumptions"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-evaluar-negocio">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Evaluar negocio</div>
+          <div class="page-sub">Analizá una venta financiada con efectivo y una unidad usada en parte de pago</div>
+        </div>
+      </div>
+      <div class="flow-note" style="margin-bottom:16px">
+        <strong>Simulación independiente:</strong> los datos quedan solo en esta página y no se guardan ni modifican créditos, pagos, gastos, inversores o stock.
+        La unidad usada es un activo, no efectivo. Las cuotas, intereses y valores de reventa son proyecciones, no una garantía.
+      </div>
+      <div class="business-layout">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Datos de la operación</span></div>
+          <div class="card-body">
+            <div class="business-fields">
+              <div class="business-section-title">Unidad que se vende</div>
+              <div class="form-group">
+                <label for="business-acquisition-cost">Costo de adquisición ($)</label>
+                <input class="flow-input" type="number" id="business-acquisition-cost" min="0" step="1000" placeholder="Ej.: 2.500.000" oninput="actualizarEvaluacionNegocio()">
+              </div>
+              <div class="form-group">
+                <label for="business-sale-price">Precio de venta ($)</label>
+                <input class="flow-input" type="number" id="business-sale-price" min="0" step="1000" placeholder="Ej.: 3.800.000" oninput="actualizarEvaluacionNegocio()">
+              </div>
+
+              <div class="business-section-title">Entrega y financiación</div>
+              <div class="form-group">
+                <label for="business-cash">Efectivo de entrega ($)</label>
+                <input class="flow-input" type="number" id="business-cash" min="0" step="1000" value="0" oninput="actualizarEvaluacionNegocio()">
+              </div>
+              <div class="form-group">
+                <label for="business-trade-value">Valor reconocido del usado ($)</label>
+                <input class="flow-input" type="number" id="business-trade-value" min="0" step="1000" value="0" oninput="actualizarEvaluacionNegocio()">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label for="business-trade-description">Moto o auto recibido (descripción)</label>
+                <input class="flow-input" type="text" id="business-trade-description" maxlength="120" placeholder="Marca, modelo, año y estado" oninput="actualizarEvaluacionNegocio()">
+                <div class="flow-help">El valor reconocido reduce el saldo financiado, pero el vehículo recibido no es dinero disponible.</div>
+              </div>
+              <div class="form-group">
+                <label for="business-rate">Tasa mensual (TEM %)</label>
+                <input class="flow-input" type="number" id="business-rate" min="0" step="0.1" value="8" oninput="actualizarEvaluacionNegocio()">
+              </div>
+              <div class="form-group">
+                <label for="business-term">Plazo (meses, 1 a 600)</label>
+                <input class="flow-input" type="number" id="business-term" min="1" max="600" step="1" value="24" oninput="actualizarEvaluacionNegocio()">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label for="business-max-payment">Cuota máxima que querés evaluar ($, opcional)</label>
+                <input class="flow-input" type="number" id="business-max-payment" min="0" step="1000" placeholder="Dejalo vacío si no aplica" oninput="actualizarEvaluacionNegocio()">
+              </div>
+
+              <div class="business-section-title">Reventa estimada del usado (opcional)</div>
+              <div class="form-group">
+                <label for="business-resale-value">Precio esperado de reventa ($)</label>
+                <input class="flow-input" type="number" id="business-resale-value" min="0" step="1000" placeholder="Ingresá para estimar resultado" oninput="actualizarEvaluacionNegocio()">
+              </div>
+              <div class="form-group">
+                <label for="business-reconditioning-cost">Reacondicionamiento ($)</label>
+                <input class="flow-input" type="number" id="business-reconditioning-cost" min="0" step="1000" placeholder="Opcional" oninput="actualizarEvaluacionNegocio()">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label for="business-other-used-costs">Otros costos del usado ($)</label>
+                <input class="flow-input" type="number" id="business-other-used-costs" min="0" step="1000" placeholder="Transferencia, gestoría u otros" oninput="actualizarEvaluacionNegocio()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div id="business-status" role="status" aria-live="polite"></div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Resultado estimado</span></div>
+            <div class="card-body">
+              <div class="business-metrics">
+                <div class="business-metric primary">
+                  <div class="business-metric-label">Saldo a financiar</div>
+                  <div class="business-metric-value" id="business-financed">$—</div>
+                </div>
+                <div class="business-metric">
+                  <div class="business-metric-label">Cuota francesa estimada</div>
+                  <div class="business-metric-value" id="business-payment">$—</div>
+                </div>
+                <div class="business-metric">
+                  <div class="business-metric-label">Total de cuotas</div>
+                  <div class="business-metric-value" id="business-total-payments">$—</div>
+                </div>
+                <div class="business-metric">
+                  <div class="business-metric-label">Interés estimado</div>
+                  <div class="business-metric-value" id="business-interest">$—</div>
+                </div>
+                <div class="business-metric">
+                  <div class="business-metric-label">Margen bruto de la unidad vendida</div>
+                  <div class="business-metric-value" id="business-gross-margin">$—</div>
+                </div>
+                <div class="business-metric" id="business-used-result-card" style="display:none">
+                  <div class="business-metric-label">Resultado neto estimado del usado</div>
+                  <div class="business-metric-value" id="business-used-result">$—</div>
+                </div>
+              </div>
+              <div class="business-breakdown">
+                <div class="business-breakdown-row"><span>Precio de venta</span><strong id="business-breakdown-sale">—</strong></div>
+                <div class="business-breakdown-row"><span>Costo de adquisición</span><strong id="business-breakdown-cost">—</strong></div>
+                <div class="business-breakdown-row"><span>Efectivo recibido</span><strong id="business-breakdown-cash">—</strong></div>
+                <div class="business-breakdown-row"><span>Valor del usado recibido (activo)</span><strong id="business-breakdown-trade">—</strong></div>
+                <div class="business-breakdown-row"><span>Vehículo recibido</span><strong id="business-breakdown-description">Sin especificar</strong></div>
+              </div>
+              <div class="flow-help" style="margin-top:12px">Margen bruto = precio de venta − costo de adquisición. No se mezcla con el capital financiado ni con el interés proyectado.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Comparar escenarios</div>
+            <div class="flow-help">Dejá un campo vacío para usar el valor del escenario actual.</div>
+          </div>
+        </div>
+        <div class="business-comparison-fields">
+          <div class="form-group">
+            <label for="business-alt-cash">Efectivo alternativo ($)</label>
+            <input class="flow-input" type="number" min="0" step="1000" placeholder="Igual al actual" id="business-alt-cash" oninput="actualizarEvaluacionNegocio()">
+          </div>
+          <div class="form-group">
+            <label for="business-alt-trade-value">Valor alternativo del usado ($)</label>
+            <input class="flow-input" type="number" min="0" step="1000" placeholder="Igual al actual" id="business-alt-trade-value" oninput="actualizarEvaluacionNegocio()">
+          </div>
+          <div class="form-group">
+            <label for="business-alt-rate">TEM alternativa (%)</label>
+            <input class="flow-input" type="number" min="0" step="0.1" placeholder="Igual a la actual" id="business-alt-rate" oninput="actualizarEvaluacionNegocio()">
+          </div>
+          <div class="form-group">
+            <label for="business-alt-term">Plazo alternativo (meses)</label>
+            <input class="flow-input" type="number" min="1" max="600" step="1" placeholder="Igual al actual" id="business-alt-term" oninput="actualizarEvaluacionNegocio()">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="business-table">
+            <thead><tr><th>Indicador</th><th>Actual</th><th>Alternativo</th><th>Diferencia</th></tr></thead>
+            <tbody id="business-comparison-results"><tr><td colspan="4" class="empty">Completá el precio y el costo de la unidad para comparar.</td></tr></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1369,6 +1549,7 @@ window.guardarEnNube = async function() {
       cartera: 'Cartera de créditos', 
       pagos: 'Seguimiento de pagos', 
       simulador: 'Simulador / Cotizador', 
+      'evaluar-negocio': 'Evaluar negocio',
       flujo: 'Flujo de caja y cartera',
       stock: 'Stock de Unidades', 
       seguros: 'Gestión de Seguros', 
@@ -1382,6 +1563,7 @@ window.guardarEnNube = async function() {
     if(id==='seguros') window.renderSeguros();
     if(id==='gastos') window.renderGastos();
     if(id==='simulador') window.ejecutarSimulador();
+    if(id==='evaluar-negocio') window.actualizarEvaluacionNegocio();
     if(id==='flujo') window.renderFlujoCartera();
     if(id==='stock') window.renderStock();
     if(id==='inversores') window.renderInversores();
@@ -2943,11 +3125,127 @@ window.renderInversores = () => {
     assumptions.innerHTML = `<strong>Cómo leer la estimación:</strong> los pagos futuros vencidos o impagos se excluyen; los próximos se ponderan por ${probability}% y por la mitad si el crédito figura en mora. La cartera se estima como capital pendiente: se resta el capital proporcional a cada cobro esperado y se suma el capital de nuevos préstamos planificados. Como el sistema no registra el desglose de capital/interés de cada cuota, se supone una distribución proporcional sobre el total contractual. Los nuevos préstamos no generan cuotas futuras en este escenario porque no se ingresaron tasa ni plazo. Ingresos extraordinarios suman al resultado; gastos lo reducen; préstamos y compras/reinversión afectan caja, pero no se contabilizan como ganancia o gasto. No incluye penalidades, cobranzas recuperadas ni revalorización de activos.`;
   };
 
+  window.calcularEvaluacionNegocio = input => {
+    const requiredAmounts = ['acquisitionCost', 'salePrice', 'cash', 'tradeValue', 'rate', 'term'];
+    if (requiredAmounts.some(key => !Number.isFinite(input[key]))) return { error: 'Completá todos los importes y parámetros obligatorios con valores válidos.' };
+    if (['acquisitionCost', 'salePrice', 'cash', 'tradeValue', 'rate'].some(key => input[key] < 0)) return { error: 'Los importes y la tasa no pueden ser negativos.' };
+    if (input.salePrice <= 0) return { error: 'El precio de venta debe ser mayor que cero.' };
+    if (!Number.isInteger(input.term) || input.term < 1 || input.term > 600) return { error: 'El plazo debe ser un número entero entre 1 y 600 meses.' };
+    if (input.cash + input.tradeValue > input.salePrice) return { error: 'El efectivo más el valor reconocido del usado supera el precio de venta. Ajustá esos valores para continuar.' };
+    for (const key of ['maxPayment', 'resaleValue', 'reconditioningCost', 'otherUsedCosts']) {
+      if (input[key] !== null && (!Number.isFinite(input[key]) || input[key] < 0)) return { error: 'Los importes opcionales deben ser valores no negativos.' };
+    }
+
+    const financed = input.salePrice - input.cash - input.tradeValue;
+    const monthlyRate = input.rate / 100;
+    const payment = financed === 0 ? 0 : monthlyRate === 0
+      ? financed / input.term
+      : financed * (monthlyRate / (1 - Math.pow(1 + monthlyRate, -input.term)));
+    const totalPayments = payment * input.term;
+    const interest = totalPayments - financed;
+    const grossMargin = input.salePrice - input.acquisitionCost;
+    const usedResult = input.resaleValue === null
+      ? null
+      : input.resaleValue - input.tradeValue - (input.reconditioningCost || 0) - (input.otherUsedCosts || 0);
+
+    if (![financed, payment, totalPayments, interest, grossMargin].every(Number.isFinite) || (usedResult !== null && !Number.isFinite(usedResult))) {
+      return { error: 'La combinación de valores excede el rango que se puede calcular.' };
+    }
+    return { financed, payment, totalPayments, interest, grossMargin, usedResult };
+  };
+
+  const businessMoney = value => '$' + Math.round(value).toLocaleString('es-AR');
+  const businessInput = id => {
+    const value = document.getElementById(id).value.trim();
+    return value === '' ? null : Number(value);
+  };
+  const businessReadInputs = () => ({
+    acquisitionCost: businessInput('business-acquisition-cost'),
+    salePrice: businessInput('business-sale-price'),
+    cash: businessInput('business-cash'),
+    tradeValue: businessInput('business-trade-value'),
+    rate: businessInput('business-rate'),
+    term: businessInput('business-term'),
+    maxPayment: businessInput('business-max-payment'),
+    resaleValue: businessInput('business-resale-value'),
+    reconditioningCost: businessInput('business-reconditioning-cost'),
+    otherUsedCosts: businessInput('business-other-used-costs')
+  });
+  const businessShowInvalid = message => {
+    const status = document.getElementById('business-status');
+    status.className = 'business-status error';
+    status.textContent = message;
+    ['business-financed', 'business-payment', 'business-total-payments', 'business-interest', 'business-gross-margin', 'business-used-result'].forEach(id => {
+      document.getElementById(id).textContent = '$—';
+    });
+    document.getElementById('business-used-result-card').style.display = 'none';
+    document.getElementById('business-comparison-results').innerHTML = `<tr><td colspan="4" class="empty">${message}</td></tr>`;
+  };
+
+  window.actualizarEvaluacionNegocio = () => {
+    const input = businessReadInputs();
+    const result = window.calcularEvaluacionNegocio(input);
+    const comparison = document.getElementById('business-comparison-results');
+    if (result.error) {
+      businessShowInvalid(result.error);
+      return;
+    }
+
+    const status = document.getElementById('business-status');
+    status.className = '';
+    status.textContent = '';
+    document.getElementById('business-financed').textContent = businessMoney(result.financed);
+    document.getElementById('business-payment').textContent = businessMoney(result.payment);
+    document.getElementById('business-total-payments').textContent = businessMoney(result.totalPayments);
+    document.getElementById('business-interest').textContent = businessMoney(result.interest);
+    document.getElementById('business-gross-margin').textContent = businessMoney(result.grossMargin);
+    document.getElementById('business-breakdown-sale').textContent = businessMoney(input.salePrice);
+    document.getElementById('business-breakdown-cost').textContent = businessMoney(input.acquisitionCost);
+    document.getElementById('business-breakdown-cash').textContent = businessMoney(input.cash);
+    document.getElementById('business-breakdown-trade').textContent = businessMoney(input.tradeValue);
+    document.getElementById('business-breakdown-description').textContent = document.getElementById('business-trade-description').value.trim() || 'Sin especificar';
+
+    const usedCard = document.getElementById('business-used-result-card');
+    usedCard.style.display = result.usedResult === null ? 'none' : '';
+    if (result.usedResult !== null) document.getElementById('business-used-result').textContent = businessMoney(result.usedResult);
+    if (input.maxPayment !== null) {
+      status.className = `business-status ${result.payment <= input.maxPayment ? 'ok' : 'warning'}`;
+      status.textContent = result.payment <= input.maxPayment
+        ? `La cuota estimada de ${businessMoney(result.payment)} está dentro del máximo indicado (${businessMoney(input.maxPayment)}).`
+        : `La cuota estimada de ${businessMoney(result.payment)} supera el máximo indicado (${businessMoney(input.maxPayment)}).`;
+    }
+
+    const alternate = {
+      ...input,
+      cash: businessInput('business-alt-cash') ?? input.cash,
+      tradeValue: businessInput('business-alt-trade-value') ?? input.tradeValue,
+      rate: businessInput('business-alt-rate') ?? input.rate,
+      term: businessInput('business-alt-term') ?? input.term
+    };
+    const alternateResult = window.calcularEvaluacionNegocio(alternate);
+    if (alternateResult.error) {
+      comparison.innerHTML = `<tr><td colspan="4" class="empty">${alternateResult.error}</td></tr>`;
+      return;
+    }
+    const rows = [
+      ['Saldo financiado', result.financed, alternateResult.financed],
+      ['Cuota mensual', result.payment, alternateResult.payment],
+      ['Total de cuotas', result.totalPayments, alternateResult.totalPayments],
+      ['Interés estimado', result.interest, alternateResult.interest]
+    ];
+    comparison.innerHTML = rows.map(([label, current, alternateValue]) => {
+      const difference = alternateValue - current;
+      const delta = difference > 0 ? '+' : difference < 0 ? '−' : '';
+      return `<tr><td>${label}</td><td>${businessMoney(current)}</td><td>${businessMoney(alternateValue)}</td><td>${delta}${businessMoney(Math.abs(difference))}</td></tr>`;
+    }).join('');
+  };
+
 window.renderAll = () => {
     window.renderTabla(); window.renderSeguros(); window.renderGastos(); window.renderStock();
     window.renderPagosLista(); if(window.pagoActual) window.renderPagosDetalle(window.pagoActual);
     if(window.IS_ADMIN) { window.renderMetricas(); window.renderDashboard(); }
     if(document.getElementById('pane-simulador').classList.contains('active')) window.ejecutarSimulador();
+    if(document.getElementById('pane-evaluar-negocio').classList.contains('active')) window.actualizarEvaluacionNegocio();
     if(document.getElementById('pane-flujo').classList.contains('active')) window.renderFlujoCartera();
   };
 
