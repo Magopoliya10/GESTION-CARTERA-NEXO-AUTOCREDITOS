@@ -221,6 +221,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
 .gestoria-item:last-child { border-bottom: 0; }
 .gestoria-item input, .gestoria-item select { width: 100%; min-width: 0; padding: 7px 8px; border: 1px solid var(--gray-200); border-radius: 7px; font: 11px var(--sans); color: var(--gray-700); background: var(--white); }
 .gestoria-item .gestoria-amount { text-align: right; }
+.gestoria-item input[readonly] { color: var(--blue-700); background: var(--blue-50); font-weight: 600; }
 .gestoria-item-header { padding: 8px 0 2px; color: var(--gray-500); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .gestoria-item-header span { min-width: 0; }
 .gestoria-remove { border: 0; background: transparent; color: var(--red); cursor: pointer; font-size: 17px; }
@@ -991,9 +992,32 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
                 <label for="gestoria-valor">Valor declarado / de operación ($)</label>
                 <input class="flow-input" type="number" id="gestoria-valor" min="0" step="1000" value="4000000" oninput="actualizarGestoria()">
               </div>
+              <div class="form-group full" id="gestoria-incluir-prenda-group">
+                <label class="check-item" for="gestoria-incluir-prenda"><input type="checkbox" id="gestoria-incluir-prenda" onchange="cambiarPrendaGestoria()"><span>Sumar inscripción de prenda a esta transferencia</span></label>
+              </div>
               <div class="form-group" id="gestoria-prenda-group" style="display:none">
                 <label for="gestoria-monto-prenda">Monto prendado ($)</label>
                 <input class="flow-input" type="number" id="gestoria-monto-prenda" min="0" step="1000" placeholder="Pendiente" oninput="actualizarGestoria()">
+              </div>
+              <div class="form-group" id="gestoria-valor-tabla-group">
+                <label for="gestoria-valor-tabla">Valuación de tabla registral ($)</label>
+                <input class="flow-input" type="number" id="gestoria-valor-tabla" min="0" step="1000" value="4804800" oninput="actualizarGestoria()">
+                <div class="flow-help">Base de referencia del recibo aportado. Buscá la valuación vigente para cada unidad.</div>
+              </div>
+              <div class="form-group" id="gestoria-tasa-transferencia-group">
+                <label for="gestoria-tasa-transferencia">Tasa registral de referencia (%)</label>
+                <input class="flow-input" type="number" id="gestoria-tasa-transferencia" min="0" max="100" step="0.01" value="1" oninput="actualizarGestoria()">
+                <div class="flow-help">1% observado en este recibo; editable, no garantiza tasa vigente.</div>
+              </div>
+              <div class="form-group" id="gestoria-tasa-sellos-group">
+                <label for="gestoria-tasa-sellos">Sellos sobre operación (%)</label>
+                <input class="flow-input" type="number" id="gestoria-tasa-sellos" min="0" max="100" step="0.01" value="1.5" oninput="actualizarGestoria()">
+                <div class="flow-help">1,5% observado en este cálculo de Rentas Córdoba; validar acto y alícuota.</div>
+              </div>
+              <div class="form-group" id="gestoria-tasa-prenda-group" style="display:none">
+                <label for="gestoria-tasa-prenda">Sellos sobre prenda (%)</label>
+                <input class="flow-input" type="number" id="gestoria-tasa-prenda" min="0" max="100" step="0.01" placeholder="Pendiente de confirmar" oninput="actualizarGestoria()">
+                <div class="flow-help">Los recibos aportados no incluyen prenda. Consultar el acto y la alícuota aplicables; no se estima hasta ingresar una tasa.</div>
               </div>
               <div class="form-group">
                 <label for="gestoria-provincia">Jurisdicción</label>
@@ -1013,7 +1037,7 @@ tbody td.td-name { color: var(--gray-800); font-weight: 500; white-space: normal
         <div>
           <div class="card">
             <div class="card-header">
-              <div><span class="card-title">Conceptos del presupuesto</span><div class="flow-help">Dejá vacío lo que todavía no tenga importe. Indicá fuente y fecha si verificás un arancel oficial.</div></div>
+              <div><span class="card-title">Conceptos del presupuesto</span><div class="flow-help">Los rubros con base y alícuota se actualizan al editar esos datos; los cargos fijos siguen editables. Las tasas del recibo son referencias de ese caso, no tarifas garantizadas.</div></div>
               <button class="btn btn-sm" type="button" onclick="agregarConceptoGestoria()">＋ Rubro</button>
             </div>
             <div class="card-body">
@@ -3389,23 +3413,27 @@ window.renderInversores = () => {
   const gestoriaRubrosBase = {
     transferencia: ['Arancel registral de transferencia', 'Impuestos y sellados provinciales', 'Formularios e informes', 'Certificación de firmas', 'Verificación policial', 'Honorarios de gestoría', 'Otros gastos'],
     '0km': ['Arancel de inscripción inicial / patentamiento', 'Impuestos y sellados provinciales', 'Formularios e informes', 'Certificación de firmas', 'Honorarios de gestoría', 'Otros gastos'],
-    prenda: ['Arancel de inscripción de prenda', 'Formularios / contrato de prenda', 'Certificación de firmas', 'Impuestos y sellados aplicables', 'Honorarios de gestoría', 'Otros gastos']
+    prenda: ['Formularios / contrato de prenda', 'Certificación de firmas', 'Honorarios de gestoría', 'Otros gastos']
   };
   const gestoriaFechaRecibo = '2026-10-23';
   const gestoriaFuenteDnrpa = 'Recibo del Registro Seccional de Justiniano Posse (ejemplo aportado)';
   const gestoriaFuenteRentas = 'Reporte de cálculo de Sellos · Rentas Córdoba (ejemplo aportado)';
   const gestoriaRubrosTransferenciaEjemplo = [
-    { nombre: 'Transferencia nacional', tipo: 'oficial', importe: '48048', fuente: gestoriaFuenteDnrpa, fecha: gestoriaFechaRecibo },
+    { nombre: 'Transferencia nacional', tipo: 'referencia', importe: '48048', fuente: gestoriaFuenteDnrpa, fecha: gestoriaFechaRecibo, formula: 'transferencia' },
     { nombre: 'Expedición de cédula (bonificada; neto $0)', tipo: 'oficial', importe: '0', fuente: `${gestoriaFuenteDnrpa} · cargo $3.080, bonificación −$3.080`, fecha: gestoriaFechaRecibo },
     { nombre: 'Expedición de título de transferencia (bonificada; neto $0)', tipo: 'oficial', importe: '0', fuente: `${gestoriaFuenteDnrpa} · cargo $3.080, bonificación −$3.080`, fecha: gestoriaFechaRecibo },
     { nombre: 'Envío de legajo (bonificado; neto $0)', tipo: 'oficial', importe: '0', fuente: `${gestoriaFuenteDnrpa} · cargo $1.430, bonificación −$1.430`, fecha: gestoriaFechaRecibo },
     { nombre: 'Certificación de firmas F59', tipo: 'oficial', importe: '2050', fuente: gestoriaFuenteDnrpa, fecha: gestoriaFechaRecibo },
-    { nombre: 'Impuesto de sellos Córdoba (Acto 71)', tipo: 'oficial', importe: '60000', fuente: `${gestoriaFuenteRentas} · base imponible $4.000.000`, fecha: gestoriaFechaRecibo },
+    { nombre: 'Impuesto de sellos Córdoba (Acto 71)', tipo: 'referencia', importe: '60000', fuente: gestoriaFuenteRentas, fecha: gestoriaFechaRecibo, formula: 'sellos-transferencia' },
     { nombre: 'Verificación policial', tipo: 'pendiente', importe: '', fuente: '', fecha: '' },
     { nombre: 'Honorarios de gestoría', tipo: 'pendiente', importe: '', fuente: '', fecha: '' },
     { nombre: 'Otros gastos', tipo: 'pendiente', importe: '', fuente: '', fecha: '' }
   ];
   const gestoriaPresupuestos = Object.create(null);
+  const gestoriaRubrosPrenda = [
+    { nombre: 'Arancel de inscripción de prenda', tipo: 'pendiente', importe: '', fuente: '', fecha: '', aplicaPrenda: true },
+    { nombre: 'Sellos sobre monto prendado', tipo: 'estimado', importe: '', fuente: '', fecha: '', formula: 'sellos-prenda', aplicaPrenda: true }
+  ];
   const gestoriaOperaciones = {
     transferencia: 'Transferencia de usado',
     '0km': 'Alta / patentamiento 0 km',
@@ -3414,6 +3442,7 @@ window.renderInversores = () => {
   const gestoriaTipos = {
     pendiente: 'Pendiente de comprobante',
     oficial: 'Importe de recibo oficial (verificar vigencia)',
+    referencia: 'Cálculo de referencia basado en recibo (verificar)',
     estimado: 'Estimado',
     manual: 'Manual'
   };
@@ -3421,7 +3450,11 @@ window.renderInversores = () => {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[char]);
   const gestoriaMoney = value => '$ ' + Math.round(value).toLocaleString('es-AR');
-  const gestoriaItemsActuales = () => {
+  const gestoriaNumericInput = id => {
+    const raw = document.getElementById(id).value.trim();
+    return raw === '' ? null : Number(raw);
+  };
+  const gestoriaTodosItems = () => {
     const operation = document.getElementById('gestoria-operacion').value;
     if (!gestoriaPresupuestos[operation]) {
       gestoriaPresupuestos[operation] = operation === 'transferencia'
@@ -3429,8 +3462,53 @@ window.renderInversores = () => {
         : gestoriaRubrosBase[operation].map(nombre => ({
           nombre, tipo: 'pendiente', importe: '', fuente: '', fecha: ''
         }));
+      if (operation === 'prenda') gestoriaPresupuestos[operation].push(...gestoriaRubrosPrenda.map(item => ({ ...item })));
     }
     return gestoriaPresupuestos[operation];
+  };
+  const gestoriaItemsActuales = () => {
+    const operation = document.getElementById('gestoria-operacion').value;
+    const includePledge = operation === 'prenda' || document.getElementById('gestoria-incluir-prenda').checked;
+    const allItems = gestoriaTodosItems();
+    if (includePledge && !allItems.some(item => item.aplicaPrenda)) {
+      allItems.push(...gestoriaRubrosPrenda.map(item => ({ ...item })));
+    }
+    return allItems.filter(item => !item.aplicaPrenda || includePledge);
+  };
+  const gestoriaSyncRubrosCalculados = items => {
+    const operation = document.getElementById('gestoria-operacion').value;
+    const declaredValue = gestoriaNumericInput('gestoria-valor');
+    const tableValue = gestoriaNumericInput('gestoria-valor-tabla');
+    const pledgedValue = gestoriaNumericInput('gestoria-monto-prenda');
+    const transferRate = gestoriaNumericInput('gestoria-tasa-transferencia');
+    const stampRate = gestoriaNumericInput('gestoria-tasa-sellos');
+    const pledgeStampRate = gestoriaNumericInput('gestoria-tasa-prenda');
+    items.forEach(item => {
+      if (item.formula === 'transferencia') {
+        item.importe = tableValue !== null && tableValue >= 0 && Number.isFinite(tableValue) && transferRate !== null && transferRate >= 0 && Number.isFinite(transferRate)
+          ? String(Math.round(tableValue * transferRate / 100 * 100) / 100)
+          : '';
+        item.detalleFormula = tableValue === null || transferRate === null
+          ? 'Completá la valuación de tabla y la tasa de referencia'
+          : `${gestoriaMoney(tableValue)} × ${transferRate}% (tasa observada en recibo, editable)`;
+      } else if (item.formula === 'sellos-transferencia') {
+        item.importe = declaredValue !== null && declaredValue >= 0 && Number.isFinite(declaredValue) && stampRate !== null && stampRate >= 0 && Number.isFinite(stampRate)
+          ? String(Math.round(declaredValue * stampRate / 100 * 100) / 100)
+          : '';
+        item.detalleFormula = declaredValue === null || stampRate === null
+          ? 'Completá el valor declarado y la alícuota de referencia'
+          : `${gestoriaMoney(declaredValue)} × ${stampRate}% (alícuota observada, confirmar con Rentas Córdoba)`;
+      } else if (item.formula === 'sellos-prenda') {
+        item.importe = operation === 'prenda' || document.getElementById('gestoria-incluir-prenda').checked
+          ? pledgedValue !== null && pledgedValue >= 0 && Number.isFinite(pledgedValue) && pledgeStampRate !== null && Number.isFinite(pledgeStampRate) && pledgeStampRate >= 0
+            ? String(Math.round(pledgedValue * pledgeStampRate / 100 * 100) / 100)
+            : ''
+          : '';
+        item.detalleFormula = pledgeStampRate === null || pledgedValue === null
+          ? 'Tasa pendiente de confirmar; el recibo no incluye inscripción de prenda'
+          : `${gestoriaMoney(pledgedValue)} × ${pledgeStampRate}% (tasa ingresada manualmente)`;
+      }
+    });
   };
   window.calcularTotalGestoria = items => {
     let total = 0;
@@ -3457,24 +3535,34 @@ window.renderInversores = () => {
     origen: document.getElementById('gestoria-origen').selectedOptions[0].textContent,
     descripcion: document.getElementById('gestoria-descripcion').value.trim(),
     valor: document.getElementById('gestoria-valor').value.trim(),
+    valorTabla: document.getElementById('gestoria-valor-tabla').value.trim(),
+    tasaTransferencia: document.getElementById('gestoria-tasa-transferencia').value.trim(),
+    tasaSellos: document.getElementById('gestoria-tasa-sellos').value.trim(),
     montoPrenda: document.getElementById('gestoria-monto-prenda').value.trim(),
+    incluirPrenda: document.getElementById('gestoria-operacion').value === 'prenda' || document.getElementById('gestoria-incluir-prenda').checked,
+    tasaSellosPrenda: document.getElementById('gestoria-tasa-prenda').value.trim(),
     provincia: document.getElementById('gestoria-provincia').value.trim(),
     localidad: document.getElementById('gestoria-localidad').value.trim(),
     registro: document.getElementById('gestoria-registro').value.trim()
   });
   const gestoriaRenderItems = () => {
     const items = gestoriaItemsActuales();
-    document.getElementById('gestoria-conceptos').innerHTML = items.map((item, index) => `
+    const allItems = gestoriaTodosItems();
+    document.getElementById('gestoria-conceptos').innerHTML = items.map(item => {
+      const index = allItems.indexOf(item);
+      const calculation = Boolean(item.formula);
+      return `
       <div class="gestoria-item">
         <input aria-label="Concepto ${index + 1}" maxlength="100" value="${gestoriaEscape(item.nombre)}" data-gestoria-index="${index}" data-gestoria-field="nombre">
         <select class="gestoria-kind" aria-label="Clasificación del concepto ${index + 1}" data-gestoria-index="${index}" data-gestoria-field="tipo">
           ${Object.entries(gestoriaTipos).map(([value, label]) => `<option value="${value}" ${item.tipo === value ? 'selected' : ''}>${label}</option>`).join('')}
         </select>
-        <input class="gestoria-amount" aria-label="Importe del concepto ${index + 1}" type="number" min="0" step="0.01" placeholder="Pendiente" value="${gestoriaEscape(item.importe)}" data-gestoria-index="${index}" data-gestoria-field="importe">
+        <input class="gestoria-amount" aria-label="Importe del concepto ${index + 1}" type="number" min="0" step="0.01" placeholder="${calculation ? 'Calculando' : 'Pendiente'}" value="${gestoriaEscape(item.importe)}" ${calculation ? `readonly title="${gestoriaEscape(item.detalleFormula || 'Importe calculado automáticamente con las bases y alícuotas configuradas')}"` : ''} data-gestoria-index="${index}" data-gestoria-field="importe">
         <input class="gestoria-source" aria-label="Fuente o comprobante del concepto ${index + 1}" maxlength="160" placeholder="Fuente / comprobante" value="${gestoriaEscape(item.fuente)}" data-gestoria-index="${index}" data-gestoria-field="fuente">
         <input class="gestoria-date" aria-label="Fecha de consulta del concepto ${index + 1}" type="date" title="Fecha del arancel, presupuesto o comprobante" value="${gestoriaEscape(item.fecha)}" data-gestoria-index="${index}" data-gestoria-field="fecha">
         <button class="gestoria-remove" type="button" aria-label="Quitar concepto ${index + 1}" onclick="quitarConceptoGestoria(${index})">×</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   };
   const gestoriaBuildSummary = () => {
     const data = gestoriaLeerDatos();
@@ -3490,14 +3578,16 @@ window.renderInversores = () => {
         ? 'Oficial sin fuente/fecha; no verificado'
         : gestoriaTipos[item.tipo];
       const referencia = [item.fuente.trim(), item.fecha].filter(Boolean).join(' · ');
-      return `<div class="gestoria-summary-row"><span>${gestoriaEscape(item.nombre)}<small style="display:block;color:var(--gray-500)">${gestoriaEscape(clasificacion)}${referencia ? ' · ' + gestoriaEscape(referencia) : ''}</small></span><strong>${gestoriaEscape(monto)}</strong></div>`;
+      const formula = item.detalleFormula ? `<small style="display:block;color:var(--gray-500)">${gestoriaEscape(item.detalleFormula)}</small>` : '';
+      return `<div class="gestoria-summary-row"><span>${gestoriaEscape(item.nombre)}<small style="display:block;color:var(--gray-500)">${gestoriaEscape(clasificacion)}${referencia ? ' · ' + gestoriaEscape(referencia) : ''}</small>${formula}</span><strong>${gestoriaEscape(monto)}</strong></div>`;
     }).join('');
     const localizacion = [data.localidad, data.provincia].filter(Boolean).join(' · ');
     return `<div><strong>${gestoriaEscape(gestoriaOperaciones[data.operacion])}</strong></div>
       <div class="gestoria-summary-row"><span>Vehículo</span><strong>${gestoriaEscape([data.tipoVehiculo, data.descripcion].filter(Boolean).join(' · ') || 'Sin especificar')}</strong></div>
       <div class="gestoria-summary-row"><span>Origen / condición</span><strong>${gestoriaEscape(data.origen)}</strong></div>
       <div class="gestoria-summary-row"><span>Valor declarado / operación</span><strong>${data.valor === '' ? 'Pendiente' : gestoriaEscape(gestoriaMoney(Number(data.valor)))}</strong></div>
-      ${data.operacion === 'prenda' ? `<div class="gestoria-summary-row"><span>Monto prendado</span><strong>${data.montoPrenda === '' ? 'Pendiente' : gestoriaEscape(gestoriaMoney(Number(data.montoPrenda)))}</strong></div>` : ''}
+      ${data.operacion === 'transferencia' ? `<div class="gestoria-summary-row"><span>Valuación de tabla registral</span><strong>${data.valorTabla === '' ? 'Pendiente' : gestoriaEscape(gestoriaMoney(Number(data.valorTabla)))}</strong></div>` : ''}
+      ${data.incluirPrenda ? `<div class="gestoria-summary-row"><span>Monto prendado</span><strong>${data.montoPrenda === '' ? 'Pendiente' : gestoriaEscape(gestoriaMoney(Number(data.montoPrenda)))}</strong></div>` : ''}
       <div class="gestoria-summary-row"><span>Jurisdicción / localidad</span><strong>${gestoriaEscape(localizacion || 'Sin especificar')}</strong></div>
       <div class="gestoria-summary-row"><span>Registro Seccional de referencia</span><strong>${gestoriaEscape(data.registro || 'A confirmar')}</strong></div>
       <div style="margin-top:14px"><strong>Detalle de conceptos</strong></div>${detalles}
@@ -3506,16 +3596,35 @@ window.renderInversores = () => {
   };
   window.actualizarGestoria = () => {
     const data = gestoriaLeerDatos();
-    document.getElementById('gestoria-prenda-group').style.display = data.operacion === 'prenda' ? '' : 'none';
+    const isTransfer = data.operacion === 'transferencia';
+    document.getElementById('gestoria-incluir-prenda-group').style.display = isTransfer ? '' : 'none';
+    document.getElementById('gestoria-prenda-group').style.display = data.incluirPrenda ? '' : 'none';
+    document.getElementById('gestoria-valor-tabla-group').style.display = isTransfer ? '' : 'none';
+    document.getElementById('gestoria-tasa-transferencia-group').style.display = isTransfer ? '' : 'none';
+    document.getElementById('gestoria-tasa-sellos-group').style.display = isTransfer ? '' : 'none';
+    document.getElementById('gestoria-tasa-prenda-group').style.display = data.incluirPrenda ? '' : 'none';
     const numbers = [
       ['gestoria-valor', 'Valor declarado / de operación'],
-      ['gestoria-monto-prenda', 'Monto prendado']
+      ['gestoria-valor-tabla', 'Valuación de tabla registral'],
+      ['gestoria-monto-prenda', 'Monto prendado'],
+      ['gestoria-tasa-transferencia', 'Tasa registral'],
+      ['gestoria-tasa-sellos', 'Tasa de sellos'],
+      ['gestoria-tasa-prenda', 'Tasa de sellos de prenda']
     ];
     const invalidField = numbers.find(([id]) => {
       const field = document.getElementById(id);
-      return field.value.trim() !== '' && (!Number.isFinite(Number(field.value)) || Number(field.value) < 0);
+      const maximum = field.max === '' ? Infinity : Number(field.max);
+      return field.value.trim() !== '' && (!Number.isFinite(Number(field.value)) || Number(field.value) < 0 || Number(field.value) > maximum);
     });
     const items = gestoriaItemsActuales();
+    gestoriaSyncRubrosCalculados(items);
+    document.querySelectorAll('#gestoria-conceptos [data-gestoria-field="importe"][readonly]').forEach(field => {
+      const item = gestoriaTodosItems()[Number(field.dataset.gestoriaIndex)];
+      if (item) {
+        field.value = item.importe;
+        field.title = item.detalleFormula || 'Importe calculado automáticamente con las bases y alícuotas configuradas';
+      }
+    });
     const total = window.calcularTotalGestoria(items);
     const status = document.getElementById('gestoria-status');
     const itemInvalid = items.some(item => item.importe !== '' && item.importe !== null && item.importe !== undefined &&
@@ -3536,7 +3645,12 @@ window.renderInversores = () => {
   };
   window.cambiarOperacionGestoria = () => {
     const operation = document.getElementById('gestoria-operacion').value;
+    document.getElementById('gestoria-incluir-prenda').checked = false;
     document.getElementById('gestoria-origen').value = operation === 'transferencia' ? 'usado' : operation === '0km' ? 'nacional' : 'usado';
+    gestoriaRenderItems();
+    window.actualizarGestoria();
+  };
+  window.cambiarPrendaGestoria = () => {
     gestoriaRenderItems();
     window.actualizarGestoria();
   };
@@ -3546,14 +3660,14 @@ window.renderInversores = () => {
     window.actualizarGestoria();
   };
   window.quitarConceptoGestoria = index => {
-    gestoriaItemsActuales().splice(index, 1);
+    gestoriaTodosItems().splice(index, 1);
     gestoriaRenderItems();
     window.actualizarGestoria();
   };
   document.getElementById('gestoria-conceptos').addEventListener('input', event => {
     const field = event.target.closest('[data-gestoria-index]');
     if (!field) return;
-    const item = gestoriaItemsActuales()[Number(field.dataset.gestoriaIndex)];
+    const item = gestoriaTodosItems()[Number(field.dataset.gestoriaIndex)];
     if (!item) return;
     item[field.dataset.gestoriaField] = field.value;
     window.actualizarGestoria();
@@ -3561,7 +3675,7 @@ window.renderInversores = () => {
   document.getElementById('gestoria-conceptos').addEventListener('change', event => {
     if (event.target.matches('[data-gestoria-field="tipo"]')) {
       const field = event.target;
-      const item = gestoriaItemsActuales()[Number(field.dataset.gestoriaIndex)];
+      const item = gestoriaTodosItems()[Number(field.dataset.gestoriaIndex)];
       if (item) {
         item.tipo = field.value;
         window.actualizarGestoria();
